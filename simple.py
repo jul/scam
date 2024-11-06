@@ -7,10 +7,14 @@ from html.parser import HTMLParser
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-
+from sqlalchemy import create_engine
+from sqlalchemy_utils import database_exists, create_database
 from urllib.parse import parse_qsl, urlparse
 
-engine = create_engine("postgresql://jul@192.168.1.32/pdca")
+engine = create_engine("sqlite:///my.db", echo = True)
+if not database_exists(engine.url):
+    create_database(engine.url)
+
 tables = dict()
 
 class HTMLtoData(HTMLParser):
