@@ -120,16 +120,18 @@ def simple_app(environ, start_response):
     if route in tables.keys():
         with Session(engine) as session:
             Item = getattr(Base.classes, table)
-            if environ.get("REQUEST_METHOD", "GET") == "POST":
+            if environ.get("REQUEST_METHOD", "") == "POST":
                 new_item = Item(**{ k:v for k,v in fo.items() if v and not k.startswith("_")})
                 session.add(new_item)
                 ret=session.commit()
                 fo["insert_result"] = new_item.id
-            if environ.get("REQUEST_METHOD") == "GET":
+            if environ.get("REQUEST_METHOD","") == "GET":
                 result = []
                 for elt in session.execute(
-                    select(Item).filter_by(**{ k : v for k,v in fo.items() if v and not k.startswith("_")})).all():
-                    result += [{ k.name:getattr(elt[0],k.name) for k  in tables[table].columns}]
+                    select(Item).filter_by(
+                            **{ k : v for k,v in fo.items() if v and not k.startswith("_")})
+                    ).all():
+                    result += [{ k.name:getattr(elt[0], k.name) for k in tables[table].columns}]
                 fo["search_result"] = result
     return [ router.get(route,lambda fo:dumps(fo.dict, indent=4, default=str))(fo).encode() ]
 
