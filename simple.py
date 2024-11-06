@@ -76,14 +76,12 @@ $(document).ready(function() {
     var model  = $("model").html();
     $("form").each((i,el) => {
         el._dom.value = model;
+        $(el).wrap("<fieldset>"+ el.action + "</fieldset>"  );
     });
     $("input:not([type=hidden],[type=submit])").each((i,el) => {
         $(el).before("<label>" + el.name+ "</label><br/>");
         $(el).after("<br>");
     });
-    $("form").each((i,el) => {
-        $(el).wrap("<fieldset>"+ el.action + "</fieldset>"  );
-    })
 });
 </script>
 </head>
