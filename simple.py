@@ -8,10 +8,11 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from sqlalchemy import create_engine
+from dateutil import parser
 from sqlalchemy_utils import database_exists, create_database
 from urllib.parse import parse_qsl, urlparse
 
-engine = create_engine("postgresql://jul@192.168.1.32/pdca")
+engine = create_engine("postgresql:///jul@192.168.1.32/pdca")
 if not database_exists(engine.url):
     create_database(engine.url)
 
@@ -121,11 +122,16 @@ def simple_app(environ, start_response):
         with Session(engine) as session:
             Item = getattr(Base.classes, table)
             if environ.get("REQUEST_METHOD", "") == "POST":
-                new_item = Item(**{ k:v for k,v in fo.items() if v and not k.startswith("_")})
+                new_item = Item(**{  k: ( 
+                    "date" in k or "time" in k ) and type(k) == str 
+                        and parser.parse(v) 
+                        or v 
+                    for k,v in fo.items() if v and not k.startswith("_")
+                })
                 session.add(new_item)
                 ret=session.commit()
                 fo["insert_result"] = new_item.id
-            if environ.get("REQUEST_METHOD", "") == "GET":
+            if environ.get("REQUEST_METHOD","") == "GET":
                 result = []
                 for elt in session.execute(
                     select(Item).filter_by(
