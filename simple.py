@@ -107,7 +107,7 @@ def simple_app(environ, start_response):
             content=fi.file.read().decode('utf-8', 'backslashreplace'),
             content_type=fi.content_type,
         ) for k,v in fi.items()})
-    table = route = environ["PATH_INFO"]
+    table = route = environ["PATH_INFO"][1:]
     fo.update(**dict(parse_qsl(environ["QUERY_STRING"])))
     start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
     try:
@@ -125,7 +125,7 @@ def simple_app(environ, start_response):
                 session.add(new_item)
                 ret=session.commit()
                 fo["insert_result"] = new_item.id
-            if environ.get("REQUEST_METHOD","") == "GET":
+            if environ.get("REQUEST_METHOD", "") == "GET":
                 result = []
                 for elt in session.execute(
                     select(Item).filter_by(
