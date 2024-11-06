@@ -11,7 +11,7 @@ from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists, create_database
 from urllib.parse import parse_qsl, urlparse
 
-engine = create_engine("sqlite:///my.db", echo = True)
+engine = create_engine("postgresql://jul@192.168.1.32/pdca")
 if not database_exists(engine.url):
     create_database(engine.url)
 
@@ -64,19 +64,16 @@ class HTMLtoData(HTMLParser):
             with engine.connect() as cnx:
                 self.meta.create_all(engine)
                 cnx.commit()
-
-
-router = dict({"" : lambda fo: """
+html = """
 <!doctype html>
 <html>
 <head>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
 $(document).ready(function() {
-    var model  = $("model").html();
     $("form").each((i,el) => {
-        el._dom.value = model;
         $(el).wrap("<fieldset>"+ el.action + "</fieldset>"  );
+        $(el).append("<input type=submit value=insert formmethod=post ><input type=submit value=search formmethod=get />");
     });
     $("input:not([type=hidden],[type=submit])").each((i,el) => {
         $(el).before("<label>" + el.name+ "</label><br/>");
@@ -86,68 +83,55 @@ $(document).ready(function() {
 </script>
 </head>
 <body>
-<model>
-<form action=/user  >
-<input type=number name=id />
-<input type=text name=name />
-<input type=email name=email >
-<input type=hidden name=_dom />
-<input type=submit formmethod=post >
-<input type=submit value=search formmethod=get />
-</form>
-<form action=/event name=toto method=GET >
-<input type=number name=id />
-<input type=date name=date />
-<input type=text name=text />
-<input type=number name=user_id />
-<input type=hidden name=_dom />
-<input type=submit value=insert formmethod=post />
-<input type=submit value=search formmethod=get />
-</form>
-</model>
+    <form action=/user  >
+        <input type=number name=id />
+        <input type=text name=name />
+        <input type=email name=email >
+    </form>
+    <form action=/event >
+        <input type=number name=id />
+        <input type=date name=date />
+        <input type=text name=text />
+        <input type=number name=user_id />
+    </form>
 </body>
 </html>
-""",
-})
+"""
+
+router = dict({"" : lambda fo: html,})
 
 def simple_app(environ, start_response):
     fo,fi=multipart.parse_form_data(environ)
     fo.update(**{ k: dict(
             name=fi.filename,
             content=fi.file.read().decode('utf-8', 'backslashreplace'),
-            content_type =fi.content_type,
+            content_type=fi.content_type,
         ) for k,v in fi.items()})
-    fo["_path"]=environ["PATH_INFO"]
+    table = route = environ["PATH_INFO"]
     fo.update(**dict(parse_qsl(environ["QUERY_STRING"])))
     start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
     try:
-        HTMLtoData().feed(fo.dict["_dom"][0])
-    except KeyError: pass
-    try:
-        del fo.dict["_dom"]
+        HTMLtoData().feed(html)
     except KeyError: pass
     metadata = MetaData()
     metadata.reflect(bind=engine)
     Base = automap_base(metadata=metadata)
     Base.prepare()
-    table = environ["PATH_INFO"][1:]
-
-    with Session(engine) as session:
-        if table in tables.keys():
+    if route in tables.keys():
+        with Session(engine) as session:
             Item = getattr(Base.classes, table)
-            if environ.get("REQUEST_METHOD", "GET") == "POST" and table in tables.keys():
+            if environ.get("REQUEST_METHOD", "GET") == "POST":
                 new_item = Item(**{ k:v for k,v in fo.items() if v and not k.startswith("_")})
                 session.add(new_item)
                 ret=session.commit()
                 fo["insert_result"] = new_item.id
-            if environ.get("REQUEST_METHOD") == "GET" and table in tables.keys():
+            if environ.get("REQUEST_METHOD") == "GET":
                 result = []
                 for elt in session.execute(
                     select(Item).filter_by(**{ k : v for k,v in fo.items() if v and not k.startswith("_")})).all():
                     result += [{ k.name:getattr(elt[0],k.name) for k  in tables[table].columns}]
-                print(result)
                 fo["search_result"] = result
-    return [ router.get(fo['_path'][1:],lambda fo:dumps(fo.dict, indent=4, default=str))(fo).encode()]
+    return [ router.get(route,lambda fo:dumps(fo.dict, indent=4, default=str))(fo).encode() ]
 
 print("Crudest CRDU of them all on port 5000...")
 make_server('', 5000, simple_app).serve_forever()
