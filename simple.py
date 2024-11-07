@@ -12,7 +12,7 @@ from dateutil import parser
 from sqlalchemy_utils import database_exists, create_database
 from urllib.parse import parse_qsl, urlparse
 
-engine = create_engine("postgresql:///jul@192.168.1.32/pdca")
+engine = create_engine("sqlite:///this.db")
 if not database_exists(engine.url):
     create_database(engine.url)
 
@@ -69,11 +69,19 @@ html = """
 <!doctype html>
 <html>
 <head>
+<style>
+* {  text-align: center;  font-family:"Sans Serif" }
+fieldset {  border: 1px solid #666;  border-radius: .5em; width: 20em; margin: auto; }
+form { text-align: left; display:inline-block; }
+input { text-align:left; margin-bottom:1em; }
+[type=submit] { margin-right:1em; margin-bottom:0em; border:1px solid #666; border-radius:.5em; }
+</style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
 $(document).ready(function() {
     $("form").each((i,el) => {
-        $(el).wrap("<fieldset>"+ el.action + "</fieldset>"  );
+        $(el).wrap("<fieldset></fieldset>"  );
+        $(el).before("<legend>" + el.action + "</legend>");
         $(el).append("<input type=submit value=insert formmethod=post ><input type=submit value=search formmethod=get />");
     });
     $("input:not([type=hidden],[type=submit])").each((i,el) => {
@@ -83,11 +91,11 @@ $(document).ready(function() {
 });
 </script>
 </head>
-<body>
-    <form action=/user  >
+<body >
+    <form  action=/user  >
         <input type=number name=id />
         <input type=text name=name />
-        <input type=email name=email >
+        <input type=email name=email />
     </form>
     <form action=/event >
         <input type=number name=id />
@@ -102,7 +110,7 @@ $(document).ready(function() {
 router = dict({"" : lambda fo: html,})
 
 def simple_app(environ, start_response):
-    fo,fi=multipart.parse_form_data(environ)
+    fo, fi=multipart.parse_form_data(environ)
     fo.update(**{ k: dict(
             name=fi.filename,
             content=fi.file.read().decode('utf-8', 'backslashreplace'),
@@ -111,9 +119,7 @@ def simple_app(environ, start_response):
     table = route = environ["PATH_INFO"][1:]
     fo.update(**dict(parse_qsl(environ["QUERY_STRING"])))
     start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
-    try:
-        HTMLtoData().feed(html)
-    except KeyError: pass
+    HTMLtoData().feed(html)
     metadata = MetaData()
     metadata.reflect(bind=engine)
     Base = automap_base(metadata=metadata)
@@ -122,10 +128,9 @@ def simple_app(environ, start_response):
         with Session(engine) as session:
             Item = getattr(Base.classes, table)
             if environ.get("REQUEST_METHOD", "") == "POST":
-                new_item = Item(**{  k: ( 
-                    "date" in k or "time" in k ) and type(k) == str 
-                        and parser.parse(v) 
-                        or v 
+                new_item = Item(**{  k: (
+                    "date" in k or "time" in k ) and type(k) == str
+                        and parser.parse(v) or v
                     for k,v in fo.items() if v and not k.startswith("_")
                 })
                 session.add(new_item)
@@ -135,7 +140,7 @@ def simple_app(environ, start_response):
                 result = []
                 for elt in session.execute(
                     select(Item).filter_by(
-                            **{ k : v for k,v in fo.items() if v and not k.startswith("_")})
+                        **{ k : v for k,v in fo.items() if v and not k.startswith("_")})
                     ).all():
                     result += [{ k.name:getattr(elt[0], k.name) for k in tables[table].columns}]
                 fo["search_result"] = result
