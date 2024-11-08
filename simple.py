@@ -78,7 +78,7 @@ prologue = """
 <style>
 * {    font-family:"Sans Serif" }
 body { text-align: center; }
-div, table {border-spacing:0;text-align:left;width:30em;margin:auto;border:1px solid #666;border-radius:.5em;padding-botton:1em; }
+div, table {border-spacing:0;text-align:left;width:30em;margin:auto;border:1px solid #666;border-radius:.5em;margin-bottom:1em; }
 tbody tr:nth-child(odd) {  background-color: #eee;}
 fieldset {  border: 1px solid #666;  border-radius: .5em; width: 30em; margin: auto; }
 form { text-align: left; display:inline-block; }
@@ -124,6 +124,7 @@ $(document).ready(function() {{
         <input type=text name=name />
         <input type=checkbox name=is_checked />
         <select name="prefered_pet" >
+        <option value="">Please select an item</option>
             <option value="dog">Dog</option>
             <option value="cat">Cat</option>
             <option value="hamster">Hamster</option>
@@ -231,11 +232,11 @@ def simple_app(environ, start_response):
                     ret=session.commit()
                     fo["result"] = new_item.id
                 if action == "update":
-                    session.delete(session.get(Item, fo["id"]))
-                    new_item = Item(**attrs_to_dict(fo))
-                    session.add(new_item)
+                    item = session.scalars(select(Item).where(Item.id==fo["id"])).one()
+                    for k,v in attrs_to_dict(fo).items():
+                        setattr(item,k,v)
                     session.commit()
-                    fo["result"] = new_item.id
+                    fo["result"] = item.id
                 if action in { "read", "search" }:
                     result = []
                     for elt in session.execute(
