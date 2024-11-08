@@ -30,6 +30,9 @@ class HTMLtoData(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
+        simple_mapping = (
+            email = UnicodeText, url = UnicodeText, phone = UnicodeText, text = UnicodeText,
+            date = Date, time = Time, datetime = DateTime)
         if tag == "input":
             if attrs.get("name") == "id":
                 self.cols += [ Column('id', Integer, primary_key = True), ]
@@ -40,19 +43,13 @@ class HTMLtoData(HTMLParser):
                     self.cols += [ Column(attrs["name"], Integer, ForeignKey(table + ".id")) ]
                     return
             except Exception as e: print(e)
-            if attrs["type"] in ("email", "url", "phone", "text"):
-                self.cols += [ Column(attrs["name"], UnicodeText ), ]
+            if attrs.get("type") in simple_mapping:
+                self.cols + = [ Column(attrs["name"], simple_mapping[attrs["type"]]), ]
             if attrs["type"] == "number":
                 if attrs["step"] == "any":
                     self.cols+= [ Columns(attrs["name"], Float), ]
                 else:
                     self.cols+= [ Column(attrs["name"], Integer), ]
-            if attrs["type"] == "date":
-                self.cols += [ Column(attrs["name"], Date) ]
-            if attrs["type"] == "datetime":
-                self.cols += [ Column(attrs["name"], DateTime) ]
-            if attrs["type"] == "time":
-                self.cols += [ Column(attrs["name"], Time) ]
         if tag== "form":
             self.table = urlparse(attrs["action"]).path[1:]
 
