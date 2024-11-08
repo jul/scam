@@ -52,8 +52,9 @@ class HTMLtoData(HTMLParser):
             except Exception as e: print(e)
 
             if attrs.get("type") in simple_mapping.keys():
-                self.cols += [ Column(attrs["name"], simple_mapping[attrs["type"]]), ]
-
+                self.cols += [ Column(attrs["name"], simple_mapping[attrs["type"]],
+                nullable = [False, True][attrs.get("nullable", "true")=="true"],)]
+                print(attrs.get("nullable"))
             if attrs["type"] == "number":
                 if attrs["step"] == "any":
                     self.cols+= [ Columns(attrs["name"], Float), ]
@@ -95,7 +96,7 @@ model="""
     <form  action=/user >
         <input type=number name=id />
         <input type=file name=pic_file />
-        <input type=text name=name />
+        <input type=text name=name nullable=false />
         <input type=checkbox name=is_checked />
         <select name="prefered_pet" >
         <option value="">Please select an item</option>
