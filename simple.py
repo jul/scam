@@ -22,6 +22,7 @@ class HTMLtoData(HTMLParser):
         self.cols = []
         self.table = ""
         self.tables= []
+        self.enum =[]
         self.engine= engine
         self.meta = MetaData()
         super().__init__()
@@ -29,9 +30,15 @@ class HTMLtoData(HTMLParser):
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
         simple_mapping = dict(
-            email = UnicodeText, url = UnicodeText, phone = UnicodeText, text = UnicodeText, checkbox = Boolean,
-            date = Date, time = Time, datetime = DateTime, file = Text
+            email = UnicodeText, url = UnicodeText, phone = UnicodeText,
+            text = UnicodeText, checkbox = Boolean, date = Date, time = Time,
+            datetime = DateTime, file = Text
         )
+        if tag == "select":
+            self.enum=[]
+            self.current_col = attrs["name"]
+        if tag == "option":
+            self.enum += [ attrs["value"] ]
         if tag == "input":
             if attrs.get("name") == "id":
                 self.cols += [ Column('id', Integer, primary_key = True), ]
@@ -55,8 +62,11 @@ class HTMLtoData(HTMLParser):
             self.table = urlparse(attrs["action"]).path[1:]
 
     def handle_endtag(self, tag):
+        if tag == "select":
+            self.cols+= [ Column(self.current_col,Enum(*[(k,k) for k in self.enum]))]
+            self.current_col=None
+            self.enum = []
         if tag=="form":
-            print("creating table table %s" % self.table)
             self.tables += [ Table(self.table, self.meta, *self.cols), ]
             tables[self.table] = self.tables[-1]
             self.table = ""
@@ -64,46 +74,61 @@ class HTMLtoData(HTMLParser):
             with engine.connect() as cnx:
                 self.meta.create_all(engine)
                 cnx.commit()
-html = """
-<!doctype html>
-<html>
-<head>
+prologue = """
 <style>
 * {    font-family:"Sans Serif" }
 body { text-align: center; }
+div, table {border-spacing:0;text-align:left;width:30em;margin:auto;border:1px solid #666;border-radius:.5em;padding-botton:1em; }
+tbody tr:nth-child(odd) {  background-color: #eee;}
 fieldset {  border: 1px solid #666;  border-radius: .5em; width: 30em; margin: auto; }
 form { text-align: left; display:inline-block; }
-input { margin-bottom:1em; padding:.5em;}
+input,select { margin-bottom:1em; padding:.5em;} ::file-selector-button { padding:.5em}
 [value=create] { background:#ffffba} [value=delete] { background:#bae1ff} [value=update] { background:#ffdfda}
 [value=read] { background:#baffc9}
 [type=submit] { margin-right:1em; margin-bottom:0em; border:1px solid #333; padding:.5em; border-radius:.5em; }
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+"""
+
+html = f"""
+<!doctype html>
+<html>
+<head>
+{prologue}
 <script>
-$(document).ready(function() {
-    $("form").each((i,el) => {
+$(document).ready(function() {{
+    $("form").each((i,el) => {{
         $(el).wrap("<fieldset></fieldset>"  );
         $(el).before("<legend>" + el.action + "</legend>");
         $(el).append("<input name=_action type=submit value=create ><input name=_action type=submit value=read >")
         $(el).append("<input name=_action type=submit value=update ><input name=_action type=submit value=delete >")
         $(el).attr("enctype","multipart/form-data");
         $(el).attr("method","POST");
-
-    });
-    $("input:not([type=hidden],[type=submit])").each((i,el) => {
+    }});
+    $("input:not([type=hidden],[type=submit]),select").each((i,el) => {{
         $(el).before("<label>" + el.name+ "</label><br/>");
         $(el).after("<br>");
-    });
-});
+    }});
+}});
 </script>
 </head>
 <body >
-    try <a href=/user_view> here once you filled in your first user : its a dynamic view (template)</a>
+<div><ul>
+    <li>try <a href=/user_view?id=1 > here once you filled in your first user</a></li>
+    <li>try <a href=/user_view> here is a list of all known users</a></li>
+</ul></div>
     <form  action=/user >
         <input type=number name=id />
         <input type=file name=pic_file />
         <input type=text name=name />
         <input type=checkbox name=is_checked />
+        <select name="prefered_pet" >
+            <option value="dog">Dog</option>
+            <option value="cat">Cat</option>
+            <option value="hamster">Hamster</option>
+            <option value="spider">Spider</option>
+        </select>
         <input type=email name=email />
     </form>
     <form action=/group >
@@ -127,23 +152,20 @@ $(document).ready(function() {
 
 
 router = dict({"" : lambda fo: html,"user_view" : lambda fo : f"""
+<!doctype html>
 <html>
 <head>
-<style>
-* {{    font-family:"Sans Serif" }}
-body {{ text-align: center; }}
-</style>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+{prologue}
 <script>
     $.ajax({{
-    url: "/user",
-    method: "POST",
-    data : {{ _action: "read"}}
-}}).done((msg) => {{
+        url: "/user",
+        method: "POST",
+        data : {{ {fo.get("id") and 'id:"%s",' % fo["id"] or "" } _action: "read"}}
+    }}).done((msg) => {{
     is_cloned=false;
     msg["result"][0].forEach((res,i) => {{
         if (is_cloned) {{
-        $("[name=toclone]").after($("[name=toclone]")[0].outerHTML);
+            $("[name=toclone]").after($("[name=toclone]")[0].outerHTML);
         }} else {{
             is_cloned=true;
         }}
@@ -157,25 +179,15 @@ body {{ text-align: center; }}
 </head>
 <body>
 <table name=toclone >
-    <tr>
-        <td><label>id</label>:</td><td> <span name=id ></span></td>
-    </tr>
-    <tr>
-        <td><label>name</label>:</td><td> <span name=name ></span></td>
-    </tr>
-    <tr>
-        <td><label>emails</label>:</td><td> <span name=email ></span></td>
-    </tr>
-    <tr>
-        <td><label>is checked </label>:</td><td><span name=is_checked /></td>
-    </tr>
-    <tr>
-        <td><label>picture</label>:</td><td><img width=200px name=pic ></td>
-    </tr>
-    </table>
+    <tr><td><label>id</label>:</td><td> <span name=id /></td></tr>
+    <tr><td><label>name</label>:</td><td> <span name=name /></td></tr>
+    <tr><td><label>email</label>:</td><td> <span name=email /></td></tr>
+    <tr><td><label>prefered pet</label>:</td><td><span name=prefered_pet /></td></tr>
+    <tr><td><label>is checked </label>:</td><td><span name=is_checked /></td></tr>
+    <tr><td><label>picture</label>:</td><td><img width=200px name=pic ></td></tr>
+</table>
 </body>
-
-
+</html>
 """})
 
 def simple_app(environ, start_response):
@@ -202,7 +214,6 @@ def simple_app(environ, start_response):
                     k.startswith("is_") or [True, False][v == "on"] and v
                     for k,v in attrs.items() if v and not k.startswith("_")
     }
-
     if route in tables.keys():
         start_response('200 OK', [('Content-type', 'application/json; charset=utf-8')])
         with Session(engine) as session:
