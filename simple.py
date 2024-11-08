@@ -122,7 +122,6 @@ $(document).ready(function() {
 </html>
 """
 
-
 router = dict({"" : lambda fo: html,})
 
 def simple_app(environ, start_response):
