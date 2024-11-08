@@ -55,7 +55,10 @@ class HTMLtoData(HTMLParser):
 
             if attrs.get("type") in simple_mapping.keys():
                 self.cols += [ Column(attrs["name"], simple_mapping[attrs["type"]],
-                nullable = [False, True][attrs.get("nullable", "true")=="true"],)]
+                nullable = [False, True][attrs.get("nullable", "true")=="true"],
+                unique = [True, False][attrs.get("unique", "false")=="false"],
+
+                )]
             if attrs["type"] == "number":
                 if attrs["step"] == "any":
                     self.cols+= [ Columns(attrs["name"], Float), ]
@@ -97,7 +100,7 @@ model="""
     <form  action=/user >
         <input type=number name=id />
         <input type=file name=pic_file />
-        <input type=text name=name nullable=false />
+        <input type=text name=name nullable=false unique=true />
         <input type=checkbox name=is_checked />
         <select name="prefered_pet" >
             <option value="">Please select an item</option>
