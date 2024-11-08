@@ -56,6 +56,7 @@ class HTMLtoData(HTMLParser):
 
     def handle_endtag(self, tag):
         if tag=="form":
+            print("creating table table %s" % self.table)
             self.tables += [ Table(self.table, self.meta, *self.cols), ]
             tables[self.table] = self.tables[-1]
             self.table = ""
@@ -105,12 +106,20 @@ $(document).ready(function() {
         <input type=checkbox name=is_checked />
         <input type=email name=email />
     </form>
+    <form action=/group >
+        <input type=number name=id />
+        <input type=text name=name />
+    </form>
+    <form action=/user_group >
+        <input type=number name=group_id />
+        <input type=number name=user_id />
+    </form>
     <form action=/event  >
         <input type=number name=id />
         <input type=date name=from_date />
         <input type=date name=to_date />
         <input type=text name=text />
-        <input type=number name=user_id />
+        <input type=number name=group_id />
     </form>
     </body>
 </html>
@@ -193,6 +202,7 @@ def simple_app(environ, start_response):
                     k.startswith("is_") or [True, False][v == "on"] and v
                     for k,v in attrs.items() if v and not k.startswith("_")
     }
+
     if route in tables.keys():
         start_response('200 OK', [('Content-type', 'application/json; charset=utf-8')])
         with Session(engine) as session:
