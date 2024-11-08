@@ -1,13 +1,11 @@
 import multipart
 from wsgiref.simple_server import make_server
 from json import dumps
-from sqlalchemy import create_engine, MetaData, Table, Column
-from sqlalchemy import Integer, String, Float, Date, DateTime,UnicodeText, ForeignKey
+from sqlalchemy import *
 from html.parser import HTMLParser
+from base64 import b64encode
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
-from sqlalchemy import select, delete, update
-from sqlalchemy import create_engine
 from dateutil import parser
 from sqlalchemy_utils import database_exists, create_database
 from urllib.parse import parse_qsl, urlparse
@@ -30,9 +28,10 @@ class HTMLtoData(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
-        simple_mapping = (
+        simple_mapping = dict(
             email = UnicodeText, url = UnicodeText, phone = UnicodeText, text = UnicodeText,
-            date = Date, time = Time, datetime = DateTime)
+            date = Date, time = Time, datetime = DateTime, file = Text
+        )
         if tag == "input":
             if attrs.get("name") == "id":
                 self.cols += [ Column('id', Integer, primary_key = True), ]
@@ -43,8 +42,10 @@ class HTMLtoData(HTMLParser):
                     self.cols += [ Column(attrs["name"], Integer, ForeignKey(table + ".id")) ]
                     return
             except Exception as e: print(e)
-            if attrs.get("type") in simple_mapping:
-                self.cols + = [ Column(attrs["name"], simple_mapping[attrs["type"]]), ]
+
+            if attrs.get("type") in simple_mapping.keys():
+                self.cols += [ Column(attrs["name"], simple_mapping[attrs["type"]]), ]
+
             if attrs["type"] == "number":
                 if attrs["step"] == "any":
                     self.cols+= [ Columns(attrs["name"], Float), ]
@@ -84,40 +85,54 @@ $(document).ready(function() {
         $(el).before("<legend>" + el.action + "</legend>");
         $(el).append("<input name=_action type=submit value=create ><input name=_action type=submit value=read >")
         $(el).append("<input name=_action type=submit value=update ><input name=_action type=submit value=delete >")
+        $(el).attr("enctype","multipart/form-data");
+        $(el).attr("method","POST");
+
     });
     $("input:not([type=hidden],[type=submit])").each((i,el) => {
         $(el).before("<label>" + el.name+ "</label><br/>");
         $(el).after("<br>");
     });
+    $.ajax({
+        url: "/user",
+        method: "POST",
+        data : { id: 1, _action: "read"}
+    }).done((msg) => {
+        $("[name=test]").attr("src", "data:image/jpeg;base64, " +  msg["result"][0][0]["pic_file"])
+    });
 });
 </script>
 </head>
 <body >
-    <form  action=/user method=post >
+    <img name=test width=300px />
+    <form  action=/user >
         <input type=number name=id />
+        <input type=file name=pic_file />
         <input type=text name=name />
         <input type=email name=email />
     </form>
-    <form action=/event method=post >
+    <form action=/event  >
         <input type=number name=id />
         <input type=date name=from_date />
         <input type=date name=to_date />
         <input type=text name=text />
         <input type=number name=user_id />
     </form>
-</body>
+    </body>
 </html>
 """
+
 
 router = dict({"" : lambda fo: html,})
 
 def simple_app(environ, start_response):
     fo, fi=multipart.parse_form_data(environ)
+    print(fo)
     fo.update(**{ k: dict(
-            name=fi.filename,
-            content=fi.file.read().decode('utf-8', 'backslashreplace'),
-            content_type=fi.content_type,
+            name=fi[k].filename,
+            content=b64encode(fi[k].file.read())
         ) for k,v in fi.items()})
+
     table = route = environ["PATH_INFO"][1:]
     fo.update(**dict(parse_qsl(environ["QUERY_STRING"])))
     HTMLtoData().feed(html)
@@ -127,7 +142,8 @@ def simple_app(environ, start_response):
     Base.prepare()
     attrs_to_dict = lambda attrs : {  k: (
                     "date" in k or "time" in k ) and type(k) == str
-                        and parser.parse(v) or v
+                        and parser.parse(v) or
+                    "file" in k and fo[k]["content"].decode() or v
                     for k,v in attrs.items() if v and not k.startswith("_")
     }
     if route in tables.keys():
@@ -143,12 +159,14 @@ def simple_app(environ, start_response):
                 if action == "create":
                     new_item = Item(**attrs_to_dict(fo))
                     session.add(new_item)
+                    session.flush()
                     ret=session.commit()
                     fo["result"] = new_item.id
                 if action == "update":
                     session.delete(session.get(Item, fo["id"]))
                     new_item = Item(**attrs_to_dict(fo))
                     session.add(new_item)
+                    session.commit()
                     fo["result"] = new_item.id
                 if action in { "read", "search" }:
                     result = []
@@ -158,6 +176,7 @@ def simple_app(environ, start_response):
                     fo["result"] = result
             except Exception as e:
                 fo["error"] = e
+                session.rollback()
     else:
         start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
 
