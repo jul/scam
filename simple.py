@@ -98,7 +98,7 @@ $(document).ready(function() {
         method: "POST",
         data : { id: 1, _action: "read"}
     }).done((msg) => {
-        $("[name=test]").attr("src", "data:image/jpeg;base64, " +  msg["result"][0][0]["pic_file"])
+        $("[name=test]").attr("src",  msg["result"][0][0]["pic_file"])
     });
 });
 </script>
@@ -127,12 +127,11 @@ router = dict({"" : lambda fo: html,})
 
 def simple_app(environ, start_response):
     fo, fi=multipart.parse_form_data(environ)
-    print(fo)
     fo.update(**{ k: dict(
             name=fi[k].filename,
+            content_type=fi[k].content_type,
             content=b64encode(fi[k].file.read())
         ) for k,v in fi.items()})
-
     table = route = environ["PATH_INFO"][1:]
     fo.update(**dict(parse_qsl(environ["QUERY_STRING"])))
     HTMLtoData().feed(html)
@@ -143,7 +142,7 @@ def simple_app(environ, start_response):
     attrs_to_dict = lambda attrs : {  k: (
                     "date" in k or "time" in k ) and type(k) == str
                         and parser.parse(v) or
-                    "file" in k and fo[k]["content"].decode() or v
+                    "file" in k and f"""data:{fo[k]["content_type"]}; base64, {fo[k]["content"].decode()}""" or v
                     for k,v in attrs.items() if v and not k.startswith("_")
     }
     if route in tables.keys():
