@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from dateutil import parser
 from sqlalchemy_utils import database_exists, create_database
 from urllib.parse import parse_qsl, urlparse
+import traceback
 
 engine = create_engine("sqlite:///this.db")
 if not database_exists(engine.url):
@@ -90,7 +91,38 @@ input,select { margin-bottom:1em; padding:.5em;} ::file-selector-button { paddin
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 """
-
+model="""
+    <form  action=/user >
+        <input type=number name=id />
+        <input type=file name=pic_file />
+        <input type=text name=name />
+        <input type=checkbox name=is_checked />
+        <select name="prefered_pet" >
+        <option value="">Please select an item</option>
+            <option value="dog">Dog</option>
+            <option value="cat">Cat</option>
+            <option value="hamster">Hamster</option>
+            <option value="spider">Spider</option>
+        </select>
+        <input type=email name=email />
+    </form>
+    <form action=/group >
+        <input type=number name=id />
+        <input type=text name=name />
+    </form>
+    <form action=/user_group >
+        <input type=number name=id />
+        <input type=number name=group_id />
+        <input type=number name=user_id />
+    </form>
+    <form action=/event  >
+        <input type=number name=id />
+        <input type=date name=from_date />
+        <input type=date name=to_date />
+        <input type=text name=text />
+        <input type=number name=group_id />
+    </form>
+"""
 html = f"""
 <!doctype html>
 <html>
@@ -117,36 +149,7 @@ $(document).ready(function() {{
 <div><ul>
     <li>try <a href=/user_view?id=1 > here once you filled in your first user</a></li>
     <li>try <a href=/user_view> here is a list of all known users</a></li>
-</ul></div>
-    <form  action=/user >
-        <input type=number name=id />
-        <input type=file name=pic_file />
-        <input type=text name=name />
-        <input type=checkbox name=is_checked />
-        <select name="prefered_pet" >
-        <option value="">Please select an item</option>
-            <option value="dog">Dog</option>
-            <option value="cat">Cat</option>
-            <option value="hamster">Hamster</option>
-            <option value="spider">Spider</option>
-        </select>
-        <input type=email name=email />
-    </form>
-    <form action=/group >
-        <input type=number name=id />
-        <input type=text name=name />
-    </form>
-    <form action=/user_group >
-        <input type=number name=group_id />
-        <input type=number name=user_id />
-    </form>
-    <form action=/event  >
-        <input type=number name=id />
-        <input type=date name=from_date />
-        <input type=date name=to_date />
-        <input type=text name=text />
-        <input type=number name=group_id />
-    </form>
+</ul></div>{model}
     </body>
 </html>
 """
@@ -197,12 +200,13 @@ def simple_app(environ, start_response):
         ) for k,v in fi.items()})
     table = route = environ["PATH_INFO"][1:]
     fo.update(**dict(parse_qsl(environ["QUERY_STRING"])))
-    HTMLtoData().feed(html)
+    HTMLtoData().feed(model)
     metadata = MetaData()
     metadata.reflect(bind=engine)
+
     Base = automap_base(metadata=metadata)
     Base.prepare()
-    attrs_to_dict = lambda attrs : {  k: (
+    form_to_db = lambda attrs : {  k: (
                     # handling of input having date/time in the name
                     "date" in k or "time" in k ) and type(k) == str
                         and parser.parse(v) or
@@ -223,25 +227,26 @@ def simple_app(environ, start_response):
                     session.commit()
                     fo["result"] = "deleted"
                 if action == "create":
-                    new_item = Item(**attrs_to_dict(fo))
+                    new_item = Item(**form_to_db(fo))
                     session.add(new_item)
                     session.flush()
                     ret=session.commit()
                     fo["result"] = new_item.id
                 if action == "update":
                     item = session.scalars(select(Item).where(Item.id==fo["id"])).one()
-                    for k,v in attrs_to_dict(fo).items():
+                    for k,v in form_to_db(fo).items():
                         setattr(item,k,v)
                     session.commit()
                     fo["result"] = item.id
                 if action in { "read", "search" }:
                     result = []
                     for elt in session.execute(
-                        select(Item).filter_by(**attrs_to_dict(fo))).all():
+                        select(Item).filter_by(**form_to_db(fo))).all():
                         result += [{ k.name:getattr(elt[0], k.name) for k in tables[table].columns},]
                     fo["result"] = result
             except Exception as e:
                 fo["error"] = e
+                print(traceback.format_exc())
                 session.rollback()
     else:
         start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
