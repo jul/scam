@@ -40,6 +40,8 @@ class HTMLtoData(HTMLParser):
             self.current_col = attrs["name"]
         if tag == "option":
             self.enum += [ attrs["value"] ]
+        if tag == "unique_constraint":
+            self.cols += [    UniqueConstraint(*attrs["col"].split(','), name=attrs["name"]) ]
         if tag == "input":
             if attrs.get("name") == "id":
                 self.cols += [ Column('id', Integer, primary_key = True), ]
@@ -54,7 +56,6 @@ class HTMLtoData(HTMLParser):
             if attrs.get("type") in simple_mapping.keys():
                 self.cols += [ Column(attrs["name"], simple_mapping[attrs["type"]],
                 nullable = [False, True][attrs.get("nullable", "true")=="true"],)]
-                print(attrs.get("nullable"))
             if attrs["type"] == "number":
                 if attrs["step"] == "any":
                     self.cols+= [ Columns(attrs["name"], Float), ]
@@ -99,13 +100,14 @@ model="""
         <input type=text name=name nullable=false />
         <input type=checkbox name=is_checked />
         <select name="prefered_pet" >
-        <option value="">Please select an item</option>
+            <option value="">Please select an item</option>
             <option value="dog">Dog</option>
             <option value="cat">Cat</option>
             <option value="hamster">Hamster</option>
             <option value="spider">Spider</option>
         </select>
-        <input type=email name=email />
+        <input type=email name=email nullable=false />
+        <unique_constraint col=email name=email_unique ></unique_constraint>
     </form>
     <form action=/group >
         <input type=number name=id />
@@ -120,7 +122,7 @@ model="""
         <input type=number name=id />
         <input type=date name=from_date />
         <input type=date name=to_date />
-        <input type=text name=text />
+        <input type=text name=text nullable=false />
         <input type=number name=group_id />
     </form>
 """
@@ -150,8 +152,9 @@ $(document).ready(function() {{
 <div><ul>
     <li>try <a href=/user_view?id=1 > here once you filled in your first user</a></li>
     <li>try <a href=/user_view> here is a list of all known users</a></li>
-</ul></div>{model}
-    </body>
+</ul></div>
+{model}
+</body>
 </html>
 """
 
