@@ -75,12 +75,8 @@ body { text-align: center; }
 fieldset {  border: 1px solid #666;  border-radius: .5em; width: 30em; margin: auto; }
 form { text-align: left; display:inline-block; }
 input { margin-bottom:1em; padding:.5em;}
-[value=create] { background:#ffffba}
-[value=delete] { background:#bae1ff}
-[value=update] { background:#ffdfda}
+[value=create] { background:#ffffba} [value=delete] { background:#bae1ff} [value=update] { background:#ffdfda}
 [value=read] { background:#baffc9}
-
-manual { display:inline-block;  }
 [type=submit] { margin-right:1em; margin-bottom:0em; border:1px solid #333; padding:.5em; border-radius:.5em; }
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -96,7 +92,6 @@ $(document).ready(function() {
         $(el).before("<label>" + el.name+ "</label><br/>");
         $(el).after("<br>");
     });
-
 });
 </script>
 </head>
@@ -158,7 +153,6 @@ def simple_app(environ, start_response):
                     new_item = Item(**attrs_to_dict(fo))
                     session.add(new_item)
                     fo["result"] = new_item.id
-
                 if action in { "read", "search" }:
                     result = []
                     for elt in session.execute(
@@ -172,5 +166,5 @@ def simple_app(environ, start_response):
 
     return [ router.get(route,lambda fo:dumps(fo.dict, indent=4, default=str))(fo).encode() ]
 
-print("Crudest CRDU of them all on port 5000...")
+print("Crudest CRUD of them all on port 5000...")
 make_server('', 5000, simple_app).serve_forever()
