@@ -29,7 +29,7 @@ class HTMLtoData(HTMLParser):
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
         simple_mapping = dict(
-            email = UnicodeText, url = UnicodeText, phone = UnicodeText, text = UnicodeText,
+            email = UnicodeText, url = UnicodeText, phone = UnicodeText, text = UnicodeText, checkbox = Boolean,
             date = Date, time = Time, datetime = DateTime, file = Text
         )
         if tag == "input":
@@ -97,11 +97,12 @@ $(document).ready(function() {
 </script>
 </head>
 <body >
-    try <a href=/user_view?id=1> here once you filled in your first user : its a dynamic view (template)</a>
+    try <a href=/user_view> here once you filled in your first user : its a dynamic view (template)</a>
     <form  action=/user >
         <input type=number name=id />
         <input type=file name=pic_file />
         <input type=text name=name />
+        <input type=checkbox name=is_checked />
         <input type=email name=email />
     </form>
     <form action=/event  >
@@ -128,17 +129,28 @@ body {{ text-align: center; }}
     $.ajax({{
     url: "/user",
     method: "POST",
-    data : {{ id: {fo.get("id", 1)}, _action: "read"}}
+    data : {{ _action: "read"}}
 }}).done((msg) => {{
-    $("[name=pic]").attr("src",  msg["result"][0][0]["pic_file"]);
-    $("span").each((i,el) => {{
-        $(el).text(msg["result"][0][0][$(el).attr("name")]);
+    is_cloned=false;
+    msg["result"][0].forEach((res,i) => {{
+        if (is_cloned) {{
+        $("[name=toclone]").after($("[name=toclone]")[0].outerHTML);
+        }} else {{
+            is_cloned=true;
+        }}
+        $("span", $($("[name=toclone]")[i])).each( (i,el) => {{
+            $(el).text(res[$(el).attr("name")]);
+        }})
+        $("[name=pic]", $($("[name=toclone]")[i])).attr("src",res["pic_file"]);
     }})
 }});
 </script>
 </head>
 <body>
-<table>
+<table name=toclone >
+    <tr>
+        <td><label>id</label>:</td><td> <span name=id ></span></td>
+    </tr>
     <tr>
         <td><label>name</label>:</td><td> <span name=name ></span></td>
     </tr>
@@ -146,8 +158,12 @@ body {{ text-align: center; }}
         <td><label>emails</label>:</td><td> <span name=email ></span></td>
     </tr>
     <tr>
-        <td><label>picture</label>:</td><td><img width=200px name=pic /></td>
+        <td><label>is checked </label>:</td><td><span name=is_checked /></td>
     </tr>
+    <tr>
+        <td><label>picture</label>:</td><td><img width=200px name=pic ></td>
+    </tr>
+    </table>
 </body>
 
 
@@ -168,9 +184,13 @@ def simple_app(environ, start_response):
     Base = automap_base(metadata=metadata)
     Base.prepare()
     attrs_to_dict = lambda attrs : {  k: (
+                    # handling of input having date/time in the name
                     "date" in k or "time" in k ) and type(k) == str
                         and parser.parse(v) or
-                    "file" in k and f"""data:{fo[k]["content_type"]}; base64, {fo[k]["content"].decode()}""" or v
+                    # handling of input type = form havin "file" in the name of the inpur
+                    "file" in k and f"""data:{fo[k]["content_type"]}; base64, {fo[k]["content"].decode()}""" or
+                    # handling of boolean mapping which input begins with "is_"
+                    k.startswith("is_") or [True, False][v == "on"] and v
                     for k,v in attrs.items() if v and not k.startswith("_")
     }
     if route in tables.keys():
