@@ -93,18 +93,11 @@ $(document).ready(function() {
         $(el).before("<label>" + el.name+ "</label><br/>");
         $(el).after("<br>");
     });
-    $.ajax({
-        url: "/user",
-        method: "POST",
-        data : { id: 1, _action: "read"}
-    }).done((msg) => {
-        $("[name=test]").attr("src",  msg["result"][0][0]["pic_file"])
-    });
 });
 </script>
 </head>
 <body >
-    <img name=test width=300px />
+    try <a href=/user_view?id=1> here once you filled in your first user : its a dynamic view (template)</a>
     <form  action=/user >
         <input type=number name=id />
         <input type=file name=pic_file />
@@ -122,7 +115,43 @@ $(document).ready(function() {
 </html>
 """
 
-router = dict({"" : lambda fo: html,})
+
+router = dict({"" : lambda fo: html,"user_view" : lambda fo : f"""
+<html>
+<head>
+<style>
+* {{    font-family:"Sans Serif" }}
+body {{ text-align: center; }}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+    $.ajax({{
+    url: "/user",
+    method: "POST",
+    data : {{ id: {fo.get("id", 1)}, _action: "read"}}
+}}).done((msg) => {{
+    $("[name=pic]").attr("src",  msg["result"][0][0]["pic_file"]);
+    $("span").each((i,el) => {{
+        $(el).text(msg["result"][0][0][$(el).attr("name")]);
+    }})
+}});
+</script>
+</head>
+<body>
+<table>
+    <tr>
+        <td><label>name</label>:</td><td> <span name=name ></span></td>
+    </tr>
+    <tr>
+        <td><label>emails</label>:</td><td> <span name=email ></span></td>
+    </tr>
+    <tr>
+        <td><label>picture</label>:</td><td><img width=200px name=pic /></td>
+    </tr>
+</body>
+
+
+"""})
 
 def simple_app(environ, start_response):
     fo, fi=multipart.parse_form_data(environ)
