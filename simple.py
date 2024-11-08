@@ -83,8 +83,8 @@ tbody tr:nth-child(odd) {  background-color: #eee;}
 fieldset {  border: 1px solid #666;  border-radius: .5em; width: 30em; margin: auto; }
 form { text-align: left; display:inline-block; }
 input,select { margin-bottom:1em; padding:.5em;} ::file-selector-button { padding:.5em}
-[value=create] { background:#ffffba} [value=delete] { background:#bae1ff} [value=update] { background:#ffdfda}
-[value=read] { background:#baffc9}
+[value=create] { background:#ffffba} [value=delete] { background:#bae1ff}
+[value=update] { background:#ffdfda} [value=search] { background:#baffc9}
 [type=submit] { margin-right:1em; margin-bottom:0em; border:1px solid #333; padding:.5em; border-radius:.5em; }
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -101,7 +101,7 @@ $(document).ready(function() {{
     $("form").each((i,el) => {{
         $(el).wrap("<fieldset></fieldset>"  );
         $(el).before("<legend>" + el.action + "</legend>");
-        $(el).append("<input name=_action type=submit value=create ><input name=_action type=submit value=read >")
+        $(el).append("<input name=_action type=submit value=create ><input name=_action type=submit value=search >")
         $(el).append("<input name=_action type=submit value=update ><input name=_action type=submit value=delete >")
         $(el).attr("enctype","multipart/form-data");
         $(el).attr("method","POST");
@@ -163,14 +163,11 @@ router = dict({"" : lambda fo: html,"user_view" : lambda fo : f"""
         method: "POST",
         data : {{ {fo.get("id") and 'id:"%s",' % fo["id"] or "" } _action: "read"}}
     }}).done((msg) => {{
-    is_cloned=false;
+    for (var i=1; i<msg['result'][0].length;i++) {{
+        $($("[name=toclone]")[0]).after($("[name=toclone]")[0].outerHTML);
+    }}
     msg["result"][0].forEach((res,i) => {{
-        if (is_cloned) {{
-            $("[name=toclone]").after($("[name=toclone]")[0].outerHTML);
-        }} else {{
-            is_cloned=true;
-        }}
-        $("span", $($("[name=toclone]")[i])).each( (i,el) => {{
+        $("span", $($("[name=toclone]")[i])).each( (h,el) => {{
             $(el).text(res[$(el).attr("name")]);
         }})
         $("[name=pic]", $($("[name=toclone]")[i])).attr("src",res["pic_file"]);
@@ -241,7 +238,7 @@ def simple_app(environ, start_response):
                     result = []
                     for elt in session.execute(
                         select(Item).filter_by(**attrs_to_dict(fo))).all():
-                        result += [{ k.name:getattr(elt[0], k.name) for k in tables[table].columns}]
+                        result += [{ k.name:getattr(elt[0], k.name) for k in tables[table].columns},]
                     fo["result"] = result
             except Exception as e:
                 fo["error"] = e
