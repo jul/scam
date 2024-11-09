@@ -1,15 +1,26 @@
+# STDLIB 
 import multipart
 from wsgiref.simple_server import make_server
 from json import dumps
-from sqlalchemy import *
 from html.parser import HTMLParser
 from base64 import b64encode
-from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import Session
-from dateutil import parser
-from sqlalchemy_utils import database_exists, create_database
 from urllib.parse import parse_qsl, urlparse
 import traceback
+from  http.cookies import SimpleCookie as Cookie
+from uuid import UUID as  UUIDM # may conflict with sqlachemy
+from datetime import datetime as dt, UTC
+# NEEDS A BINARY INSTALL (scrypt)
+from passlib.hash import scrypt as crypto_hash # we can change the hash easily
+# external dependencies
+# lightweight
+from dateutil import parser
+from time_uuid import TimeUUID
+# heaviweight
+from sqlalchemy import *
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
+from sqlalchemy_utils import database_exists, create_database
+
 
 engine = create_engine("sqlite:///this.db")
 if not database_exists(engine.url):
@@ -33,7 +44,7 @@ class HTMLtoData(HTMLParser):
         simple_mapping = dict(
             email = UnicodeText, url = UnicodeText, phone = UnicodeText,
             text = UnicodeText, checkbox = Boolean, date = Date, time = Time,
-            datetime = DateTime, file = Text
+            datetime = DateTime, file = Text, password = Text, uuid = Text, #UUID is postgres specific
         )
         if tag == "select":
             self.enum=[]
@@ -94,6 +105,10 @@ input,select { margin-bottom:1em; padding:.5em;} ::file-selector-button { paddin
 [type=submit] { margin-right:1em; margin-bottom:0em; border:1px solid #333; padding:.5em; border-radius:.5em; }
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script type="text/javascript" src=
+"https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js">
+    </script>
+
 
 """
 model="""
@@ -110,6 +125,8 @@ model="""
             <option value="spider">Spider</option>
         </select>
         <input type=email name=email nullable=false />
+        <input type=password name=password nullable=false />
+        <input type=uuid name=token nullable=true />
         <unique_constraint col=email name=email_unique ></unique_constraint>
     </form>
     <form action=/group >
@@ -137,6 +154,7 @@ html = f"""
 <head>
 {prologue}
 <script>
+
 $(document).ready(function() {{
     $("form").each((i,el) => {{
         $(el).wrap("<fieldset></fieldset>"  );
@@ -155,6 +173,7 @@ $(document).ready(function() {{
 </head>
 <body >
 <div><ul>
+    <li>try <a href=/login >here to get granted the authorization to use update/delete action</a></li>
     <li>try <a href=/user_view?id=1 > here once you filled in your first user</a></li>
     <li>try <a href=/user_view> here is a list of all known users</a></li>
 </ul></div>
@@ -164,7 +183,36 @@ $(document).ready(function() {{
 """
 
 
-router = dict({"" : lambda fo: html,"user_view" : lambda fo : f"""
+router = dict({"" : lambda fo: html,
+    "login" : lambda fo : f"""
+<!doctype html>
+<html>
+<head>
+{prologue}
+<script>
+
+$(document).ready(function() {{
+    $("form").each((i,el) => {{
+        $(el).wrap("<fieldset></fieldset>"  );
+        $(el).before("<legend>" + el.action + "</legend>");
+        $(el).attr("enctype","multipart/form-data");
+        $(el).attr("method","POST");
+    }});
+    $("input:not([type=hidden],[type=submit]),select").each((i,el) => {{
+        $(el).before("<label>" + el.name+ "</label><br/>");
+        $(el).after("<br>");
+    }});
+}});
+</script>
+</head>
+<form action=/grant >
+<input type=text name=email>
+<input type=password name=password>
+<input type=hidden value=/ name=_redirect >
+<input type=submit name=_action value=grant >
+</form>
+""",
+    "user_view" : lambda fo : f"""
 <!doctype html>
 <html>
 <head>
@@ -194,6 +242,7 @@ router = dict({"" : lambda fo: html,"user_view" : lambda fo : f"""
     <tr><td><label>email</label>:</td><td> <span name=email /></td></tr>
     <tr><td><label>prefered pet</label>:</td><td><span name=prefered_pet /></td></tr>
     <tr><td><label>is checked </label>:</td><td><span name=is_checked /></td></tr>
+    <tr><td><label>token </label>:</td><td><span name=token /></td></tr>
     <tr><td><label>picture</label>:</td><td><img width=200px name=pic ></td></tr>
 </table>
 </body>
@@ -209,6 +258,8 @@ def simple_app(environ, start_response):
         ) for k,v in fi.items()})
     table = route = environ["PATH_INFO"][1:]
     fo.update(**dict(parse_qsl(environ["QUERY_STRING"])))
+    if "HTTP_COOKIE" in environ:
+        fo["_token"] = Cookie(environ["HTTP_COOKIE"])["Token"].value
     HTMLtoData().feed(model)
     metadata = MetaData()
     metadata.reflect(bind=engine)
@@ -217,21 +268,55 @@ def simple_app(environ, start_response):
     Base.prepare()
     form_to_db = lambda attrs : {  k: (
                     # handling of input having date/time in the name
-                    "date" in k or "time" in k ) and type(k) == str
+                    "date" in k or "time" in k and v and type(k) == str )
                         and parser.parse(v) or
                     # handling of input type = form havin "file" in the name of the inpur
                     "file" in k and f"""data:{fo[k]["content_type"]}; base64, {fo[k]["content"].decode()}""" or
                     # handling of boolean mapping which input begins with "is_"
-                    k.startswith("is_") or [True, False][v == "on"] and v
+                    k.startswith("is_") and [False, True][v == "on"] or
+                    # password ?
+                    k == "password" and crypto_hash.hash(v) or
+                    v
                     for k,v in attrs.items() if v and not k.startswith("_")
     }
+    action = fo.get("_action", "")
+    def validate(fo):
+        with Session(engine) as session:
+            User = Base.classes.user
+            try:
+                user = session.scalars(select(User).where(User.token==fo["_token"])).one()
+                print(dt.now() - TimeUUID(bytes=UUIDM("{%s}" % fo["_token"]).bytes).get_datetime())
+            except Exception as e:
+                print(traceback.format_exc())
+                print("aaab")
+                start_response('301 Moved Permanently', [('Location',fo.get("_redirect","login"))], )
+                return [ router["login"](fo).encode() ]
+            
+# redirect to login
+
+
+
+    if action=="grant":
+        with Session(engine) as session:
+            User = Base.classes.user
+            user = session.scalars(select(User).where(User.email==fo["email"])).one()
+            user.token = str(TimeUUID.with_utcnow())
+            fo["validate"] = crypto_hash.verify(fo["password"], user.password)
+            session.flush()
+            session.commit()
+            if fo["validate"]:
+                print("aabc")
+                start_response('301 Moved Permanently', [('Set-Cookie', "Token=%s" % user.token)], [('Location',fo.get("_redirect","/"))], )
+                return [ f"""<html><head><meta http-equiv="refresh" content="0; url="{fo["_redirect"]}</head></html>"" />""".encode() ]
+
+    has_error=False
     if route in tables.keys():
-        start_response('200 OK', [('Content-type', 'application/json; charset=utf-8')])
         with Session(engine) as session:
             try:
-                action = fo.get("_action", "")
                 Item = getattr(Base.classes, table)
                 if action == "delete":
+                    if fail:= validate(fo):
+                        return fail
                     session.delete(session.get(Item, fo["id"]))
                     session.commit()
                     fo["result"] = "deleted"
@@ -242,6 +327,8 @@ def simple_app(environ, start_response):
                     ret=session.commit()
                     fo["result"] = new_item.id
                 if action == "update":
+                    if fail:= validate(fo):
+                        return fail
                     item = session.scalars(select(Item).where(Item.id==fo["id"])).one()
                     for k,v in form_to_db(fo).items():
                         setattr(item,k,v)
@@ -254,13 +341,17 @@ def simple_app(environ, start_response):
                         result += [{ k.name:getattr(elt[0], k.name) for k in tables[table].columns},]
                     fo["result"] = result
             except Exception as e:
+                has_error = True
                 fo["error"] = e
                 print(traceback.format_exc())
                 session.rollback()
-    else:
-        start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
-
+            if not has_error:
+                print("aaab")
+                start_response('200 OK', [('Content-type', 'application/json; charset=utf-8')])
+                return [ dumps(fo.dict, indent=4, default=str).encode() ]
+    start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
     return [ router.get(route,lambda fo:dumps(fo.dict, indent=4, default=str))(fo).encode() ]
+
 
 print("Crudest CRUD of them all on port 5000...")
 make_server('', 5000, simple_app).serve_forever()
