@@ -208,7 +208,6 @@ $(document).ready(function() {{
 <form action=/grant >
 <input type=text name=email>
 <input type=password name=password>
-<input type=hidden value=/ name=_redirect >
 <input type=submit name=_action value=grant >
 </form>
 """,
@@ -286,12 +285,12 @@ def simple_app(environ, start_response):
             try:
                 user = session.scalars(select(User).where(User.token==fo["_token"])).one()
                 print(dt.now() - TimeUUID(bytes=UUIDM("{%s}" % fo["_token"]).bytes).get_datetime())
+                return False
             except Exception as e:
                 print(traceback.format_exc())
-                print("aaab")
-                start_response('301 Moved Permanently', [('Location',fo.get("_redirect","login"))], )
-                return [ router["login"](fo).encode() ]
-            
+                start_response('302 Found', [('Location',"/login?_redirect=/")], )
+                return [ f"""<html><head><meta http-equiv="refresh" content="0; url="/login?_redirect=/</head></html>"" />""".encode() ]
+
 # redirect to login
 
 
@@ -305,9 +304,9 @@ def simple_app(environ, start_response):
             session.flush()
             session.commit()
             if fo["validate"]:
-                print("aabc")
-                start_response('301 Moved Permanently', [('Set-Cookie', "Token=%s" % user.token)], [('Location',fo.get("_redirect","/"))], )
-                return [ f"""<html><head><meta http-equiv="refresh" content="0; url="{fo["_redirect"]}</head></html>"" />""".encode() ]
+                start_response('302 Found', [('Location',"http://127.0.0.1:5000/"),('Set-Cookie', "Token=%s" % user.token)], )
+                print("redirect")
+                return [ f"""<html><head><meta http-equiv="refresh" content="0; url="{fo.get("_redirect","/")}")</head></html>""".encode() ]
 
     has_error=False
     if route in tables.keys():
@@ -315,7 +314,8 @@ def simple_app(environ, start_response):
             try:
                 Item = getattr(Base.classes, table)
                 if action == "delete":
-                    if fail:= validate(fo):
+                    fo["_redirect"]= "delete"
+                    if fail := validate(fo):
                         return fail
                     session.delete(session.get(Item, fo["id"]))
                     session.commit()
@@ -327,6 +327,7 @@ def simple_app(environ, start_response):
                     ret=session.commit()
                     fo["result"] = new_item.id
                 if action == "update":
+                    fo["_redirect"]= "update"
                     if fail:= validate(fo):
                         return fail
                     item = session.scalars(select(Item).where(Item.id==fo["id"])).one()
@@ -346,7 +347,6 @@ def simple_app(environ, start_response):
                 print(traceback.format_exc())
                 session.rollback()
             if not has_error:
-                print("aaab")
                 start_response('200 OK', [('Content-type', 'application/json; charset=utf-8')])
                 return [ dumps(fo.dict, indent=4, default=str).encode() ]
     start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
