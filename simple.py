@@ -257,8 +257,9 @@ def simple_app(environ, start_response):
         ) for k,v in fi.items()})
     table = route = environ["PATH_INFO"][1:]
     fo.update(**dict(parse_qsl(environ["QUERY_STRING"])))
-    if "HTTP_COOKIE" in environ:
+    try:
         fo["_token"] = Cookie(environ["HTTP_COOKIE"])["Token"].value
+    except: pass
     HTMLtoData().feed(model)
     metadata = MetaData()
     metadata.reflect(bind=engine)
