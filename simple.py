@@ -118,8 +118,10 @@ model="""
     </form>
     <form action=/user_group >
         <input type=number name=id />
-        <input type=number name=group_id />
-        <input type=number name=user_id />
+        <input type=number name=group_id nullable=false />
+        <input type=number name=user_id nullable=false />
+        <unique_constraint col=user_id,group_id name=unique_group_id ></unique_constraint>
+
     </form>
     <form action=/event  >
         <input type=number name=id />
