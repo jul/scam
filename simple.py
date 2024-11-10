@@ -7,14 +7,14 @@ from base64 import b64encode
 from urllib.parse import parse_qsl, urlparse
 import traceback
 from  http.cookies import SimpleCookie as Cookie
-from uuid import UUID as  UUIDM # may conflict with sqlachemy
+from uuid import UUID as  UUIDM # conflict with sqlachemy
 from datetime import datetime as dt, UTC
-# NEEDS A BINARY INSTALL (scrypt)
-from passlib.hash import scrypt as crypto_hash # we can change the hash easily
 # external dependencies
 # lightweight
 from dateutil import parser
 from time_uuid import TimeUUID
+# NEEDS A BINARY INSTALL (scrypt)
+from passlib.hash import scrypt as crypto_hash # we can change the hash easily
 # heaviweight
 from sqlalchemy import *
 from sqlalchemy.ext.automap import automap_base
@@ -100,6 +100,8 @@ tbody tr:nth-child(odd) {  background-color: #eee;}
 fieldset {  border: 1px solid #666;  border-radius: .5em; width: 30em; margin: auto; }
 form { text-align: left; display:inline-block; }
 input,select { margin-bottom:1em; padding:.5em;} ::file-selector-button { padding:.5em}
+input:not([type=file]) { border:1px solid #666; border-radius:.5em}
+[nullable=false] { border:1px solid red !important;}
 [value=create] { background:#ffffba} [value=delete] { background:#bae1ff}
 [value=update] { background:#ffdfda} [value=search] { background:#baffc9}
 [type=submit] { margin-right:1em; margin-bottom:0em; border:1px solid #333; padding:.5em; border-radius:.5em; }
@@ -142,10 +144,10 @@ model="""
     </form>
     <form action=/event  >
         <input type=number name=id />
-        <input type=date name=from_date />
-        <input type=date name=to_date />
+        <input type=date name=from_date nullable=false />
+        <input type=date name=to_date nullable=false />
         <input type=text name=text nullable=false />
-        <input type=number name=group_id />
+        <input type=number name=group_id nullable=false />
     </form>
 """
 html = f"""
@@ -257,9 +259,8 @@ def simple_app(environ, start_response):
         ) for k,v in fi.items()})
     table = route = environ["PATH_INFO"][1:]
     fo.update(**dict(parse_qsl(environ["QUERY_STRING"])))
-    try:
+    if "HTTP_COOKIE" in environ:
         fo["_token"] = Cookie(environ["HTTP_COOKIE"])["Token"].value
-    except: pass
     HTMLtoData().feed(model)
     metadata = MetaData()
     metadata.reflect(bind=engine)
@@ -290,10 +291,13 @@ def simple_app(environ, start_response):
             except Exception as e:
                 print(traceback.format_exc())
                 start_response('302 Found', [('Location',"/login?_redirect=/")], )
-                return [ f"""<html><head><meta http-equiv="refresh" content="0; url="/login?_redirect=/</head></html>"" />""".encode() ]
+                return [ f"""<html><head><meta http-equiv="refresh" content="0; url="/login?_redirect=/</head></html>""".encode() ]
 
 # redirect to login
 
+    def redirect(to):
+        start_response('302 Found', [('Location',f"{to}")])
+        return [ f"""<html><head><meta http-equiv="refresh" content="0; url="{to}"</head></html>""".encode() ]
 
 
     if action=="grant":
@@ -305,8 +309,7 @@ def simple_app(environ, start_response):
             session.flush()
             session.commit()
             if fo["validate"]:
-                start_response('302 Found', [('Location',"http://127.0.0.1:5000/"),('Set-Cookie', "Token=%s" % user.token)], )
-                print("redirect")
+                start_response('302 Found', [('Location',"/"),('Set-Cookie', "Token=%s" % user.token)], )
                 return [ f"""<html><head><meta http-equiv="refresh" content="0; url="{fo.get("_redirect","/")}")</head></html>""".encode() ]
 
     has_error=False
@@ -327,6 +330,9 @@ def simple_app(environ, start_response):
                     session.flush()
                     ret=session.commit()
                     fo["result"] = new_item.id
+                    if table == "user":
+                        return redirect("/user_view?id=%s" % new_item.id)
+
                 if action == "update":
                     fo["_redirect"]= "update"
                     if fail:= validate(fo):
@@ -336,6 +342,8 @@ def simple_app(environ, start_response):
                         setattr(item,k,v)
                     session.commit()
                     fo["result"] = item.id
+                    if table == "user":
+                        return redirect("/user_view?id=%s" % item.id)
                 if action in { "read", "search" }:
                     result = []
                     for elt in session.execute(
