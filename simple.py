@@ -9,6 +9,7 @@ import traceback
 from  http.cookies import SimpleCookie as Cookie
 from uuid import UUID as  UUIDM # conflict with sqlachemy
 from datetime import datetime as dt, UTC
+import sys
 # external dependencies
 # lightweight
 from dateutil import parser
@@ -250,6 +251,16 @@ $(document).ready(function() {{
 </html>
 """})
 
+#helpers
+def redirect(to):
+    start_response('302 Found', [('Location',f"{to}")])
+    return [ f"""<html><head><meta http-equiv="refresh" content="0; url="{to}"</head></html>""".encode() ]
+
+def log(msg, ln=0, context={}):
+    print("LN:%s : CTX: %s : %s" % (ln, context, msg), file=sys.stderr)
+
+line = lambda : sys._getframe(1).f_lineno
+
 def simple_app(environ, start_response):
     fo, fi=multipart.parse_form_data(environ)
     fo.update(**{ k: dict(
@@ -259,8 +270,10 @@ def simple_app(environ, start_response):
         ) for k,v in fi.items()})
     table = route = environ["PATH_INFO"][1:]
     fo.update(**dict(parse_qsl(environ["QUERY_STRING"])))
-    if "HTTP_COOKIE" in environ:
+    try:
         fo["_token"] = Cookie(environ["HTTP_COOKIE"])["Token"].value
+    except:
+        log("no cookie found", ln=line())
     HTMLtoData().feed(model)
     metadata = MetaData()
     metadata.reflect(bind=engine)
@@ -286,19 +299,12 @@ def simple_app(environ, start_response):
             User = Base.classes.user
             try:
                 user = session.scalars(select(User).where(User.token==fo["_token"])).one()
-                print(dt.now() - TimeUUID(bytes=UUIDM("{%s}" % fo["_token"]).bytes).get_datetime())
+                log(dt.now() - TimeUUID(bytes=UUIDM("{%s}" % fo["_token"]).bytes).get_datetime(), ln=line(), context=fo)
                 return False
             except Exception as e:
-                print(traceback.format_exc())
+                log(traceback.format_exc(), ln=line(), context=fo)
                 start_response('302 Found', [('Location',"/login?_redirect=/")], )
                 return [ f"""<html><head><meta http-equiv="refresh" content="0; url="/login?_redirect=/</head></html>""".encode() ]
-
-# redirect to login
-
-    def redirect(to):
-        start_response('302 Found', [('Location',f"{to}")])
-        return [ f"""<html><head><meta http-equiv="refresh" content="0; url="{to}"</head></html>""".encode() ]
-
 
     if action=="grant":
         with Session(engine) as session:
@@ -353,7 +359,7 @@ def simple_app(environ, start_response):
             except Exception as e:
                 has_error = True
                 fo["error"] = e
-                print(traceback.format_exc())
+                log(traceback.format_exc(), ln=line(), context=fo)
                 session.rollback()
             if not has_error:
                 start_response('200 OK', [('Content-type', 'application/json; charset=utf-8')])
