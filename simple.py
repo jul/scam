@@ -51,47 +51,46 @@ class HTMLtoData(HTMLParser):
             self.enum=[]
             self.current_col = attrs["name"]
         if tag == "option":
-            self.enum += [ attrs["value"] ]
+            self.enum.append( attrs["value"] )
         if tag == "unique_constraint":
-            self.cols += [    UniqueConstraint(*attrs["col"].split(','), name=attrs["name"]) ]
+            self.cols.append( UniqueConstraint(*attrs["col"].split(','), name=attrs["name"]) )
         if tag == "input":
             if attrs.get("name") == "id":
-                self.cols += [ Column('id', Integer, primary_key = True), ]
+                self.cols.append( Column('id', Integer, primary_key = True) )
                 return
             try:
                 if attrs.get("name").endswith("_id"):
                     table,_=attrs.get("name").split("_")
-                    self.cols += [ Column(attrs["name"], Integer, ForeignKey(table + ".id")) ]
+                    self.cols.append( Column(attrs["name"], Integer, ForeignKey(table + ".id")) )
                     return
             except Exception as e: print(e)
 
             if attrs.get("type") in simple_mapping.keys():
-                self.cols += [ Column(attrs["name"], simple_mapping[attrs["type"]],
-                nullable = [False, True][attrs.get("nullable", "true")=="true"],
-                unique = [True, False][attrs.get("unique", "false")=="false"],
-
-                )]
+                self.cols.append( 
+                    Column(
+                        attrs["name"], simple_mapping[attrs["type"]],
+                        nullable = [False, True][attrs.get("nullable", "true")=="true"],
+                        unique = [True, False][attrs.get("unique", "false")=="false"],) 
+                )
             if attrs["type"] == "number":
                 if attrs["step"] == "any":
-                    self.cols+= [ Columns(attrs["name"], Float), ]
+                    self.cols.append( Columns(attrs["name"], Float) )
                 else:
-                    self.cols+= [ Column(attrs["name"], Integer), ]
+                    self.cols.append( Column(attrs["name"], Integer) )
         if tag== "form":
             self.table = urlparse(attrs["action"]).path[1:]
 
     def handle_endtag(self, tag):
         if tag == "select":
-            self.cols+= [ Column(self.current_col,Enum(*[(k,k) for k in self.enum]))]
-            self.current_col=None
-            self.enum = []
+            self.cols.append( Column(self.current_col,Enum(*[(k,k) for k in self.enum])) )
         if tag=="form":
-            self.tables += [ Table(self.table, self.meta, *self.cols), ]
+            self.tables.append( Table(self.table, self.meta, *self.cols), )
             tables[self.table] = self.tables[-1]
-            self.table = ""
             self.cols = []
             with engine.connect() as cnx:
                 self.meta.create_all(engine)
                 cnx.commit()
+
 prologue = """
 <style>
 * {    font-family:"Sans Serif" }
@@ -185,7 +184,6 @@ $(document).ready(function() {{
 </html>
 """
 
-
 router = dict({"" : lambda fo: html,
     "login" : lambda fo : f"""
 <!doctype html>
@@ -252,16 +250,16 @@ $(document).ready(function() {{
 """})
 
 #helpers
-def redirect(to):
-    start_response('302 Found', [('Location',f"{to}")])
-    return [ f"""<html><head><meta http-equiv="refresh" content="0; url="{to}"</head></html>""".encode() ]
 
 def log(msg, ln=0, context={}):
     print("LN:%s : CTX: %s : %s" % (ln, context, msg), file=sys.stderr)
 
 line = lambda : sys._getframe(1).f_lineno
-
+# single page app python part
 def simple_app(environ, start_response):
+    def redirect(to):
+        start_response('302 Found', [('Location',f"{to}")])
+        return [ f"""<html><head><meta http-equiv="refresh" content="0; url="{to}"</head></html>""".encode() ]
     fo, fi=multipart.parse_form_data(environ)
     fo.update(**{ k: dict(
             name=fi[k].filename,
@@ -354,7 +352,7 @@ def simple_app(environ, start_response):
                     result = []
                     for elt in session.execute(
                         select(Item).filter_by(**form_to_db(fo))).all():
-                        result += [{ k.name:getattr(elt[0], k.name) for k in tables[table].columns},]
+                        result.append({ k.name:getattr(elt[0], k.name) for k in tables[table].columns})
                     fo["result"] = result
             except Exception as e:
                 has_error = True
