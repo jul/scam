@@ -113,42 +113,42 @@ input:not([type=file]) { border:1px solid #666; border-radius:.5em}
 
 
 """
-model="""
+category = lambda s :f""" 
+    <input type=number name=id />
+     <select name="{s}" nullable=false >
+            <option value="">Please select an item</option>
+            <option value="action">Act</option>
+            <option value="plan">Question</option>
+            <option value="do">Answers</option>
+            <option value="check">Check</option>
+    </select>
+"""
+item = lambda s: f"""
+    {category(s)}
+    <input type=text name=summary nullable=false />
+    <input type=text name=factoid />
+"""
+model=f"""
     <form  action=/user >
         <input type=number name=id />
         <input type=file name=pic_file />
         <input type=text name=name nullable=false unique=true />
-        <input type=checkbox name=is_checked />
-        <select name="prefered_pet" >
-            <option value="">Please select an item</option>
-            <option value="dog">Dog</option>
-            <option value="cat">Cat</option>
-            <option value="hamster">Hamster</option>
-            <option value="spider">Spider</option>
-        </select>
         <input type=email name=email nullable=false />
         <input type=password name=password nullable=false />
         <input type=uuid name=token nullable=true />
         <unique_constraint col=email name=email_unique ></unique_constraint>
     </form>
-    <form action=/group >
-        <input type=number name=id />
-        <input type=text name=name />
+    <form action=/statement />
+        {item("category")} 
     </form>
-    <form action=/user_group >
-        <input type=number name=id />
-        <input type=number name=group_id nullable=false />
-        <input type=number name=user_id nullable=false />
-        <unique_constraint col=user_id,group_id name=unique_group_id ></unique_constraint>
+    <form action=/transition  >
+        {item("category")} 
+        {category("next_category")} 
+        <input type=number name=level_of_fun />
+        <input type=number name=previous_statement_id references=statement.id nullable=false />
+        <input type=number name=next_statement_id references=statement.id />
+    </form>
 
-    </form>
-    <form action=/event  >
-        <input type=number name=id />
-        <input type=date name=from_date nullable=false />
-        <input type=date name=to_date nullable=false />
-        <input type=text name=text nullable=false />
-        <input type=number name=group_id nullable=false />
-    </form>
 """
 html = f"""
 <!doctype html>

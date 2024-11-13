@@ -1,7 +1,7 @@
 # STDLIB 
 import multipart
 from wsgiref.simple_server import make_server
-from json import dumps
+from json import dumps, loads
 from html.parser import HTMLParser
 from base64 import b64encode
 from urllib.parse import parse_qsl, urlparse
@@ -32,6 +32,15 @@ if not database_exists(engine.url):
 
 
 tables = dict()
+transtype_true = lambda p : (p[0],[False,True][p[1]=="true"])
+def dispatch(p):
+    return dict(
+        nullable=transtype_true,
+        unique=transtype_true,
+        default=lambda p:("server_default",eval(p[1])),
+    ).get(p[0], lambda *a:None)(p)
+
+transtype_input = lambda attrs : dict(filter(lambda x :x, map(dispatch, attrs.items())))
 
 class HTMLtoData(HTMLParser):
     def __init__(self):
@@ -51,16 +60,18 @@ class HTMLtoData(HTMLParser):
             "text" : UnicodeText, "checkbox" : Boolean, "date" : Date, "time" : Time,
             "datetime-local" : DateTime, "file" : Text, "password" : Text, "uuid" : Text, #UUID is postgres specific
         }
-        if tag == "select":
+
+        if tag in {"select", "textarea"}:
             self.enum=[]
             self.current_col = attrs["name"]
+            self.attrs= attrs
         if tag == "option":
             self.enum.append( attrs["value"] )
         if tag == "unique_constraint":
             self.cols.append( UniqueConstraint(*attrs["col"].split(','), name=attrs["name"]) )
-        if tag == "input":
+        if tag in { "input" }:
             if attrs.get("name") == "id":
-                self.cols.append( Column('id', Integer, primary_key = True) )
+                self.cols.append( Column('id', Integer,  **( dict(primary_key = True) | transtype_input(attrs ))))
                 return
             try:
                 if attrs.get("name").endswith("_id"):
@@ -71,17 +82,10 @@ class HTMLtoData(HTMLParser):
                 log(e, ln=line())
 
             if attrs.get("type") in simple_mapping.keys() or tag in {"select",}:
-                transtype_true = lambda p : (p[0],True if p[1]=="true" else False)
-                def dispatch(p):
-                    return dict(
-                        nullable=transtype_true,
-                        unique=transtype_true,
-                        default=lambda p:("server_default",eval(p[1])),
-                    ).get(p[0], lambda *a:None)(p)
                 self.cols.append( 
                     Column(
                         attrs["name"], simple_mapping[attrs["type"]],
-                        **dict(filter(lambda x:x, map(dispatch, attrs.items())))
+                        **transtype_input(attrs)
                     )
                 )
             if attrs["type"] == "number":
@@ -94,7 +98,15 @@ class HTMLtoData(HTMLParser):
 
     def handle_endtag(self, tag):
         if tag == "select":
-            self.cols.append( Column(self.current_col,Enum(*[(k,k) for k in self.enum])) )
+            self.cols.append( Column(self.current_col,Enum(*[(k,k) for k in self.enum]), **transtype_input(self.attrs)) )
+            
+        if tag == "textarea":
+            self.cols.append(
+                Column(
+                    self.current_col,
+                    String(int(self.attrs["cols"])*int(self.attrs["rows"])),
+                    **transtype_input(self.attrs)) 
+           )
         if tag=="form":
             self.tables.append( Table(self.table, self.meta, *self.cols), )
             tables[self.table] = self.tables[-1]
@@ -139,7 +151,7 @@ category = lambda s :f"""
 item = """
     <input type=number name=id />
     <input type=number name=user_group_id nullable=false reference=user_group.id />
-    <input type=text name=message nullable=false />
+    <textarea name=message rows=4 cols=50 nullable=false ></textarea>
     <input type=url name=factoid />
 """
 model=f"""
@@ -148,8 +160,7 @@ model=f"""
         <input type=file name=pic_file />
         <input type=text name=name nullable=false unique=true />
         <input type=email name=email unique=true nullable=false />
-        <input type=password name=password nullable=false />
-        <input type=uuid name=token nullable=true />
+        <input type=password name=secret_password nullable=false />
     </form>
     <form action=/group >
         <input type=number name=id />
@@ -159,14 +170,15 @@ model=f"""
         <input type=number name=id />
         <input type=number name=group_id reference=group.id nullable=false />
         <input type=number name=user_id reference=user.id nullable=false />
+        <input type=uuid name=secret_token nullable=true />
         <unique_constraint col=user_id,group_id name=unique_group_id ></unique_constraint>
     </form>
     <form action=/statement >
         {item} 
         {category("category")}
         <!-- hidden agenda -->
-        <input type=number name=actual_fun_for_group class=hidden nullable=false />
-        <input type=number name=expected_fun_for_next_group nullable=false class=hidden />
+        <input type=number name=actual_fun_for_group class=hidden  />
+        <input type=number name=expected_fun_for_next_group class=hidden />
         <input type=number name=fun_spent class=hidden />
     </form>
     <form action=/transition  >
@@ -186,7 +198,7 @@ model=f"""
     <form action=/comment >
         {item}
         <input type=number name=comment_id reference=comment.id />
-        <input type=number name=transition_id reference=transition.id />
+        <input type=number name=transition_id reference=transition.id nullable=false />
         <select name=emotion_for_user_triggered nullable=false value=neutral >
             <option value=neutral >Neutral</option>
             <option value=positive >Positive</option>
@@ -229,23 +241,22 @@ $(document).ready(() => {{
         $(el).attr("enctype","multipart/form-data");
         $(el).attr("method","POST");
     }});
-    $("input:not([type=hidden],[type=submit]),select").each((i,el) => {{
+    $("input:not([type=hidden],[type=submit]),select,textarea").each((i,el) => {{
         $(el).before("<label>" + el.name+ "</label><br/>");
         $(el).after("<br>");
     }});
     $("[value=clear]").on("click",function(e) {{
         e.preventDefault();
-            $("input:not([type=submit],[type=file],[type=password]),select", $($(this).parent())).each((i,el) => {{
+            $("input:not([type=submit],[type=file],[type=password]),select,textarea", $($(this).parent())).each((i,el) => {{
                 $(el).val("");
             }})
     }})
     $("[value=load]").on("click",function(e) {{
-        console.log($(this).attr("action"))
         $.ajax({{
             url: $(this).attr("action"),
             data : {{ "id" : $("[name=id]",$($(this).parent())).val(), _action : "search" }}
         }}).done((msg) => {{
-            $("input:not([type=submit],[type=file],[type=password]),select", $($(this).parent())).each((i,el) => {{
+            $("input:not([type=submit],[type=file],[type=password]),select,textarea", $($(this).parent())).each((i,el) => {{
                 $(el).val(msg.result[0][0][$(el).attr("name")]);
             }})
         }})
@@ -291,7 +302,8 @@ $(document).ready(() => {{
 </head>
 <form action=/grant >
 <input type=text name=email>
-<input type=password name=password>
+<input type=secret_password name=password>
+<input type=number name=group_id >
 <input type=submit name=_action value=grant >
 </form>
 """,
@@ -301,33 +313,38 @@ $(document).ready(() => {{
 <head>
 {prologue}
 <script>
-    $.ajax({{
-        url: "/user",
-        method: "POST",
-        data : {{ {fo.get("id") and 'id:"%s",' % fo["id"] or "" } _action: "read"}}
-    }}).done((msg) => {{
+index=0;
+console.log({fo.get("id","-1")})
+$.ajax({{
+    url: "/user",
+    method: "POST",
+    data : {{ {fo.get("id") and 'id:"%s",' % fo["id"] or "" } _action: "read"}}
+}}).done((msg) => {{
     for (var i=1; i<msg['result'][0].length;i++) {{
-        $($("[name=toclone]")[0]).after($("[name=toclone]")[0].outerHTML);
+        $($("[name=clone]")[0]).after($($("[name=clone]")[0].outerHTML));
     }}
-    msg["result"][0].forEach((res,i) => {{
-        $("span", $($("[name=toclone]")[i])).each( (h,el) => {{
-            $(el).text(res[$(el).attr("name")]);
+        msg["result"][0].forEach((res,i) => {{
+            $("span", $($("[name=toclone]")[i])).each( (h,el) => {{
+                $(el).text(res[$(el).attr("name")]);
+            }})
+            $("[name=pic]", $($("[name=toclone]")[i])).attr("src",res["pic_file"]);
         }})
-        $("[name=pic]", $($("[name=toclone]")[i])).attr("src",res["pic_file"]);
-    }})
-}});
+}})
+
 </script>
 </head>
 <body>
+<span name=clone >
 <table name=toclone >
     <tr><td><label>id</label>:</td><td> <span name=id /></td></tr>
     <tr><td><label>name</label>:</td><td> <span name=name /></td></tr>
     <tr><td><label>email</label>:</td><td> <span name=email /></td></tr>
     <tr><td><label>prefered pet</label>:</td><td><span name=prefered_pet /></td></tr>
     <tr><td><label>is checked </label>:</td><td><span name=is_checked /></td></tr>
-    <tr><td><label>token </label>:</td><td><span name=token /></td></tr>
     <tr><td><label>picture</label>:</td><td><img width=200px name=pic ></td></tr>
 </table>
+</span>
+
 </body>
 </html>
 """,
@@ -354,13 +371,13 @@ def simple_app(environ, start_response):
     table = route = environ["PATH_INFO"][1:]
     fo.update(**dict(parse_qsl(environ["QUERY_STRING"])))
     try:
-        fo["_token"] = Cookie(environ["HTTP_COOKIE"])["Token"].value
+        fo["_secret_token"] = Cookie(environ["HTTP_COOKIE"])["Token"].value
     except:
         log("no cookie found", ln=line())
     HTMLtoData().feed(model)
     metadata = MetaData()
     metadata.reflect(bind=engine)
-
+    
     Base = automap_base(metadata=metadata)
     Base.prepare()
 
@@ -378,7 +395,7 @@ def simple_app(environ, start_response):
                     # handling of boolean mapping which input begins with "is_"
                     k.startswith("is_") and [False, True][v == "on"] or
                     # password ?
-                    k == "password" and crypto_hash.hash(v) or
+                    "password" in k and crypto_hash.hash(v) or
                     v
                     for k,v in attrs.items() if v != "" and not k.startswith("_")
     }
@@ -386,10 +403,10 @@ def simple_app(environ, start_response):
 
     def validate(fo):
         with Session(engine) as session:
-            User = Base.classes.user
+            UserGroup = Base.classes.user_group
             try:
-                user = session.scalars(select(User).where(User.token==fo["_token"])).one()
-                log(dt.now() - TimeUUID(bytes=UUIDM("{%s}" % fo["_token"]).bytes).get_datetime(), ln=line(), context=fo)
+                usergroup = session.scalars(select(UserGroup).where(UserGroup.secret_token==fo["secret_token"])).one()
+                log(dt.now() - TimeUUID(bytes=UUIDM("{%s}" % fo["secret_token"]).bytes).get_datetime(), ln=line(), context=fo)
                 return False
             except Exception as e:
                 log(traceback.format_exc(), ln=line(), context=fo)
@@ -400,12 +417,15 @@ def simple_app(environ, start_response):
         with Session(engine) as session:
             User = Base.classes.user
             user = session.scalars(select(User).where(User.email==fo["email"])).one()
-            user.token = str(TimeUUID.with_utcnow())
-            fo["validate"] = crypto_hash.verify(fo["password"], user.password)
+            UserGroup = Base.classes.user_group
+            user_group=session.scalars(select(UserGroup).where(UserGroup.user_id==user.id, UserGroup.group_id==fo["group_id"])).one()
+            user_group.secret_token = str(TimeUUID.with_utcnow())
+            fo["validate"] = crypto_hash.verify(fo["secret_password"], user.secret_password)
             session.flush()
             session.commit()
             if fo["validate"]:
-                start_response('302 Found', [('Location',"/"),('Set-Cookie', "Token=%s" % user.token)], )
+                # /!\ CRSF HERE /!\ unsecure 
+                start_response('302 Found', [('Location',"/"),('Set-Cookie', "Token=%s" % user_group.secret_token)], )
                 return [ f"""<html><head><meta http-equiv="refresh" content="0; url="{fo.get("_redirect","/")}")</head></html>""".encode() ]
 
     has_error=False
@@ -443,7 +463,6 @@ def simple_app(environ, start_response):
                         return redirect("/user_view?id=%s" % item.id)
                 if action in { "read", "search" }:
                     result = []
-                    print(form_to_db(fo))
                     for elt in session.execute(
                         select(Item).filter_by(**form_to_db(fo))).all():
                         result.append({ k.name:getattr(elt[0], k.name) for k in tables[table].columns})
@@ -454,12 +473,12 @@ def simple_app(environ, start_response):
                 log(traceback.format_exc(), ln=line(), context=fo)
                 session.rollback()
             start_response('200 OK', [('Content-type', 'application/json; charset=utf-8')])
-            return [ dumps(fo.dict, indent=4, default=str).encode() ]
+            return [ dumps({k:v for k,v in fo.dict.items() if "secret" not in k}, indent=4, default=str).encode() ]
     route_to_response=dict({
         'diag.png' : lambda : start_response('200 OK', [('content-type', 'image/png'), ]),
      })
     route_to_response.get(route, lambda : start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')]))()
-    to_write = router.get(route,lambda fo:dumps(fo.dict, indent=4, default=str))(fo) 
+    to_write = router.get(route,lambda fo:dumps({ k:v for k,v in fo.dict.items() if "secret" not in k}, indent=4, default=str))(fo) 
 
     return [ to_write.encode() if hasattr(to_write, "encode") else to_write  ]
 
