@@ -141,10 +141,12 @@ input:not([type=file]) { border:1px solid #666; border-radius:.5em}
 category = lambda s :f""" 
     <select name="{s}" nullable=false >
         <option value="">Please select a {s}</option>
-        <option value=correct >Analysis</option>
-        <option value=plan >Question</option>
-        <option value=do >Answers</option>
-        <option value=check >Check</option>
+        <option value=story >Story</option>
+        <option value=story_item >Story Item</option>
+        <option value=delivery >Delivery</option>
+        <option value=answers >Answers</option>
+        <option value=questions >Questions</option>
+        <option value=tested >Tested</option>
         <option value=finish >Finish</option>
     </select>
 """
@@ -183,8 +185,8 @@ model=f"""
     </form>
     <form action=/transition  >
         {item} 
-        {category("next_category")} 
-        <select name="emotion_for_group_triggered" nullable=false value=neutral >
+        <select name="emotion_for_group_triggered" value=neutral >
+            <option value="">please select a value</option>
             <option value=positive >Positive</option>
             <option value=neutral >Neutral</option>
             <option value=negative >Negative</option>
@@ -380,6 +382,7 @@ def log(msg, ln=0, context={}):
     print("LN:%s : CTX: %s : %s" % (ln, context, msg), file=sys.stderr)
 
 line = lambda : sys._getframe(1).f_lineno
+log(f"connecting {DSN}", ln=line())
 # single page app python part
 def simple_app(environ, start_response):
     def redirect(to):
@@ -451,7 +454,6 @@ def simple_app(environ, start_response):
                 start_response('302 Found', [('Location',"/"),('Set-Cookie', "Token=%s" % user_group.secret_token)], )
                 return [ f"""<html><head><meta http-equiv="refresh" content="0; url="{fo.get("_redirect","/")}")</head></html>""".encode() ]
 
-    has_error=False
     if route in tables.keys():
         with Session(engine) as session:
             try:
@@ -467,7 +469,6 @@ def simple_app(environ, start_response):
                 if action == "create":
                     new_item = Item(**form_to_db(fo))
                     session.add(new_item)
-                    session.flush()
                     ret=session.commit()
                     fo["result"] = new_item.id
                     if table == "user":
@@ -491,7 +492,6 @@ def simple_app(environ, start_response):
                         result.append({ k.name:getattr(elt[0], k.name) for k in tables[table].columns})
                     fo["result"] = result
             except Exception as e:
-                has_error = True
                 fo["error"] = e
                 log(traceback.format_exc(), ln=line(), context=fo)
                 session.rollback()
