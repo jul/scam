@@ -125,7 +125,7 @@ fieldset {  border: 1px solid #666;  border-radius: .5em; width: 30em; margin: a
 form { text-align: left; display:inline-block; }
 input,select { margin-bottom:1em; padding:.5em;} ::file-selector-button { padding:.5em}
 input:not([type=file]) { border:1px solid #666; border-radius:.5em}
-[nullable=false] { border:1px solid red !important;}
+[nullable=false] { border:1px solid red !important;border-radius:.5em;}
 [value=create] { background:#ffffba} [value=delete] { background:#bae1ff}
 [value=update] { background:#ffdfda} [value=search] { background:#baffc9}
 .hidden { display:none;}
@@ -208,7 +208,7 @@ model=f"""
     </form>
     <form action=/annexe_comment >
         <input type=number name=id />
-        <input type=file name=annexe />
+        <input type=file name=annexe nullable=false />
         <input type=number name=comment_id reference=comment.id />
    </form>
    <form action=/permission_matrix >
@@ -302,7 +302,7 @@ $(document).ready(() => {{
 </head>
 <form action=/grant >
 <input type=text name=email>
-<input type=secret_password name=password>
+<input type=password name=secret_password>
 <input type=number name=group_id >
 <input type=submit name=_action value=grant >
 </form>
@@ -314,7 +314,6 @@ $(document).ready(() => {{
 {prologue}
 <script>
 index=0;
-console.log({fo.get("id","-1")})
 $.ajax({{
     url: "/user",
     method: "POST",
@@ -323,12 +322,32 @@ $.ajax({{
     for (var i=1; i<msg['result'][0].length;i++) {{
         $($("[name=clone]")[0]).after($($("[name=clone]")[0].outerHTML));
     }}
-        msg["result"][0].forEach((res,i) => {{
-            $("span", $($("[name=toclone]")[i])).each( (h,el) => {{
-                $(el).text(res[$(el).attr("name")]);
-            }})
-            $("[name=pic]", $($("[name=toclone]")[i])).attr("src",res["pic_file"]);
+    msg["result"][0].forEach((res,i) => {{
+        $("span", $($("[name=toclone]")[i])).each( (h,el) => {{
+            $(el).text(res[$(el).attr("name")]);
         }})
+        $("[name=pic]", $($("[name=toclone]")[i])).attr("src",res["pic_file"]);
+        $.ajax({{
+            url: "/user_group",
+            data: {{ user_id: res.id ,_action: "read" }}
+        }}).done((msg2) => {{
+            for (var l=1; l<msg2['result'][0].length;l++) {{
+                console.log("cloning after " + i + "th clone element")
+                $($("[name=toclone]")[i]).after($($("[name=token]")[0].outerHTML));
+
+            }}
+            $(document).ready( function() {{
+            msg2["result"][0].forEach((res,j) => {{
+                console.log( i + "th clone section " + j + "th token section")
+           /*     $("span", $("[name=token]"), $($("[name=clone]")[i])[j]).each( (h,el) => {{ */
+                $("span", $("[name=token]")[index++]).each( (h,el) => {{ 
+
+                    $(el).text(res[$(el).attr("name")]);
+                }})
+            }})
+            }})
+        }})
+}})
 }})
 
 </script>
@@ -343,6 +362,10 @@ $.ajax({{
     <tr><td><label>is checked </label>:</td><td><span name=is_checked /></td></tr>
     <tr><td><label>picture</label>:</td><td><img width=200px name=pic ></td></tr>
 </table>
+<div name=token >
+    <span name=user_id ></span>:
+    <span name=group_id ></span>:<span name=secret_token></span>
+</div>
 </span>
 
 </body>
