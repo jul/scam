@@ -1,5 +1,9 @@
 from requests import post
+import requests
 import os
+from dateutil import parser
+from passlib.hash import scrypt as crypto_hash # we can change the hash easily
+
 # heaviweight
 from sqlalchemy import *
 from sqlalchemy.ext.automap import automap_base
@@ -10,11 +14,23 @@ DSN=f"{DB_DRIVER}://{DB_DRIVER == 'sqlite' and not DB.startswith('/') and '/' or
 ENDPOINT="http://127.0.0.1:5000"
 os.system(f"rm {DB}")
 os.system(f"DB={DB} DB_DRIVER={DB_DRIVER} python ../pdca.py & sleep 5")
+url = lambda table : ENDPOINT + "/" + table
+os.system(f"curl {url('group')}?_action=search")
 # make sure db is bootstraped 
 
+form_to_db = lambda attrs : {  k: (
+                # handling of input having date/time in the name
+                "date" in k or "time" in k and v and type(k) == str )
+                    and parser.parse(v) or
+                # handling of boolean mapping which input begins with "is_"
+                k.startswith("is_") and [False, True][v == "on"] or
+                # password ?
+                "password" in k and crypto_hash.hash(v) or
+                v
+                for k,v in attrs.items() if v  and not k.startswith("_")
+}
 
-url = lambda table : ENDPOINT + "/" + table
-post(url("user"), params = dict(id=1,  secret_password="aucun", name="jul2", email="j2@j.com", _action="create"), files=dict(pic_file=open("diag.png", "rb").read())).text
+post(url("user"), params = dict(id=1,  secret_password="toto", name="jul2", email="j@j.com", _action="create"), files=dict(pic_file=open("../diag.png", "rb").read())).text
 os.system(f"curl {ENDPOINT}/user?_action=search")
 os.system(f"sqlite3 {DB} .dump")
 os.system("pkill -f ../pdca.py")
@@ -23,11 +39,13 @@ metadata = MetaData()
 metadata.reflect(bind=engine)
 Base = automap_base(metadata=metadata)
 Base.prepare()
+
 with Session(engine) as session:
     for table,values in tuple([
         ("group", dict(id=1, name="trolol") ),
         ("group", dict(id=2, name="serious") ),
-        ("user_group", dict(id=1,user_id=1, group_id=1, secret_token="secret")),
+        ("user_group", form_to_db(dict(id=1,user_id=1, group_id=1, secret_token="secret"))),
+        ("user_group", form_to_db(dict(id=2,user_id=1, group_id=2, secret_token=""))),
         ("statement", dict(id=1,user_group_id=1, message="usable agile workflow", category="story" )),
         ("statement", dict(id=2,user_group_id=1, message="How do we code?", category="story_item" )),
         ("statement", dict(id=3,user_group_id=1, message="which database?", category="question")),
@@ -61,5 +79,18 @@ with Session(engine) as session:
         ]):
         session.add(getattr(Base.classes,table)(**values))
         session.commit()
-#n        os.system(f"curl {url(table)}?_action=search")
-os.system("python ../generate_state_diagram.py sqlite:///test.db > out.dot ; xdot out.dot")
+os.system("python ../generate_state_diagram.py sqlite:///test.db > out.dot ;dot -Tpng out.dot > diag2.png; xdot out.dot")
+s = requests.session()
+
+os.system(f"DB={DB} DB_DRIVER={DB_DRIVER} python ../pdca.py & sleep 1")
+
+
+print(s.post(url("group"), params=dict(_action="delete", id=3,name=1)).status_code)
+print(s.post(url("grant"), params = dict(secret_password="toto", email="j@j.com",group_id=1, )).status_code)
+print(s.post(url("grant"), params = dict(_redirect="/group",secret_password="toto", email="j@j.com",group_id=2, )).status_code)
+print(s.cookies["Token"])
+print(s.post(url("user_group"), params=dict(_action="read", user_id=1)).text)
+print(s.post(url("group"), params=dict(_action="create", id=3,name=2)).text)
+print(s.post(url("group"), params=dict(_action="delete", id=3)).status_code)
+print(s.post(url("group"), params=dict(_action="search", )).text)
+os.system("pkill -f ../pdca.py")

@@ -23,6 +23,7 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy_utils import database_exists, create_database
 
+__DIR__= os.path.dirname(os.path.abspath(__file__))
 DB=os.environ.get('DB','pdca2.db')
 DB_DRIVER=os.environ.get('DB_DRIVER','sqlite')
 DSN=f"{DB_DRIVER}://{DB_DRIVER == 'sqlite' and not DB.startswith('/') and '/' or ''}{DB}"
@@ -373,8 +374,8 @@ $.ajax({{
 </body>
 </html>
 """,
-"diag.png" : lambda fo:open("./diag.png", "rb").read(),
 })
+
 
 #helpers
 
@@ -407,10 +408,20 @@ def simple_app(environ, start_response):
     Base = automap_base(metadata=metadata)
     Base.prepare()
 
-    dest=os.path.join(os.path.dirname(__file__), 'diag.png')
+    dest=os.path.join(__DIR__, "assets",'diag.png')
+
     if not os.path.isfile(dest):
-        os.system(os.path.join(os.path.dirname(__file__), "generate_diagram.py") + " " + DSN);
+        os.system(os.path.join(__DIR__, "generate_diagram.py") + " " + DSN);
         os.system("dot out.dot -T png >  " + dest);
+    potential_file = os.path.join(__DIR__, "assets", route )
+    if os.path.isfile(potential_file ):
+## python-magic
+        import magic
+        start_response('200 OK', [('content-type', magic.from_file(potential_file, mime=True)), ])
+        log(f"bingo {potential_file}")
+        return [ open(potential_file, "rb").read() ]
+
+
 
     form_to_db = lambda attrs : {  k: (
                     # handling of input having date/time in the name
@@ -431,15 +442,15 @@ def simple_app(environ, start_response):
         with Session(engine) as session:
             UserGroup = Base.classes.user_group
             try:
-                usergroup = session.scalars(select(UserGroup).where(UserGroup.secret_token==fo["secret_token"])).one()
-                log(dt.now() - TimeUUID(bytes=UUIDM("{%s}" % fo["secret_token"]).bytes).get_datetime(), ln=line(), context=fo)
+                usergroup = session.scalars(select(UserGroup).where(UserGroup.secret_token==fo["_secret_token"])).one()
+                log(dt.now() - TimeUUID(bytes=UUIDM("{%s}" % fo["_secret_token"]).bytes).get_datetime(), ln=line(), context=fo)
                 return False
             except Exception as e:
                 log(traceback.format_exc(), ln=line(), context=fo)
-                start_response('302 Found', [('Location',"/login?_redirect=/")], )
+                start_response('302 Found', [('Location',"/login?_redirect=/login")], )
                 return [ f"""<html><head><meta http-equiv="refresh" content="0; url="/login?_redirect=/</head></html>""".encode() ]
 
-    if action=="grant":
+    if route=="grant":
         with Session(engine) as session:
             User = Base.classes.user
             user = session.scalars(select(User).where(User.email==fo["email"])).one()
@@ -453,6 +464,10 @@ def simple_app(environ, start_response):
                 # /!\ CRSF HERE /!\ unsecure 
                 start_response('302 Found', [('Location',"/"),('Set-Cookie', "Token=%s" % user_group.secret_token)], )
                 return [ f"""<html><head><meta http-equiv="refresh" content="0; url="{fo.get("_redirect","/")}")</head></html>""".encode() ]
+            else:
+                start_response('403 wrong auth', [('Location',"/"), ])
+                return [ dumps(fo, indent=4, default=str).encode() ]
+
 
     if route in tables.keys():
         with Session(engine) as session:
@@ -460,7 +475,7 @@ def simple_app(environ, start_response):
                 Item = getattr(Base.classes, table)
                 if action == "delete":
                     #from pdb import set_trace; set_trace()
-                    fo["_redirect"]= "delete"
+                    fo["_redirect"]= "/login"
                     if fail := validate(fo):
                         return fail
                     session.delete(session.get(Item, fo["id"]))
@@ -475,7 +490,7 @@ def simple_app(environ, start_response):
                         return redirect("/user_view?id=%s" % new_item.id)
 
                 if action == "update":
-                    fo["_redirect"]= "update"
+                    fo["_redirect"]= "/login"
                     if fail:= validate(fo):
                         return fail
                     item = session.scalars(select(Item).where(Item.id==fo["id"])).one()
@@ -497,12 +512,8 @@ def simple_app(environ, start_response):
                 session.rollback()
             start_response('200 OK', [('Content-type', 'application/json; charset=utf-8')])
             return [ dumps({k:v for k,v in fo.dict.items() if "secret" not in k}, indent=4, default=str).encode() ]
-    route_to_response=dict({
-        'diag.png' : lambda : start_response('200 OK', [('content-type', 'image/png'), ]),
-     })
-    route_to_response.get(route, lambda : start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')]))()
+    start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
     to_write = router.get(route,lambda fo:dumps({ k:v for k,v in fo.dict.items() if "secret" not in k}, indent=4, default=str))(fo) 
-
     return [ to_write.encode() if hasattr(to_write, "encode") else to_write  ]
 
 
