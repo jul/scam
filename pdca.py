@@ -22,6 +22,10 @@ from sqlalchemy import *
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy_utils import database_exists, create_database
+from mako.template import Template
+from mako.lookup import TemplateLookup
+
+
 
 __DIR__= os.path.dirname(os.path.abspath(__file__))
 DB=os.environ.get('DB','pdca2.db')
@@ -30,6 +34,7 @@ DSN=f"{DB_DRIVER}://{DB_DRIVER == 'sqlite' and not DB.startswith('/') and '/' or
 engine = create_engine(DSN)
 if not database_exists(engine.url):
     create_database(engine.url)
+
 
 
 tables = dict()
@@ -219,6 +224,7 @@ model=f"""
         {category("src_category")}
         {category("dst_category")}
         <input type=number name=group_id reference=group.id nullable=false />
+        <input type=checkbox name=is_search />
         <input type=checkbox name=is_create />
         <input type=checkbox name=is_delete />
         <input type=checkbox name=is_update />
@@ -275,7 +281,7 @@ $(document).ready(() => {{
     <li>try <a href=/user_view?id=1 > here once you filled in your first user</a></li>
     <li>try <a href=/user_view> here is a list of all known users</a></li>
 </ul></div>
-<img src=./diag.png />
+<img src=./assets/diag.png />
 {model}
 </body>
 </html>
@@ -320,7 +326,7 @@ index=0;
 $.ajax({{
     url: "/user",
     method: "POST",
-    data : {{ {fo.get("id") and 'id:"%s",' % fo["id"] or "" } _action: "read"}}
+    data : {{ {fo.get("id") and 'id:"%s",' % fo["id"] or "" } _action: "search"}}
 }}).done((msg) => {{
     for (var i=1; i<msg['result'][0].length;i++) {{
         $($("[name=clone]")[0]).after($($("[name=clone]")[0].outerHTML));
@@ -332,7 +338,8 @@ $.ajax({{
         $("[name=pic]", $($("[name=toclone]")[i])).attr("src",res["pic_file"]);
         $.ajax({{
             url: "/user_group",
-            data: {{ user_id: res.id ,_action: "read" }}
+            data: {{ user_id: res.id ,_action: "search" }}
+            
         }}).done((msg2) => {{
             for (var l=1; l<msg2['result'][0].length;l++) {{
                 console.log("cloning after " + i + "th clone element")
@@ -395,6 +402,9 @@ def simple_app(environ, start_response):
             content_type=fi[k].content_type,
             content=b64encode(fi[k].file.read())
         ) for k,v in fi.items()})
+
+
+
     table = route = environ["PATH_INFO"][1:]
     fo.update(**dict(parse_qsl(environ["QUERY_STRING"])))
     try:
@@ -409,6 +419,8 @@ def simple_app(environ, start_response):
     Base.prepare()
 
     dest=os.path.join(__DIR__, "assets",'diag.png')
+    
+
 
     if not os.path.isfile(dest):
         os.system(os.path.join(__DIR__, "generate_diagram.py") + " " + DSN);
@@ -420,7 +432,6 @@ def simple_app(environ, start_response):
         start_response('200 OK', [('content-type', magic.from_file(potential_file, mime=True)), ])
         log(f"bingo {potential_file}")
         return [ open(potential_file, "rb").read() ]
-
 
 
     form_to_db = lambda attrs : {  k: (
@@ -500,7 +511,7 @@ def simple_app(environ, start_response):
                     fo["result"] = item.id
                     if table == "user":
                         return redirect("/user_view?id=%s" % item.id)
-                if action in { "read", "search" }:
+                if action in { "search" }:
                     result = []
                     for elt in session.execute(
                         select(Item).filter_by(**form_to_db(fo))).all():
@@ -512,8 +523,22 @@ def simple_app(environ, start_response):
                 session.rollback()
             start_response('200 OK', [('Content-type', 'application/json; charset=utf-8')])
             return [ dumps({k:v for k,v in fo.dict.items() if "secret" not in k}, indent=4, default=str).encode() ]
-    start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
-    to_write = router.get(route,lambda fo:dumps({ k:v for k,v in fo.dict.items() if "secret" not in k}, indent=4, default=str))(fo) 
+    if route =="":
+        route="index"
+    to_write=""
+    potential_file = os.path.join("templates", route)
+    print(potential_file)
+    if os.path.isfile(potential_file):
+        print("here")
+        start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
+        env = TemplateLookup(directories=['./'])
+        to_write = Template(filename=potential_file,lookup=env).render(
+            fo= { k:v for k,v in fo.dict.items() if "secret" not in k}
+        )
+    else:
+        start_response('200 OK', [('Content-type', 'application/json; charset=utf-8')])
+        to_write = dumps({ k:v for k,v in fo.dict.items() if "secret" not in k}, indent=4, default=str)
+
     return [ to_write.encode() if hasattr(to_write, "encode") else to_write  ]
 
 
