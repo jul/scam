@@ -8,7 +8,7 @@ from urllib.parse import parse_qsl, urlparse
 import traceback
 from  http.cookies import SimpleCookie as Cookie
 from uuid import UUID as  UUIDM # conflict with sqlachemy
-from datetime import datetime as dt, UTC
+from datetime import datetime as dt, UTC, timezone
 import sys
 import os
 # external dependencies
@@ -28,7 +28,7 @@ from mako.lookup import TemplateLookup
 
 
 __DIR__= os.path.dirname(os.path.abspath(__file__))
-DB=os.environ.get('DB','pdca2.db')
+DB=os.environ.get('DB','pdca.db')
 DB_DRIVER=os.environ.get('DB_DRIVER','sqlite')
 DSN=f"{DB_DRIVER}://{DB_DRIVER == 'sqlite' and not DB.startswith('/') and '/' or ''}{DB}"
 engine = create_engine(DSN)
@@ -104,7 +104,9 @@ class HTMLtoData(HTMLParser):
 
     def handle_endtag(self, tag):
         if tag == "select":
-            self.cols.append( Column(self.current_col,Enum(*[(k,k) for k in self.enum]), **transtype_input(self.attrs)) )
+            # self.cols.append( Column(self.current_col,Enum(*[(k,k) for k in self.enum]), **transtype_input(self.attrs)) )
+
+            self.cols.append( Column(self.current_col, Text, **transtype_input(self.attrs)) )
             
         if tag == "textarea":
             self.cols.append(
@@ -120,268 +122,6 @@ class HTMLtoData(HTMLParser):
             with engine.connect() as cnx:
                 self.meta.create_all(engine)
                 cnx.commit()
-
-prologue = """
-<style>
-* {    font-family: sans-serif }
-body { text-align: center; }
-div, table {border-spacing:0;text-align:left;width:30em;margin:auto;border:1px solid #666;border-radius:.5em;margin-bottom:1em; }
-tbody tr:nth-child(odd) {  background-color: #eee;}
-fieldset {  border: 1px solid #666;  border-radius: .5em; width: 30em; margin: auto; }
-form { text-align: left; display:inline-block; }
-input,select { margin-bottom:1em; padding:.5em;} ::file-selector-button { padding:.5em}
-input:not([type=file]) { border:1px solid #666; border-radius:.5em}
-[nullable=false] { border:1px solid red !important;border-radius:.5em;}
-[value=create] { background:#ffffba} [value=delete] { background:#bae1ff}
-[value=update] { background:#ffdfda} [value=search] { background:#baffc9}
-.hidden { display:none;}
-[type=submit] { margin-right:1em; margin-bottom:0em; border:1px solid #333; padding:.5em; border-radius:.5em; }
-</style>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script type="text/javascript" src=
-"https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js">
-    </script>
-
-
-"""
-category = lambda s :f""" 
-    <select name="{s}" nullable=false >
-        <option value="">Please select a {s}</option>
-        <option value=story >Story</option>
-        <option value=story_item >Story Item</option>
-        <option value=delivery >Delivery</option>
-        <option value=answers >Answers</option>
-        <option value=questions >Questions</option>
-        <option value=tested >Tested</option>
-        <option value=finish >Finish</option>
-    </select>
-"""
-item = """
-    <input type=number name=id />
-    <input type=number name=user_group_id nullable=false reference=user_group.id />
-    <textarea name=message rows=4 cols=50 nullable=false ></textarea>
-    <input type=url name=factoid />
-"""
-model=f"""
-    <form  action=/user >
-        <input type=number name=id />
-        <input type=file name=pic_file />
-        <input type=text name=name nullable=false unique=true />
-        <input type=email name=email unique=true nullable=false />
-        <input type=password name=secret_password nullable=false />
-    </form>
-    <form action=/group >
-        <input type=number name=id />
-        <input type=text name=name />
-    </form>
-    <form action=/user_group >
-        <input type=number name=id />
-        <input type=number name=group_id reference=group.id nullable=false />
-        <input type=number name=user_id reference=user.id nullable=false />
-        <input type=uuid name=secret_token nullable=true />
-        <unique_constraint col=user_id,group_id name=unique_group_id ></unique_constraint>
-    </form>
-    <form action=/statement >
-        {item} 
-        {category("category")}
-        <!-- hidden agenda -->
-        <input type=number name=actual_fun_for_group class=hidden  />
-        <input type=number name=expected_fun_for_next_group class=hidden />
-        <input type=number name=fun_spent class=hidden />
-    </form>
-    <form action=/transition  >
-        {item} 
-        <select name="emotion_for_group_triggered" value=neutral >
-            <option value="">please select a value</option>
-            <option value=positive >Positive</option>
-            <option value=neutral >Neutral</option>
-            <option value=negative >Negative</option>
-        </select>
-        <input type=number name=expected_fun_for_group />
-        <input type=number name=previous_statement_id reference=statement.id nullable=false />
-        <input type=number name=next_statement_id reference=statement.id />
-        <unique_constraint col=next_statement_id,previous_statement_id name=unique_transition ></unique_constraint>
-        <input type=checkbox name=is_exception />
-    </form>
-    <form action=/comment >
-        {item}
-        <input type=number name=comment_id reference=comment.id />
-        <input type=number name=transition_id reference=transition.id nullable=false />
-        <select name=emotion_for_user_triggered nullable=false value=neutral >
-            <option value=neutral >Neutral</option>
-            <option value=positive >Positive</option>
-            <option value=negative >Negative</option>
-        </select>
-        <input type=datetime-local name=created_at_time default=func.now() class=hidden />
-    </form>
-    <form action=/annexe_comment >
-        <input type=number name=id />
-        <input type=file name=annexe nullable=false />
-        <input type=number name=comment_id reference=comment.id />
-   </form>
-   <form action=/permission_matrix >
-        <input type=hidden name=id />
-        {category("src_category")}
-        {category("dst_category")}
-        <input type=number name=group_id reference=group.id nullable=false />
-        <input type=checkbox name=is_search />
-        <input type=checkbox name=is_create />
-        <input type=checkbox name=is_delete />
-        <input type=checkbox name=is_update />
-        <unique_constraint col=group_id,src_category,dst_category name=unique_matrice_element_id ></unique_constraint>
-   </form>
-
-"""
-html = f"""
-<!doctype html>
-<html>
-<head>
-{prologue}
-<script>
-
-$(document).ready(() => {{
-    $("form").each((i,el) => {{
-        $(el).wrap("<fieldset></fieldset>"  );
-        $(el).before("<legend>" + el.action + "</legend>");
-        $(el).append("<input name=_action type=submit value=create ><input name=_action type=submit value=search >")
-        $(el).append("<input name=_action type=submit value=update ><input name=_action type=submit value=delete >")
-        $(el).append("<input name=_action type=submit action=" + el.action +" value=load >")
-        $(el).append("<input name=_action type=submit value=clear >")
-        $(el).attr("enctype","multipart/form-data");
-        $(el).attr("method","POST");
-    }});
-    $("input:not([type=hidden],[type=submit]),select,textarea").each((i,el) => {{
-        $(el).before("<label>" + el.name+ "</label><br/>");
-        $(el).after("<br>");
-    }});
-    $("[value=clear]").on("click",function(e) {{
-        e.preventDefault();
-            $("input:not([type=submit],[type=file],[type=password]),select,textarea", $($(this).parent())).each((i,el) => {{
-                $(el).val("");
-            }})
-    }})
-    $("[value=load]").on("click",function(e) {{
-        $.ajax({{
-            url: $(this).attr("action"),
-            data : {{ "id" : $("[name=id]",$($(this).parent())).val(), _action : "search" }}
-        }}).done((msg) => {{
-            $("input:not([type=submit],[type=file],[type=password]),select,textarea", $($(this).parent())).each((i,el) => {{
-                $(el).val(msg.result[0][0][$(el).attr("name")]);
-            }})
-        }})
-        e.preventDefault();
-    }})
-}});
-
-</script>
-</head>
-<body >
-<div><ul>
-    <li>try <a href=/login >here to get granted the authorization to use update/delete action</a></li>
-    <li>try <a href=/user_view?id=1 > here once you filled in your first user</a></li>
-    <li>try <a href=/user_view> here is a list of all known users</a></li>
-</ul></div>
-<img src=./assets/diag.png />
-{model}
-</body>
-</html>
-"""
-
-router = dict({"" : lambda fo: html,
-    "login" : lambda fo : f"""
-<!doctype html>
-<html>
-<head>
-{prologue}
-<script>
-
-$(document).ready(() => {{
-    $("form").each((i,el) => {{
-        $(el).wrap("<fieldset></fieldset>"  );
-        $(el).before("<legend>" + el.action + "</legend>");
-        $(el).attr("enctype","multipart/form-data");
-        $(el).attr("method","POST");
-    }});
-    $("input:not([type=hidden],[type=submit]),select").each((i,el) => {{
-        $(el).before("<label>" + el.name+ "</label><br/>");
-        $(el).after("<br>");
-    }});
-}});
-</script>
-</head>
-<form action=/grant >
-<input type=text name=email>
-<input type=password name=secret_password>
-<input type=number name=group_id >
-<input type=submit name=_action value=grant >
-</form>
-""",
-    "user_view" : lambda fo : f"""
-<!doctype html>
-<html>
-<head>
-{prologue}
-<script>
-index=0;
-$.ajax({{
-    url: "/user",
-    method: "POST",
-    data : {{ {fo.get("id") and 'id:"%s",' % fo["id"] or "" } _action: "search"}}
-}}).done((msg) => {{
-    for (var i=1; i<msg['result'][0].length;i++) {{
-        $($("[name=clone]")[0]).after($($("[name=clone]")[0].outerHTML));
-    }}
-    msg["result"][0].forEach((res,i) => {{
-        $("span", $($("[name=toclone]")[i])).each( (h,el) => {{
-            $(el).text(res[$(el).attr("name")]);
-        }})
-        $("[name=pic]", $($("[name=toclone]")[i])).attr("src",res["pic_file"]);
-        $.ajax({{
-            url: "/user_group",
-            data: {{ user_id: res.id ,_action: "search" }}
-            
-        }}).done((msg2) => {{
-            for (var l=1; l<msg2['result'][0].length;l++) {{
-                console.log("cloning after " + i + "th clone element")
-                $($("[name=toclone]")[i]).after($($("[name=token]")[0].outerHTML));
-
-            }}
-            $(document).ready( function() {{
-            msg2["result"][0].forEach((res,j) => {{
-                console.log( i + "th clone section " + j + "th token section")
-           /*     $("span", $("[name=token]"), $($("[name=clone]")[i])[j]).each( (h,el) => {{ */
-                $("span", $("[name=token]")[index++]).each( (h,el) => {{ 
-
-                    $(el).text(res[$(el).attr("name")]);
-                }})
-            }})
-            }})
-        }})
-}})
-}})
-
-</script>
-</head>
-<body>
-<span name=clone >
-<table name=toclone >
-    <tr><td><label>id</label>:</td><td> <span name=id /></td></tr>
-    <tr><td><label>name</label>:</td><td> <span name=name /></td></tr>
-    <tr><td><label>email</label>:</td><td> <span name=email /></td></tr>
-    <tr><td><label>prefered pet</label>:</td><td><span name=prefered_pet /></td></tr>
-    <tr><td><label>is checked </label>:</td><td><span name=is_checked /></td></tr>
-    <tr><td><label>picture</label>:</td><td><img width=200px name=pic ></td></tr>
-</table>
-<div name=token >
-    <span name=user_id ></span>:
-    <span name=group_id ></span>:<span name=secret_token></span>
-</div>
-</span>
-
-</body>
-</html>
-""",
-})
 
 
 #helpers
@@ -411,6 +151,11 @@ def simple_app(environ, start_response):
         fo["_secret_token"] = Cookie(environ["HTTP_COOKIE"])["Token"].value
     except:
         log("no cookie found", ln=line())
+        
+    env = TemplateLookup(directories=['./'])
+    model = Template(filename="templates/model.mako",lookup=env).render(
+        fo= { k:v for k,v in fo.dict.items() if "secret" not in k}
+    )
     HTMLtoData().feed(model)
     metadata = MetaData()
     metadata.reflect(bind=engine)
@@ -451,10 +196,11 @@ def simple_app(environ, start_response):
 
     def validate(fo):
         with Session(engine) as session:
-            UserGroup = Base.classes.user_group
+            User = Base.classes.user
             try:
-                usergroup = session.scalars(select(UserGroup).where(UserGroup.secret_token==fo["_secret_token"])).one()
-                log(dt.now() - TimeUUID(bytes=UUIDM("{%s}" % fo["_secret_token"]).bytes).get_datetime(), ln=line(), context=fo)
+                user = session.scalars(select(User).where(User.secret_token==fo["_secret_token"])).one()
+                log("token emitted since " + str( dt.now(UTC) - dt.fromtimestamp(TimeUUID(bytes=UUIDM("{%s}" % fo["_secret_token"]).bytes).get_timestamp(), UTC)), ln=line(),)
+
                 return False
             except Exception as e:
                 log(traceback.format_exc(), ln=line(), context=fo)
@@ -465,22 +211,21 @@ def simple_app(environ, start_response):
         with Session(engine) as session:
             User = Base.classes.user
             user = session.scalars(select(User).where(User.email==fo["email"])).one()
-            UserGroup = Base.classes.user_group
-            user_group=session.scalars(select(UserGroup).where(UserGroup.user_id==user.id, UserGroup.group_id==fo["group_id"])).one()
-            user_group.secret_token = str(TimeUUID.with_utcnow())
+            user.secret_token = str(TimeUUID.with_utcnow())
             fo["validate"] = crypto_hash.verify(fo["secret_password"], user.secret_password)
             session.flush()
             session.commit()
             if fo["validate"]:
                 # /!\ CRSF HERE /!\ unsecure 
-                start_response('302 Found', [('Location',"/"),('Set-Cookie', "Token=%s" % user_group.secret_token)], )
+                start_response('302 Found', [('Location',"/"),('Set-Cookie', "Token=%s" % user.secret_token)], )
                 return [ f"""<html><head><meta http-equiv="refresh" content="0; url="{fo.get("_redirect","/")}")</head></html>""".encode() ]
             else:
                 start_response('403 wrong auth', [('Location',"/"), ])
                 return [ dumps(fo, indent=4, default=str).encode() ]
 
 
-    if route in tables.keys():
+    if "_action" in fo and route in tables.keys():
+        log("action")
         with Session(engine) as session:
             try:
                 Item = getattr(Base.classes, table)
@@ -526,10 +271,15 @@ def simple_app(environ, start_response):
     if route =="":
         route="index"
     to_write=""
+    if route == "comment":
+        fo["result"]=[]
+        with engine.connect() as cnx:
+            for s in cnx.execute(text("select id, message, factoid, category from comment")):
+                id, message, factoid, category= s
+                fo["result"] += [ dict(message=message,id=id,category=category, factoid=factoid) ]
+# MAKO HANDLING
     potential_file = os.path.join("templates", route)
-    print(potential_file)
     if os.path.isfile(potential_file):
-        print("here")
         start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
         env = TemplateLookup(directories=['./'])
         to_write = Template(filename=potential_file,lookup=env).render(

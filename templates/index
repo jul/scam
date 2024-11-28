@@ -1,0 +1,41 @@
+<%inherit file="base.mako"/>
+<%block name="include_head">
+<script>
+$(document).ready(() => {
+    $("form").each((i,el) => {
+        $(el).append("<input name=_action type=submit value=create ><input name=_action type=submit value=search >")
+        $(el).append("<input name=_action type=submit value=update ><input name=_action type=submit value=delete >")
+        $(el).append("<input name=_action type=submit action=" + el.action +" value=load >")
+        $(el).append("<input name=_action type=submit value=clear >")
+    });
+    $("[value=clear]").on("click",function(e) {
+        e.preventDefault();
+            $("input:not([type=submit],[type=file],[type=password]),select,textarea", $($(this).parent())).each((i,el) => {
+                $(el).val("");
+            })
+    })
+    $("[value=load]").on("click",function(e) {
+        $.ajax({
+            url: $(this).attr("action"),
+            data : { "id" : $("[name=id]",$($(this).parent())).val(), _action : "search" }
+        }).done((msg) => {
+            $("input:not([type=submit],[type=file],[type=password]),select,textarea", $($(this).parent())).each((i,el) => {
+                $(el).val(msg.result[0][0][$(el).attr("name")]);
+            })
+        })
+        e.preventDefault();
+    })
+});
+
+</script>
+</%block>
+<div>
+    <ul>
+    <li>try <a href=/login >here to get granted the authorization to use update/delete action</a></li>
+    <li>try <a href=/user_view?id=1 > here once you filled in your first user</a></li>
+    <li>try <a href=/user_view> here is a list of all known users</a></li>
+</ul>
+</div>
+<img src=diag.png />
+<%include file="model.mako" />
+

@@ -1,0 +1,20 @@
+<%inherit file="base.mako" />
+<table>
+%for item in fo["result"][0]:
+<tr><td>${item["id"]}</td><td>${item["category"]}</td><td>${item["message"]}</td></tr>
+%endfor
+</table>
+
+
+    <form action=/comment >
+        <%include file="item.mako" />
+        <%include file="category.mako" args='category="category"'  />
+        <input type=datetime-local name=created_at_time default=func.now() class=hidden />
+    </form>
+    <form action=/transition >
+        <input type=number name=id />
+        <input type=number name=previous_comment_id reference=comment.id nullable=false />
+        <input type=number name=next_comment_id reference=comment.id nullable=false />
+
+    </form>
+

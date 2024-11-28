@@ -34,17 +34,14 @@ cat_colors=dict(
     finish="black",
     delivery="green",
 )
-
+seen = dict()
 with db.connect() as sql:
-    for s in sql.execute(text("select id, message, factoid, category from statement")):
+    for s in sql.execute(text("select id, message, factoid, category from comment")):
         id, message, factoid, category= s
         print(f"""{id} [label="{id}|{category}|{message}|{factoid}" color="{cat_colors.get(category, "gray")}"];""")
     fake_id=1
-    for s in sql.execute(text("select id, message, factoid, previous_statement_id, next_statement_id from transition")):
-        id, message, factoid, previous_statement_id, next_statement_id = s
-        if not next_statement_id:
-            next_statement_id = "unk_%d" % fake_id
-            fake_id+=1
-            print(f"""{next_statement_id} [label="unknown|sid|None" color="grey"];  """)
-        print(f"""{previous_statement_id} -> {next_statement_id} [label="{id}|{message}" ];""")
+    for s in sql.execute(text("select previous_comment_id, next_comment_id from transition;")):
+        previous_comment_id, next_comment_id = s
+        print(f"""{previous_comment_id} -> {next_comment_id};""")
+
 print("}")

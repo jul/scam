@@ -1,0 +1,37 @@
+<%inherit file="base.mako" />
+
+<%block name="include_head" >
+<script>
+index=0;
+$.ajax({
+    url: "/user",
+    method: "POST",
+    data : {
+% if fo.get("id"):
+id : ${fo["id"][0]}, 
+% endif
+ _action: "search"}
+}).done((msg) => {
+    for (var i=1; i<msg['result'][0].length;i++) {
+        $($("[name=clone]")[0]).after($($("[name=clone]")[0].outerHTML));
+    }
+    msg["result"][0].forEach((res,i) => {
+        $("span", $($("[name=toclone]")[i])).each( (h,el) => {
+            $(el).text(res[$(el).attr("name")]);
+        })
+        $("[name=pic]", $($("[name=toclone]")[i])).attr("src",res["pic_file"]);
+    })
+})
+
+</script>
+</%block>
+
+<span name=clone >
+<table name=toclone >
+    <tr><td><label>id</label>:</td><td> <span name=id /></td></tr>
+    <tr><td><label>name</label>:</td><td> <span name=name /></td></tr>
+    <tr><td><label>email</label>:</td><td> <span name=email /></td></tr>
+    <tr><td><label>picture</label>:</td><td><img width=200px name=pic ></td></tr>
+    <tr><td><label>token</label>:</td><td> <span name=secret_token /></td></tr>
+
+</table>
