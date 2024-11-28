@@ -1,15 +1,33 @@
 <%inherit file="base.mako" />
-<table>
+<%block name="include_head" >
+<script>
+$("[value=reply]").ready(() => {
+    $("[value=reply]").click( function() {
+        $("[name=comment_id]",$($("form")[0])).val($("[name=id]",$(this).parent("this")).val())
+
+    })
+})
+</script>
+</%block>
+
 %for item in fo["result"][0]:
-<tr><td>${item["id"]}</td><td>${item["category"]}</td><td>${item["message"]}</td></tr>
+<this>
+<input type=hidden name=id value=${item["id"]} />${item["id"]}<span class=${item["category"]} >${item["category"]}</span>${item["message"]}
+${item["factoid"]}
+<input type=submit value=reply />
+</this>
 %endfor
-</table>
 
 
     <form action=/comment >
-        <%include file="item.mako" />
+    <input type=number name=id />
+    <input type=number name=user_id value=${fo.get("_user_id",[-1])[0]} />
+    <input type=number name=comment_id  />
+    <textarea name=message rows=10 cols=50 nullable=false ></textarea>
+    <input type=url name=factoid />
         <%include file="category.mako" args='category="category"'  />
         <input type=datetime-local name=created_at_time default=func.now() class=hidden />
+        <input name=_action type=submit value=create >
     </form>
     <form action=/transition >
         <input type=number name=id />

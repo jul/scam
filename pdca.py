@@ -200,6 +200,7 @@ def simple_app(environ, start_response):
             try:
                 user = session.scalars(select(User).where(User.secret_token==fo["_secret_token"])).one()
                 log("token emitted since " + str( dt.now(UTC) - dt.fromtimestamp(TimeUUID(bytes=UUIDM("{%s}" % fo["_secret_token"]).bytes).get_timestamp(), UTC)), ln=line(),)
+                fo["_user_id"]=user.id
 
                 return False
             except Exception as e:
@@ -272,6 +273,8 @@ def simple_app(environ, start_response):
         route="index"
     to_write=""
     if route == "comment":
+        if fail := validate(fo):
+            return fail
         fo["result"]=[]
         with engine.connect() as cnx:
             for s in cnx.execute(text("select id, message, factoid, category from comment")):
