@@ -3,23 +3,54 @@
 <script>
 $("[value=reply]").ready(() => {
     $("[value=reply]").click( function() {
-        $("[name=comment_id]",$($("form")[0])).val($("[name=id]",$(this).parent("this")).val())
+        $("[name=comment_id]",$($("form")[0])).val($("[name=id]",$(this).parent("div")).val())
 
     })
 })
 </script>
 </%block>
+<%def name="print_comment(comment, depth=0)">
+<div>
+<input type=hidden class=hidden name=id value=${comment["id"]} ><span class=${comment["category"]} >${comment["category"]}</span><br/>
+${comment["message"]}
+<br/>
+<a href=${comment["factoid"]}>${comment["factoid"]}</a><br/>
+<input type=submit value=reply />
+    % if "answer" in  comment.keys():
+      
+      % for item in comment["answer"]:
+      % if "answer" in item.keys():
+                    <!-- print this item for this level -->
+                        ${print_comment(item, depth+1)}
+                    <!-- end this level (close div or anything that should contain next level -->
+                % else:
+                <div>
+<input type=hidden class=hidden name=id value=${item["id"]} ><span class=${item["category"]} >${item["category"]}</span><br/>
+${item["message"]}
+<br/>
+<a href=${item["factoid"]}>${item["factoid"]}</a><br/>
+<input type=submit value=reply />
+</div>
+                    <!-- handle bottom level (linke, or div, etc.) -->
+                    <!-- close any elements for bottom level not already closed -->
+                    </div>
+                    </div>
+                % endif
+                
+            % endfor
+    % endif
+                    </div>
+</%def>
+
+
 
 %for item in fo["result"][0]:
-<this>
-<input type=hidden name=id value=${item["id"]} />${item["id"]}<span class=${item["category"]} >${item["category"]}</span>${item["message"]}
-${item["factoid"]}
-<input type=submit value=reply />
-</this>
+    ${ print_comment(item, 0) }
+
 %endfor
 
 
-    <form action=/comment >
+    <form class=modal action=/comment >
     <input type=number name=id />
     <input type=number name=user_id value=${fo.get("_user_id",[-1])[0]} />
     <input type=number name=comment_id  />

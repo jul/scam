@@ -3,8 +3,9 @@
 <script>
 $(document).ready(() => {
     $("form").each((i,el) => {
-        $(el).append("<input name=_action type=submit value=create ><input name=_action type=submit value=search >")
-        $(el).append("<input name=_action type=submit value=update ><input name=_action type=submit value=delete >")
+        $(el).append("<input name=_action type=submit value=create action=" + el.action +" >")
+        $(el).append("<input name=_action type=submit value=search >")
+        $(el).append("<input name=_action type=submit action=" + el.action +" value=update > <input name=_action type=submit value=delete >")
         $(el).append("<input name=_action type=submit action=" + el.action +" value=load >")
         $(el).append("<input name=_action type=submit value=clear >")
     });
@@ -34,6 +35,7 @@ $(document).ready(() => {
     <li>try <a href=/login >here to get granted the authorization to use update/delete action</a></li>
     <li>try <a href=/user_view?id=1 > here once you filled in your first user</a></li>
     <li>try <a href=/user_view> here is a list of all known users</a></li>
+    <li>try <a href=/comment>the supposed heart of the application</a></li>
 </ul>
 </div>
 <img src=diag.png />

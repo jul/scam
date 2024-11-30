@@ -275,11 +275,64 @@ def simple_app(environ, start_response):
     if route == "comment":
         if fail := validate(fo):
             return fail
-        fo["result"]=[]
+        stack=dict()
+        transition=[]
+        seen = set([])
+        todo = set([])
+        fo["result"] = []
         with engine.connect() as cnx:
-            for s in cnx.execute(text("select id, message, factoid, category from comment")):
-                id, message, factoid, category= s
-                fo["result"] += [ dict(message=message,id=id,category=category, factoid=factoid) ]
+            for s in cnx.execute(text("select id, message, factoid, category, comment_id from comment")):
+                id, message, factoid, category, comment_id= s
+                stack[id] =  dict(message=message,id=id,category=category, factoid=factoid, comment_id= comment_id) 
+# on chope les comment qui n'ont pas de comment id qui pointent sur eux
+        for id,comment in stack.items():
+            print(comment["comment_id"])
+            if comment["comment_id"] == None:
+                todo |= { id, }
+            print(todo)
+        #from pdb import set_trace; set_trace()
+        last_seen = -1 
+        while len(seen) != last_seen:
+            last_seen = len(seen)
+            for id, comment in stack.items():
+                if id not in seen:
+                    for dest in todo:
+                        print("%s->%s =?=> %s" % (id,comment["comment_id"], dest))
+                        if comment["comment_id"] == dest and dest != None:
+                            transition += [( id, dest ),]
+                            todo -= { dest, }
+                            todo |= {id,}
+                            seen |= {id,}
+                            print("bingo")
+        to_remove = set()
+        for t in transition:
+            print(t)
+            if not "answer" in stack[t[1]].keys():
+                stack[t[1]]["answer"] = []
+            stack[t[1]]["answer"] +=  [ stack[t[0]], ]
+            to_remove |= {t[0],}
+        print(stack)
+        for id, comment in stack.items():
+            print(id)
+            print(to_remove)
+            print(fo["result"])
+            if id not in to_remove:
+                fo["result"] += [ comment, ]
+
+
+
+
+# pour tout les comment qui n'ont pas de comment_id qui pointent sur eux
+    # les déplacer dans la section answer des comments
+# répéter jusqu'à ce que tout les id aient été parcourus
+
+
+                    
+               
+        
+
+
+
 # MAKO HANDLING
     potential_file = os.path.join("templates", route)
     if os.path.isfile(potential_file):

@@ -1,15 +1,17 @@
 <style>
 * {    font-family: sans-serif }
 body { text-align: center; }
-div, table {border-spacing:0;text-align:left;width:30em;margin:auto;border:1px solid #666;border-radius:.5em;margin-bottom:1em; }
+div, table {border-spacing:0;text-align:left;width:30em;margin:auto;border:1px solid #666;border-radius:.5em;margin-bottom:1em;padding-left:1em; }
 tbody tr:nth-child(odd) {  background-color: #eee;}
 fieldset {  border: 1px solid #666;  border-radius: .5em; width: 30em; margin: auto; }
+fieldset > .modal { position:fixed;padding:3em; left:0%; top:20%;margin:auto;background:#C0C0F0;z-index:100; border-radius:.5em;}
+
 form { text-align: left; display:inline-block; }
 input,select { margin-bottom:1em; padding:.5em;} ::file-selector-button { padding:.5em}
 input:not([type=file]) { border:1px solid #666; border-radius:.5em}
 [nullable=false] { border:1px solid red !important;border-radius:.5em;}
 [value=create] { background:#ffffba} [value=delete] { background:#bae1ff}
-[value=update] { background:#ffdfda} [value=search] { background:#baffc9}
+[value=update] { background:#ffdfda} [value=search] { background:#baffc9} 
 .hidden { display:none;}
 [type=submit] { margin-right:1em; margin-bottom:0em; border:1px solid #333; padding:.5em; border-radius:.5em; }
 </style>

@@ -7,9 +7,9 @@
         <input type=password name=secret_password nullable=false />
     </form>
     <form action=/comment >
+        <input type="date" name=created_at_time default="func.now()" />
         <%include file="item.mako" />
         <%include file="category.mako" args='category="category"'  />
-        <input type=datetime-local name=created_at_time default=func.now() class=hidden />
     </form>
     <form action=/transition >
         <input type=number name=id />
