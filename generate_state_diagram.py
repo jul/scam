@@ -43,5 +43,8 @@ with db.connect() as sql:
     for s in sql.execute(text("select previous_comment_id, next_comment_id from transition;")):
         previous_comment_id, next_comment_id = s
         print(f"""{previous_comment_id} -> {next_comment_id};""")
+    for s in sql.execute(text("select comment_id, id from comment;")):
+        comment_id, id = s
+        print(f"""{comment_id} -> {id};""")
 
 print("}")

@@ -7,7 +7,7 @@
         <input type=password name=secret_password nullable=false />
     </form>
     <form action=/comment >
-        <input type="date" name=created_at_time default="func.now()" />
+        <input type="datetime-local" name=created_at_time default="func.now()" />
         <%include file="item.mako" />
         <%include file="category.mako" args='category="category"'  />
     </form>
@@ -25,7 +25,7 @@
     <form action=/annexe_comment >
         <input type=number name=id />
         <input type=file name=annexe nullable=false />
-        <input type=number name=comment_id reference=comment.id />
+        <input type=number name=comment_id reference=comment.id ondelete=CASCADE />
    </form>
    <form action=/like >
         <input type=number name=id />

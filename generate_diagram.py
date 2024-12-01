@@ -81,7 +81,12 @@ for v in vertices:
     to_print+="""
     %s -> %s [ label=%s ]
 """ % v
-to_print = DIGRAPH % to_print
+to_print = DIGRAPH % to_print 
+toprint +="""
+
+
+
+"""
 print( "nb col = %r" % field_count )
 print( "nb fk = %r" % fk_count )
 

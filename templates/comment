@@ -3,19 +3,28 @@
 <script>
 $("[value=reply]").ready(() => {
     $("[value=reply]").click( function() {
-        $("[name=comment_id]",$($("form")[0])).val($("[name=id]",$(this).parent("div")).val())
-
+        $("[name=comment_id]",$($("form")[0])).val($("[name=id]",$(this).parent("p")).val())
+        console.log($("[name=id]",$(this).parent("p")).val())
+        $(".focus").toggleClass("focus")
+        $(this).parent("p").toggleClass("focus")
     })
 })
 </script>
+<style>
+.focus { background:yellow;border-radius:.5em; }
+</style>
 </%block>
 <%def name="print_comment(comment, depth=0)">
 <div>
+<p>
 <input type=hidden class=hidden name=id value=${comment["id"]} ><span class=${comment["category"]} >${comment["category"]}</span><br/>
 ${comment["message"]}
 <br/>
-<a href=${comment["factoid"]}>${comment["factoid"]}</a><br/>
+
+<a href=${comment["factoid"]}>${comment["factoid"] or ""}</a><br/>
 <input type=submit value=reply />
+</p>
+
     % if "answer" in  comment.keys():
       
       % for item in comment["answer"]:
@@ -25,16 +34,16 @@ ${comment["message"]}
                     <!-- end this level (close div or anything that should contain next level -->
                 % else:
                 <div>
+                <p>
 <input type=hidden class=hidden name=id value=${item["id"]} ><span class=${item["category"]} >${item["category"]}</span><br/>
 ${item["message"]}
 <br/>
 <a href=${item["factoid"]}>${item["factoid"]}</a><br/>
 <input type=submit value=reply />
 </div>
+</p>
                     <!-- handle bottom level (linke, or div, etc.) -->
                     <!-- close any elements for bottom level not already closed -->
-                    </div>
-                    </div>
                 % endif
                 
             % endfor

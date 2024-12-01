@@ -82,7 +82,8 @@ class HTMLtoData(HTMLParser):
             try:
                 if attrs.get("name").endswith("_id"):
                     table=attrs.get("name").split("_")
-                    self.cols.append( Column(attrs["name"], Integer, ForeignKey(attrs["reference"])) )
+                    additionnal = attrs.get("ondelete") and ("ondelete", attrs["ondelete"]) or ()
+                    self.cols.append( Column(attrs["name"], Integer, ForeignKey(attrs["reference"], **dict(additionnal))) )
                     return
             except Exception as e:
                 log(e, ln=line())
@@ -283,53 +284,39 @@ def simple_app(environ, start_response):
         with engine.connect() as cnx:
             for s in cnx.execute(text("select id, message, factoid, category, comment_id from comment")):
                 id, message, factoid, category, comment_id= s
-                stack[id] =  dict(message=message,id=id,category=category, factoid=factoid, comment_id= comment_id) 
-# on chope les comment qui n'ont pas de comment id qui pointent sur eux
+                stack[id] = dict(
+                    message=message,id=id,
+                    category=category, factoid=factoid, comment_id= comment_id
+                ) 
         for id,comment in stack.items():
-            print(comment["comment_id"])
             if comment["comment_id"] == None:
                 todo |= { id, }
-            print(todo)
-        #from pdb import set_trace; set_trace()
         last_seen = -1 
         while len(seen) != last_seen:
             last_seen = len(seen)
+            todo2=todo.copy()
             for id, comment in stack.items():
-                if id not in seen:
-                    for dest in todo:
-                        print("%s->%s =?=> %s" % (id,comment["comment_id"], dest))
-                        if comment["comment_id"] == dest and dest != None:
-                            transition += [( id, dest ),]
-                            todo -= { dest, }
-                            todo |= {id,}
-                            seen |= {id,}
-                            print("bingo")
+                for dest in todo:
+                    print("%s->%s =?=> %s" % (id,comment["comment_id"], dest))
+                    if comment["comment_id"] == dest and dest != None:
+                        transition += [( id, dest ),]
+                        todo2 -= { dest, }
+                        todo2 |= {id,}
+                        seen |= {id,}
+                        print("bingo")
+                        print(seen)
+            todo = todo2.copy()
         to_remove = set()
-        for t in transition:
-            print(t)
-            if not "answer" in stack[t[1]].keys():
-                stack[t[1]]["answer"] = []
-            stack[t[1]]["answer"] +=  [ stack[t[0]], ]
-            to_remove |= {t[0],}
-        print(stack)
+        print(transition)
+        for t in reversed(transition):
+            _from, _to =t 
+            if not "answer" in stack[_to]:
+                stack[_to]["answer"] = []
+            stack[_to]["answer"] +=  [ stack[_from], ]
+            to_remove |= {_from,}
         for id, comment in stack.items():
-            print(id)
-            print(to_remove)
-            print(fo["result"])
             if id not in to_remove:
                 fo["result"] += [ comment, ]
-
-
-
-
-# pour tout les comment qui n'ont pas de comment_id qui pointent sur eux
-    # les déplacer dans la section answer des comments
-# répéter jusqu'à ce que tout les id aient été parcourus
-
-
-                    
-               
-        
 
 
 

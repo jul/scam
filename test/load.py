@@ -149,30 +149,22 @@ with Session(engine) as session:
     for table,values in tuple([
         ("user", form_to_db(dict( name="him", email="j2@j.com", secret_password="toto"))),
         ("comment", dict(id=1,user_id=1, message="usable agile workflow", category="story" )),
-        ("comment", dict(id=2,user_id=1, message="How do we code?", category="story_item" )),
-        ("comment", dict(id=3,user_id=1,message="which database?", category="question")),
-        ("comment", dict(id=4,user_id=2, message="which web framework?", category="question")),
-        ("comment", dict(id=5,user_id=2, message="preferably less", category="answer")),
-        ("transition", dict(id=2, previous_comment_id=1, next_comment_id=2)),
-        ("transition", dict(id=3, previous_comment_id=2, next_comment_id=3)),
-        ("transition", dict(id=4, previous_comment_id=2, next_comment_id=4)),
+        ("comment", dict(id=2,user_id=1,comment_id=1, message="How do we code?", category="story_item" )),
+        ("comment", dict(id=3,user_id=1,comment_id=2,message="which database?", category="question")),
+        ("comment", dict(id=4,user_id=2, comment_id=2,message="which web framework?", category="question")),
+        ("comment", dict(id=5,user_id=2, comment_id=3, message="preferably less", category="answer")),
         ("transition", dict(id=5, previous_comment_id=4, next_comment_id=5)),
-        ("transition", dict(id=6, previous_comment_id=3, next_comment_id=5)),
         ("transition", dict(id=7, previous_comment_id=2, next_comment_id=5)),
-        ("transition", dict( previous_comment_id=2, next_comment_id=6)),
 
-        ("comment", dict(id=6,user_id=1, message="How do we test?", category="story_item" )),
-        ("transition", dict( previous_comment_id=1, next_comment_id=6)),
-        ("comment", dict(id=7,user_id=2, message="QA framework here", category="delivery" )),
-        ("transition", dict( previous_comment_id=6, next_comment_id=7)),
-        ("comment", dict(id=8,user_id=1, message="test plan", category="test" )),
-        ("transition", dict( previous_comment_id=7, next_comment_id=8)),
-        ("comment", dict(id=9,user_id=1, message="OK", category="finish" )),
-        ("comment", dict(id=10, user_id=1, message="PoC delivered",category="delivery")),
-        ("transition", dict( previous_comment_id=8, next_comment_id=9)),
-        ("transition", dict( previous_comment_id=9, next_comment_id=10)),]):
+        ("comment", dict(id=6,comment_id=2,user_id=1, message="How do we test?", category="story_item" )),
+        ("comment", dict(id=7,comment_id=6,user_id=2, message="QA framework here", category="delivery" )),
+        ("comment", dict(id=8,comment_id=7,user_id=1, message="test plan", category="test" )),
+        ("comment", dict(id=9,comment_id=8,user_id=1, message="OK", category="finish" )),
+        ("comment", dict(id=10, comment_id=9, user_id=1, message="PoC delivered",category="delivery")),
+        ]):
 
         session.add(getattr(Base.classes,table)(**values))
+        #getattr(Base.classes,table)(**values)
         session.commit()
 os.system("python ./generate_state_diagram.py sqlite:///test.db > out.dot ;dot -Tpng out.dot > diag2.png; xdot out.dot")
 s = requests.session()
