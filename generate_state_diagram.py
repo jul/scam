@@ -3,6 +3,7 @@
 from sqlalchemy import *
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
+from textwrap import wrap 
 
 from sys import argv
 
@@ -38,7 +39,7 @@ seen = dict()
 with db.connect() as sql:
     for s in sql.execute(text("select id, message, factoid, category from comment")):
         id, message, factoid, category= s
-        print(f"""{id} [label="{id}|{category}|{message}|{factoid}" color="{cat_colors.get(category, "gray")}"];""")
+        print(f"""{id} [label="{id}|{category}|{"\\n".join(wrap(message,30))}|{factoid}" color="{cat_colors.get(category, "gray")}"];""")
     fake_id=1
     for s in sql.execute(text("select previous_comment_id, next_comment_id from transition;")):
         previous_comment_id, next_comment_id = s

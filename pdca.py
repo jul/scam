@@ -82,7 +82,8 @@ class HTMLtoData(HTMLParser):
             try:
                 if attrs.get("name").endswith("_id"):
                     table=attrs.get("name").split("_")
-                    additionnal = attrs.get("ondelete") and ("ondelete", attrs["ondelete"]) or ()
+                    additionnal = attrs.get("ondelete") and {"ondelete": attrs["ondelete"]} or dict()
+                    print(additionnal)
                     self.cols.append( Column(attrs["name"], Integer, ForeignKey(attrs["reference"], **dict(additionnal))) )
                     return
             except Exception as e:
@@ -171,6 +172,7 @@ def simple_app(environ, start_response):
     if not os.path.isfile(dest):
         os.system(os.path.join(__DIR__, "generate_diagram.py") + " " + DSN);
         os.system("dot out.dot -T png >  " + dest);
+        print(dest)
     potential_file = os.path.join(__DIR__, "assets", route )
     if os.path.isfile(potential_file ):
 ## python-magic

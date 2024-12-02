@@ -8,14 +8,26 @@
     </form>
     <form action=/comment >
         <input type="datetime-local" name=created_at_time default="func.now()" />
-        <%include file="item.mako" />
-        <%include file="category.mako" args='category="category"'  />
+        <input type=number name=id />
+        <input type=number name=user_id reference=user.id nullable=false />
+        <input type=number name=comment_id reference=comment.id ondelete=cascade >
+        <textarea name=message rows=10 cols=50 nullable=false ></textarea>
+        <input type=url name=factoid />
+        <select name="category" nullable=false >
+            <option value=comment >Comment</option>
+            <option value=story >Story</option>
+            <option value=story_item >Story Item</option>
+            <option value=delivery >Delivery</option>
+            <option value=answer >Answers</option>
+            <option value=question >Questions</option>
+            <option value=tested >Tested</option>
+            <option value=finish >Finish</option>
+        </select>
     </form>
     <form action=/transition >
         <input type=number name=id />
         <input type=number name=previous_comment_id reference=comment.id nullable=false />
         <input type=number name=next_comment_id reference=comment.id nullable=false />
-
     </form>
     <form action=/follower >
         <input type=number name=id />
@@ -24,10 +36,15 @@
     </form>
     <form action=/annexe_comment >
         <input type=number name=id />
-        <input type=file name=annexe nullable=false />
+        <input type=file name=annexe_file nullable=false />
         <input type=number name=comment_id reference=comment.id ondelete=CASCADE />
    </form>
    <form action=/like >
+        <input type=number name=id />
+        <input type=number name=user_id reference=user.id nullable=false />
+        <input type=number name=comment_id reference=comment.id nullable=false ondelete=cascade />
+   </form>
+   <form action=/spam >
         <input type=number name=id />
         <input type=number name=user_id reference=user.id nullable=false />
         <input type=number name=comment_id reference=comment.id nullable=false />

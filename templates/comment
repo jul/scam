@@ -7,17 +7,29 @@ $("[value=reply]").ready(() => {
         console.log($("[name=id]",$(this).parent("p")).val())
         $(".focus").toggleClass("focus")
         $(this).parent("p").toggleClass("focus")
+        $("fieldset").css("display", "block");
+
     })
 })
 </script>
 <style>
-.focus { background:yellow;border-radius:.5em; }
+.focus { background:yellow;border-radius:.5em; z-index:5;}
+fieldset {display:none;position:fixed; left:0; top:0; width:30em; background: #ccca;z-index:1 }
+.comment { border-bottom: 1px solid #aaa; }
+.story { border-bottom: 1px solid red;}
+.story_item { border-bottom: 1px solid  blue; }
+.question { border-bottom: 1px solid  orange; }
+.answers { border-bottom: 1px solid  green; }
+.test { border-bottom: 1px solid  #abc; }
+.delivery { border-bottom: 1px solid  pink; }
+
 </style>
 </%block>
 <%def name="print_comment(comment, depth=0)">
 <div>
-<p>
-<input type=hidden class=hidden name=id value=${comment["id"]} ><span class=${comment["category"]} >${comment["category"]}</span><br/>
+<p class="${comment["category"]}" >
+<input type=hidden class=hidden name=id value=${comment["id"]} >
+${comment["category"]}<br/>
 ${comment["message"]}
 <br/>
 
@@ -34,11 +46,12 @@ ${comment["message"]}
                     <!-- end this level (close div or anything that should contain next level -->
                 % else:
                 <div>
-                <p>
-<input type=hidden class=hidden name=id value=${item["id"]} ><span class=${item["category"]} >${item["category"]}</span><br/>
+<p class=${item["category"]} >
+<input type=hidden class=hidden name=id value=${item["id"]} >
+${item["category"]}<br/>
 ${item["message"]}
 <br/>
-<a href=${item["factoid"]}>${item["factoid"]}</a><br/>
+<a href=${item["factoid"]}>${item["factoid"] or ""}</a><br/>
 <input type=submit value=reply />
 </div>
 </p>
@@ -60,19 +73,12 @@ ${item["message"]}
 
 
     <form class=modal action=/comment >
-    <input type=number name=id />
-    <input type=number name=user_id value=${fo.get("_user_id",[-1])[0]} />
-    <input type=number name=comment_id  />
+    <input type=hidden name=id />
+    <input type=hidden name=user_id value=${fo.get("_user_id",[-1])[0]} />
+    <input type=hidden name=comment_id  />
     <textarea name=message rows=10 cols=50 nullable=false ></textarea>
     <input type=url name=factoid />
         <%include file="category.mako" args='category="category"'  />
-        <input type=datetime-local name=created_at_time default=func.now() class=hidden />
         <input name=_action type=submit value=create >
-    </form>
-    <form action=/transition >
-        <input type=number name=id />
-        <input type=number name=previous_comment_id reference=comment.id nullable=false />
-        <input type=number name=next_comment_id reference=comment.id nullable=false />
-
     </form>
 
