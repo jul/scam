@@ -151,7 +151,8 @@ with Session(engine) as session:
         ("comment", dict(id=1,user_id=1, message="usable agile workflow", category="story" )),
         ("comment", dict(id=2,user_id=1,comment_id=1, message="How do we code?", category="story_item" )),
         ("comment", dict(id=3,user_id=1,comment_id=2,message="which database?", category="question")),
-        ("comment", dict(id=4,user_id=2, comment_id=2,message="which web framework?", category="question")),
+        ("comment", dict(id=4,user_id=2, comment_id=2,message="which web framework?",
+        factoid = "https://github.com/jul/pdca/blob/main/templates/model.mako", category="question")),
         ("comment", dict(id=5,user_id=2, comment_id=3, message="preferably less", category="answer")),
         ("transition", dict(id=5, previous_comment_id=4, next_comment_id=5)),
         ("transition", dict(id=7, previous_comment_id=2, next_comment_id=5)),
@@ -166,7 +167,7 @@ with Session(engine) as session:
         session.add(getattr(Base.classes,table)(**values))
         #getattr(Base.classes,table)(**values)
         session.commit()
-os.system("python ./generate_state_diagram.py sqlite:///test.db > out.dot ;dot -Tpng out.dot > diag2.png; xdot out.dot")
+os.system("python ./generate_state_diagram.py sqlite:///test.db > out.dot ;dot -Tsvg out.dot > diag2.svg; firefox diag2.svg")
 s = requests.session()
 
 os.system(f"DB={DB} DB_DRIVER={DB_DRIVER} python pdca.py & sleep 1")

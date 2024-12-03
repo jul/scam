@@ -79,15 +79,13 @@ class HTMLtoData(HTMLParser):
             if attrs.get("name") == "id":
                 self.cols.append( Column('id', Integer,  **( dict(primary_key = True) | transtype_input(attrs ))))
                 return
-            try:
-                if attrs.get("name").endswith("_id"):
-                    table=attrs.get("name").split("_")
-                    additionnal = attrs.get("ondelete") and {"ondelete": attrs["ondelete"]} or dict()
-                    print(additionnal)
-                    self.cols.append( Column(attrs["name"], Integer, ForeignKey(attrs["reference"], **dict(additionnal))) )
-                    return
-            except Exception as e:
-                log(e, ln=line())
+            if attrs.get("name").endswith("_id"):
+                table=attrs.get("name").split("_")
+                additional = attrs.get("ondelete") and {"ondelete": attrs["ondelete"]} or dict()
+                additional_col = transtype_input(attrs )
+                print(additional)
+                self.cols.append( Column(attrs["name"], Integer, ForeignKey(attrs["reference"], **additional), **additional_col) )
+                return
 
             if attrs.get("type") in simple_mapping.keys() or tag in {"select",}:
                 self.cols.append( 
@@ -174,6 +172,7 @@ def simple_app(environ, start_response):
         os.system("dot out.dot -T png >  " + dest);
         print(dest)
     potential_file = os.path.join(__DIR__, "assets", route )
+    log(f"bingo {potential_file}")
     if os.path.isfile(potential_file ):
 ## python-magic
         import magic
@@ -235,10 +234,11 @@ def simple_app(environ, start_response):
                 Item = getattr(Base.classes, table)
                 if action == "delete":
                     #from pdb import set_trace; set_trace()
-                    fo["_redirect"]= "/login"
                     if fail := validate(fo):
                         return fail
+                    
                     session.delete(session.get(Item, fo["id"]))
+
                     session.commit()
                     fo["result"] = "deleted"
                 if action == "create":
@@ -270,11 +270,19 @@ def simple_app(environ, start_response):
                 fo["error"] = e
                 log(traceback.format_exc(), ln=line(), context=fo)
                 session.rollback()
+            log(repr(fo.dict), ln=line())
+            if to:=fo.get("_redirect"):
+                log("redirect caught %s " % to)
+                return redirect(to)
             start_response('200 OK', [('Content-type', 'application/json; charset=utf-8')])
             return [ dumps({k:v for k,v in fo.dict.items() if "secret" not in k}, indent=4, default=str).encode() ]
     if route =="":
         route="index"
     to_write=""
+    if route == "svg":
+        os.system("python ./generate_state_diagram.py sqlite:///test.db > out.dot ;dot -Tsvg out.dot > diag2.svg; ")
+        os.system("perl -i.bak -pe 's!\\[\\[!<!g' diag2.svg")
+        os.system("perl -i.bak -pe 's!\\]\\]!>!g' diag2.svg")
     if route == "comment":
         if fail := validate(fo):
             return fail
@@ -299,17 +307,13 @@ def simple_app(environ, start_response):
             todo2=todo.copy()
             for id, comment in stack.items():
                 for dest in todo:
-                    print("%s->%s =?=> %s" % (id,comment["comment_id"], dest))
                     if comment["comment_id"] == dest and dest != None:
                         transition += [( id, dest ),]
                         todo2 -= { dest, }
                         todo2 |= {id,}
                         seen |= {id,}
-                        print("bingo")
-                        print(seen)
             todo = todo2.copy()
         to_remove = set()
-        print(transition)
         for t in reversed(transition):
             _from, _to =t 
             if not "answer" in stack[_to]:
@@ -320,9 +324,8 @@ def simple_app(environ, start_response):
             if id not in to_remove:
                 fo["result"] += [ comment, ]
 
-
-
 # MAKO HANDLING
+    
     potential_file = os.path.join("templates", route)
     if os.path.isfile(potential_file):
         start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])

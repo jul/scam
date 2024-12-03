@@ -13,16 +13,7 @@
         <input type=number name=comment_id reference=comment.id ondelete=cascade >
         <textarea name=message rows=10 cols=50 nullable=false ></textarea>
         <input type=url name=factoid />
-        <select name="category" nullable=false >
-            <option value=comment >Comment</option>
-            <option value=story >Story</option>
-            <option value=story_item >Story Item</option>
-            <option value=delivery >Delivery</option>
-            <option value=answer >Answers</option>
-            <option value=question >Questions</option>
-            <option value=tested >Tested</option>
-            <option value=finish >Finish</option>
-        </select>
+        <%include file="category.mako" args='category="category"'  />
     </form>
     <form action=/transition >
         <input type=number name=id />

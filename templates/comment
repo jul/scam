@@ -7,14 +7,15 @@ $("[value=reply]").ready(() => {
         console.log($("[name=id]",$(this).parent("p")).val())
         $(".focus").toggleClass("focus")
         $(this).parent("p").toggleClass("focus")
-        $("fieldset").css("display", "block");
+        $("fieldset").toggleClass("focus").fadeOut().fadeIn()
 
     })
 })
 </script>
 <style>
-.focus { background:yellow;border-radius:.5em; z-index:5;}
-fieldset {display:none;position:fixed; left:0; top:0; width:30em; background: #ccca;z-index:1 }
+.focus { background:#f5f5FF;border-radius:.5em; }
+fieldset {display:none;position:fixed; left:0; top:0; width:30em; background: #f5f5ff;z-index:1 }
+p { box-shadow: 4px 1px 1px #333;border-radius:.5em;border:1px solid #eee; }
 .comment { border-bottom: 1px solid #aaa; }
 .story { border-bottom: 1px solid red;}
 .story_item { border-bottom: 1px solid  blue; }
@@ -22,11 +23,14 @@ fieldset {display:none;position:fixed; left:0; top:0; width:30em; background: #c
 .answers { border-bottom: 1px solid  green; }
 .test { border-bottom: 1px solid  #abc; }
 .delivery { border-bottom: 1px solid  pink; }
+.bottom { position:fixed; top:0;right:2em;height:100%; width:30%;overflow:visible; }
+.top { position:relative; top:0%;height:50%; display:block; overflow:visible; }
+svg { rgba(255,255,255,.9) }
 
 </style>
 </%block>
 <%def name="print_comment(comment, depth=0)">
-<div>
+<div class=top>
 <p class="${comment["category"]}" >
 <input type=hidden class=hidden name=id value=${comment["id"]} >
 ${comment["category"]}<br/>
@@ -81,4 +85,3 @@ ${item["message"]}
         <%include file="category.mako" args='category="category"'  />
         <input name=_action type=submit value=create >
     </form>
-

@@ -3,18 +3,20 @@
 from sqlalchemy import *
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
-from textwrap import wrap 
+from textwrap import wrap , shorten 
+from urllib.parse import quote
 
 from sys import argv
 
 print( """digraph structs {
     graph [
-       rankdir= "LR"
+       rankdir= "TB"
        bgcolor=white
     ]
     
     node [ 
         fontsize=12 
+        style=rounded
         shape=record 
     ]
 """)
@@ -39,7 +41,9 @@ seen = dict()
 with db.connect() as sql:
     for s in sql.execute(text("select id, message, factoid, category from comment")):
         id, message, factoid, category= s
-        print(f"""{id} [label="{id}|{category}|{"\\n".join(wrap(message,30))}|{factoid}" color="{cat_colors.get(category, "gray")}"];""")
+        print(f"""{id} [label="[[a href=/ name=id value={id} ]] {category}:{id}[[/a]]\\n{"\\n".join(wrap(message,30))}\\n{(factoid or "")[:32] + (len(factoid or "") > 32 and "..." or "" ) }" color="{cat_colors.get(category, "gray")}"];""")
+
+
     fake_id=1
     for s in sql.execute(text("select previous_comment_id, next_comment_id from transition;")):
         previous_comment_id, next_comment_id = s
