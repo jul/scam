@@ -36,6 +36,7 @@ $(document).ready(() => {
     <li>try <a href=/user_view?id=1 > here once you filled in your first user</a></li>
     <li>try <a href=/user_view> here is a list of all known users</a></li>
     <li>try <a href=/comment>the supposed heart of the application</a></li>
+    <li>try <a href=/svg>or better it's graph like interface ?</a></li>
 </ul>
 </div>
 <img src=diag.png />

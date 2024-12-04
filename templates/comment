@@ -17,71 +17,68 @@ $("[value=reply]").ready(() => {
 fieldset {display:none;position:fixed; left:0; top:0; width:30em; background: #f5f5ff;z-index:1 }
 p { box-shadow: 4px 1px 1px #333;border-radius:.5em;border:1px solid #eee; }
 .comment { border-bottom: 1px solid #aaa; }
-.story { border-bottom: 1px solid red;}
-.story_item { border-bottom: 1px solid  blue; }
-.question { border-bottom: 1px solid  orange; }
-.answers { border-bottom: 1px solid  green; }
-.test { border-bottom: 1px solid  #abc; }
-.delivery { border-bottom: 1px solid  pink; }
+.story { border-bottom: 1px solid red; background: #f0b0c0}
+.story_item { border-bottom: 1px solid  brown; background: #d0b080}
+.question { border-bottom: 1px solid  blue;background: #c0e0f0 }
+.answer { border-bottom: 1px solid  yellow; background: #f0f0c0}
+.test { border-bottom: 1px solid  orange; background:#f0c060 }
+.delivery { border-bottom: 1px solid  green;background:#c0f0d0 }
 .bottom { position:fixed; top:0;right:2em;height:100%; width:30%;overflow:visible; }
 .top { position:relative; top:0%;height:50%; display:block; overflow:visible; }
 svg { rgba(255,255,255,.9) }
 
 </style>
 </%block>
+<div>
+<a href=/svg>Here is a view on the graph based rendering</a>
+</div>
 <%def name="print_comment(comment, depth=0)">
 <div class=top>
-<p class="${comment["category"]}" >
-<input type=hidden class=hidden name=id value=${comment["id"]} >
-${comment["category"]}<br/>
-${comment["message"]}
-<br/>
+    <p class="${comment["category"]}" >
+    <input type=hidden class=hidden name=id value=${comment["id"]} >
+    ${comment["category"]}<br/>
+    ${comment["message"]}
+    <br/>
 
-<a href=${comment["factoid"]}>${comment["factoid"] or ""}</a><br/>
-<input type=submit value=reply />
+    <a href=${comment["factoid"]}>${comment["factoid"] or ""}</a><br/>
+    <input type=submit value=reply />
 </p>
-
-    % if "answer" in  comment.keys():
-      
-      % for item in comment["answer"]:
-      % if "answer" in item.keys():
-                    <!-- print this item for this level -->
-                        ${print_comment(item, depth+1)}
-                    <!-- end this level (close div or anything that should contain next level -->
-                % else:
-                <div>
-<p class=${item["category"]} >
-<input type=hidden class=hidden name=id value=${item["id"]} >
-${item["category"]}<br/>
-${item["message"]}
-<br/>
-<a href=${item["factoid"]}>${item["factoid"] or ""}</a><br/>
-<input type=submit value=reply />
+% if "answer" in  comment.keys():
+    % for item in comment["answer"]:
+        % if "answer" in item.keys():
+            ${print_comment(item, depth+1)}
+        % else:
+            <div>
+                <p class=${item["category"]} >
+                <input type=hidden class=hidden name=id value=${item["id"]} >
+                ${item["category"]}<br/>
+                ${item["message"]}
+                <br/>
+                <a href=${item["factoid"]}>${item["factoid"] or ""}</a><br/>
+                <input type=submit value=reply />
+            </div>
+            </p>
+        % endif
+    % endfor
+% endif
 </div>
-</p>
-                    <!-- handle bottom level (linke, or div, etc.) -->
-                    <!-- close any elements for bottom level not already closed -->
-                % endif
-                
-            % endfor
-    % endif
-                    </div>
 </%def>
 
 
 
 %for item in fo["result"][0]:
     ${ print_comment(item, 0) }
-
 %endfor
 
 
     <form class=modal action=/comment >
     <input type=hidden name=id />
-    <input type=hidden name=user_id value=${fo.get("_user_id",[-1])[0]} />
+    <inpu ttype=hidden name=user_id value=${fo.get("_user_id",[-1])[0]} />
+
     <input type=hidden name=comment_id  />
     <textarea name=message rows=10 cols=50 nullable=false ></textarea>
     <input type=url name=factoid />
         <%include file="category.mako" args='category="category"'  />
         <input name=_action type=submit value=create >
+        <input name=_redirect type=hidden value="/svg" >
     </form>

@@ -6,7 +6,7 @@
         <option value=delivery >Delivery</option>
         <option value=answer >Answers</option>
         <option value=question >Questions</option>
-        <option value=tested >Tested</option>
+        <option value=test >Tested</option>
         <option value=finish >Finish</option>
 
     </select>

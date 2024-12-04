@@ -1,0 +1,90 @@
+<%inherit file="base.mako" />
+<%block name="include_head" >
+<script>
+$("svg").ready(() => {
+    $("[value=close]").click( () => { $(".modal").fadeOut() } )
+    $("[value=load]").on("click",function(e) {
+        $.ajax({
+            url: "/comment",
+            data : { "id" : $("[name=id]",$($(this).parent())).val(), _action : "search" }
+        }).done((msg) => {
+            $("input:not([type=submit],[type=file],[type=password]),select,textarea", $($(this).parent())).each((i,el) => {
+                $(el).val(msg.result[0][0][$(el).attr("name")]);
+            })
+        })
+        e.preventDefault();
+    })
+
+    $("[name=reply]").click( function() {
+        event.preventDefault()
+        comment_id=$("title",$(this).parent().parent()).html()
+        console.log(comment_id)
+        $("[name=comment_id]",$($("form")[0])).val(comment_id)
+        $(".modal").toggleClass("focus").fadeIn()
+        $("[name=_del]").css("display","none")
+        $("[name=_rep]").css("display","block")
+
+    })
+    $("[name=delete]").click( function() {
+        event.preventDefault()
+        
+        comment_id=$("title",$(this).parent().parent()).html()
+        $("[name=id]",$($("form")[1])).val(comment_id)
+        $("[name=previous_comment_id]").val(comment_id)
+        console.log(comment_id)
+        $(".modal").toggleClass("focus").fadeIn()
+        $("[name=_del]").css("display","block")
+        $("[name=_rep]").css("display","none")
+
+    })
+})
+</script>
+<style>
+.focus { background:#f5f5FF;border-radius:.5em; }
+.modal {display:none;position:fixed; background:transparent;left:0; top:0; width:30em; }
+p { box-shadow: 4px 1px 1px #333;border-radius:.5em;border:1px solid #eee; }
+.comment { border-bottom: 1px solid #aaa; background:#ccc; }
+.story { border-bottom: 1px solid red; background:#fbc}
+.story_item { border-bottom: 1px solid  blue;background: #bae1ff; }
+.question { border-bottom: 1px solid  orange;background:#fec }
+.answers { border-bottom: 1px solid  green; background:#cfd }
+.test { border-bottom: 1px solid  #abc; }
+.delivery { border-bottom: 1px solid  pink; }
+.bottom { position:fixed; top:0;right:2em;height:100%; width:30%;overflow:visible; }
+.top { position:relative; top:0%;height:50%; display:block; overflow:visible; }
+svg { rgba(255,255,255,.9) }
+
+</style>
+</%block>
+<div>
+<a href=/comment>Here is a view on the thread based rendering</a>
+</div>
+<div class=modal>
+    <input type=submit value=close />
+    <span name=_rep>
+    <form action=/comment >
+    <input type=hidden name=id />
+    <input type=hidden name=user_id value=${fo.get("_user_id",[-1])[0]} />
+    <input type=hidden name=comment_id  />
+    <textarea name=message rows=10 cols=50 nullable=false ></textarea>
+    <input type=url name=factoid />
+        <%include file="category.mako" args='category="category"'  />
+        <input name=_action type=submit value=create >
+        <input name=_redirect type=hidden value=/svg >
+    </form>
+    </span>
+    <div name=_del >
+    <form action=/comment >
+    <input type=hidden name=id />
+        <input name=_redirect type=hidden value=/svg >
+        <input name=_action type=submit value=delete >
+    </form>
+    <form action=/transition >
+    <input type=number name=previous_comment_id />
+    <input type=number name=next_comment_id />
+    <input name=_redirect type=hidden value=/svg >
+    <input name=_action type=submit value=create >
+    </form>
+    </div>
+</div>
+<%include file="../diag2.svg" />
