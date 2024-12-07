@@ -46,7 +46,9 @@ def dispatch(p):
         default=lambda p:("server_default",eval(p[1])),
     ).get(p[0], lambda *a:None)(p)
 
-transtype_input = lambda attrs : dict(filter(lambda x :x, map(dispatch, attrs.items())))
+transtype_input = lambda attrs: dict(
+    filter(lambda x :x, map(dispatch, attrs.items()))
+)
 
 class HTMLtoData(HTMLParser):
     def __init__(self):
@@ -62,28 +64,42 @@ class HTMLtoData(HTMLParser):
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
         simple_mapping = {
-            "email" : UnicodeText, "url" : UnicodeText, "phone" : UnicodeText,
-            "text" : UnicodeText, "checkbox" : Boolean, "date" : Date, "time" : Time,
-            "datetime-local" : DateTime, "file" : Text, "password" : Text, "uuid" : Text, #UUID is postgres specific
+            "email": UnicodeText, "url": UnicodeText, "phone": UnicodeText,
+            "text": UnicodeText, "checkbox": Boolean, "date": Date, 
+            "time": Time, "datetime-local": DateTime, "file": Text,
+            "password" : Text, "uuid" : Text, #UUID is postgres specific
         }
 
         if tag in {"select", "textarea"}:
             self.enum=[]
-            self.current_col = attrs["name"]
-            self.attrs= attrs
+            self.current_col=attrs["name"]
+            self.attrs=attrs
         if tag == "option":
             self.enum.append( attrs["value"] )
         if tag == "unique_constraint":
-            self.cols.append( UniqueConstraint(*attrs["col"].split(','), name=attrs["name"]) )
+            self.cols.append(UniqueConstraint(
+                *attrs["col"].split(','), name=attrs["name"])
+            )
         if tag in { "input" }:
             if attrs.get("name") == "id":
-                self.cols.append( Column('id', Integer,  **( dict(primary_key = True) | transtype_input(attrs ))))
+                self.cols.append(
+                    Column(
+                        'id', Integer,
+                        **(dict(primary_key = True)|transtype_input(attrs))
+                ))
                 return
             if attrs.get("name").endswith("_id"):
                 table=attrs.get("name").split("_")
-                additional = attrs.get("ondelete") and {"ondelete": attrs["ondelete"]} or dict()
-                additional_col = transtype_input(attrs )
-                self.cols.append( Column(attrs["name"], Integer, ForeignKey(attrs["reference"], **additional), **additional_col) )
+                additional = attrs.get("ondelete") \
+                    and {"ondelete": attrs["ondelete"]} \
+                    or dict()
+                additional_col = transtype_input(attrs)
+                self.cols.append(
+                    Column(
+                        attrs["name"], Integer,
+                        ForeignKey(attrs["reference"], **additional),
+                        **additional_col)
+                )
                 return
 
             if attrs.get("type") in simple_mapping.keys() or tag in {"select",}:
@@ -221,20 +237,25 @@ def simple_app(environ, start_response):
                 return [ f"""<html><head><meta http-equiv="refresh" content="0; url="/login?_redirect=/</head></html>""".encode() ]
 
     if route=="grant":
-        with Session(engine) as session:
-            User = Base.classes.user
-            user = session.scalars(select(User).where(User.email==fo["email"])).one()
-            user.secret_token = str(TimeUUID.with_utcnow())
-            fo["validate"] = crypto_hash.verify(fo["secret_password"], user.secret_password)
-            session.flush()
-            session.commit()
-            if fo["validate"]:
-                # /!\ CRSF HERE /!\ unsecure 
-                start_response('302 Found', [('Location',f"""{fo.get("_redirect","/")}"""),('Set-Cookie', "Token=%s" % user.secret_token)], )
-                return [ f"""<html><head><meta http-equiv="refresh" content="0; url="{fo.get("_redirect","/")}")</head></html>""".encode() ]
-            else:
-                start_response('403 wrong auth', [('Location',"/"), ])
-                return [ dumps(fo, indent=4, default=str).encode() ]
+        try:
+            with Session(engine) as session:
+                User = Base.classes.user
+                user = session.scalars(select(User).where(User.email==fo["email"])).one()
+                user.secret_token = str(TimeUUID.with_utcnow())
+                fo["validate"] = crypto_hash.verify(fo["secret_password"], user.secret_password)
+                session.flush()
+                session.commit()
+                if fo["validate"]:
+                    # /!\ CRSF HERE /!\ unsecure 
+                    start_response('302 Found', [('Location',f"""{fo.get("_redirect","/")}"""),('Set-Cookie', "Token=%s" % user.secret_token)], )
+                    return [ f"""<html><head><meta http-equiv="refresh" content="0; url="{fo.get("_redirect","/")}")</head></html>""".encode() ]
+                else:
+                    raise Exception("Invalid token")
+        except Exception as e:
+            log("Auth failed for email " + fo["email"] , ln=line())
+            start_response('403 wrong auth', [('Location',"/"), ])
+            return [ "page denied".encode() ]
+
 
 
     if "_action" in fo and route in tables.keys():
