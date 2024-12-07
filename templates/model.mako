@@ -6,6 +6,7 @@
         <input type=uuid name=secret_token nullable=true />
         <input type=password name=secret_password nullable=false />
     </form>
+    <br/>
     <form action=/comment >
         <input type="datetime-local" name=created_at_time default="func.now()" />
         <input type=number name=id />
@@ -15,6 +16,7 @@
         <input type=url name=factoid />
         <%include file="category.mako" args='category="category"'  />
     </form>
+    <br/>
     <form action=/transition >
         <input type=number name=id />
         <input type=number name=previous_comment_id reference=comment.id nullable=false />

@@ -12,6 +12,7 @@ print( """digraph structs {
     graph [
        rankdir= "TB"
     ]
+    overlapse=false
     
     node [ 
         fontsize=12 
@@ -76,22 +77,21 @@ with recursive is_fin(b) as
                     UNION
                     select comment_id
                     from comment JOIN  is_fin
-                    ON comment.id=is_fin.b where comment.category != "story"
+                    ON comment.id=is_fin.b 
                ) SELECT id FROM comment where id in is_fin
 
 
         ) and t.next_comment_id not in (
-with recursive is_fin(b) as
+            with recursive is_fin(b) as
                 (
                     select comment_id from comment
                         where category="finish"
                     UNION
                     select comment_id
                     from comment JOIN  is_fin
-                    ON comment.id=is_fin.b where comment.category != "story"
+                    ON comment.id=is_fin.b
                ) SELECT id FROM comment where id in is_fin
-
-)
+            )
         ;""")):
 
         previous_comment_id, next_comment_id = s
@@ -105,7 +105,7 @@ with recursive is_fin(b) as
                     UNION
                     select comment_id
                     from comment JOIN  is_fin 
-                    ON comment.id=is_fin.b where comment.category != "story"
+                    ON comment.id=is_fin.b 
                ) SELECT id FROM comment where id in is_fin) ;""")):
         comment_id, id = s
         if None not in { comment_id, id }:

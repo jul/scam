@@ -37,6 +37,7 @@ p { box-shadow: 4px 1px 1px #333;border-radius:.5em;border:1px solid #eee; }
 .bottom { position:fixed; top:0;right:2em;height:100%; width:30%;overflow:visible; }
 .top { position:relative; top:0%;height:50%; display:block; overflow:visible; }
 text { text-align:start;text-anchor:start }
+.lefty { position:absolute; left:-52px;width:0px }
 svg { rgba(255,255,255,.9) }
 [value=post] { position:fixed; left:1em;top:4em; }
 
@@ -45,9 +46,13 @@ svg { rgba(255,255,255,.9) }
 <input  type=submit value=post >
 <%def name="print_comment(comment, depth=0)">
 <div class=top>
+
+<div class=lefty >
+<img style=border-radius:24px width=48px height=48px src="${fo["_pics"][0][comment["user_id"]]}" >
+</div>
     <p class="${comment["category"]}" >
     <input type=hidden class=hidden name=id value=${comment["id"]} >
-    ${comment["id"]} @${comment["user_id"]}:
+    ${comment["id"]} : @${fo["_name"][0][comment["user_id"]]} :
     ${comment["category"]}<br/>
     <code>
     ${comment["message"].replace("\n","<br/>")}
@@ -63,10 +68,13 @@ svg { rgba(255,255,255,.9) }
             ${print_comment(item, depth+1)}
         % else:
             <div>
+<div class=lefty >
+<img style=border-radius:24px width=48px height=48px src="${fo["_pics"][0][item["user_id"]]}" >
+</div>
                 <p class=${item["category"]} >
                 <input type=hidden class=hidden name=id value=${item["id"]} >
                 <input type=hidden name=user_id value=@${item["user_id"]} >
-                ${item["id"]} @${item["user_id"]}:
+                ${item["id"]} : @${fo["_name"][0][item["user_id"]]} :
                 ${item["category"]}<br/>
                 ${item["message"]}
                 <br/>

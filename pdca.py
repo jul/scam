@@ -145,6 +145,7 @@ def simple_app(environ, start_response):
 
 
     table = route = environ["PATH_INFO"][1:]
+    here = environ["PATH_INFO"][0]
     fo.update(**dict(parse_qsl(environ["QUERY_STRING"])))
     try:
         fo["_secret_token"] = Cookie(environ["HTTP_COOKIE"])["Token"].value
@@ -168,7 +169,7 @@ def simple_app(environ, start_response):
 
     if not os.path.isfile(dest):
         os.system(os.path.join(__DIR__, "generate_diagram.py") + " " + DSN);
-        os.system("dot out.dot -T png >  " + dest);
+        os.system("neato out.dot -T png >  " + dest);
         print(dest)
     potential_file = os.path.join(__DIR__, "assets", route )
     log(f"bingo {potential_file}")
@@ -205,11 +206,17 @@ def simple_app(environ, start_response):
                 log("why not here????")
                 fo["_user_id"]=user.id
                 fo["_user_pic"]=user.pic_file
+                log("heree", context=fo, ln=line())
+                all_user = session.execute(select(User)).scalars().all()
+                fo["_pics"] = dict(map(lambda user:(user.id,user.pic_file),all_user))
+                fo["_name"] = dict(map(lambda user:(user.id,user.name),all_user))
 
                 return False
             except Exception as e:
                 log(traceback.format_exc(), ln=line(), context=fo)
-                start_response('302 Found', [('Location',f"""/login?_redirect={fo.get("_redirect","/")}""")], )
+                log(here,ln=line())
+                start_response('302 Found', [('Location',f"""/login?_redirect={fo.get("_redirect",here)}""")], )
+
 
                 return [ f"""<html><head><meta http-equiv="refresh" content="0; url="/login?_redirect=/</head></html>""".encode() ]
 
