@@ -313,7 +313,9 @@ def simple_app(environ, start_response):
     if route == "svg":
         if fail := validate(fo):
             return fail
-        os.system("python ./generate_state_diagram.py sqlite:///test.db > out.dot ;dot -Tsvg out.dot > diag2.svg; ")
+        from filelock import FileLock
+        with FileLock('out.dot.lock'):
+            os.system("python ./generate_state_diagram.py sqlite:///test.db > out.dot ;dot -Tsvg out.dot > diag2.svg; ")
     
     if route == "comment":
         if fail := validate(fo):
