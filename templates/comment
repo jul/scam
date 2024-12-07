@@ -5,17 +5,28 @@ $("[value=reply]").ready(() => {
     $("[value=reply]").click( function() {
         $("[name=comment_id]",$($("form")[0])).val($("[name=id]",$(this).parent("p")).val())
         console.log($("[name=id]",$(this).parent("p")).val())
+        $("[name=user_id]").val("${fo["_user_id"][0]}")
         $(".focus").toggleClass("focus")
         $(this).parent("p").toggleClass("focus")
-        $("fieldset").toggleClass("focus").fadeOut().fadeIn()
+        $(".modal").toggleClass("focus").fadeOut().fadeIn()
 
     })
+    $("[value=post]").click( function() {
+        $("[name=comment_id]",$($("form")[0])).val("")
+        $("[name=user_id]").val("${fo["_user_id"][0]}")
+        $(".focus").toggleClass("focus")
+        $(this).parent("p").toggleClass("focus")
+        $(".modal").toggleClass("focus").fadeOut().fadeIn()
+
+    })
+    $("[value=close]").click( () => { $(".modal").hide()})
 })
 </script>
 <style>
 .focus { background:#f5f5FF;border-radius:.5em; }
-fieldset {display:none;position:fixed; left:0; top:0; width:30em; background: #f5f5ff;z-index:1 }
+.modal {display:none;position:fixed; left:0; top:0em; width:30em; background: #f5f5ff;z-index:1 }
 p { box-shadow: 4px 1px 1px #333;border-radius:.5em;border:1px solid #eee; }
+.thread { background:#117; color:white; border-radius:.5em; }
 .comment { border-bottom: 1px solid #aaa; }
 .story { border-bottom: 1px solid red; background: #f0b0c0}
 .story_item { border-bottom: 1px solid  brown; background: #d0b080}
@@ -25,19 +36,22 @@ p { box-shadow: 4px 1px 1px #333;border-radius:.5em;border:1px solid #eee; }
 .delivery { border-bottom: 1px solid  green;background:#c0f0d0 }
 .bottom { position:fixed; top:0;right:2em;height:100%; width:30%;overflow:visible; }
 .top { position:relative; top:0%;height:50%; display:block; overflow:visible; }
+text { text-align:start;text-anchor:start }
 svg { rgba(255,255,255,.9) }
+[value=post] { position:fixed; left:1em;top:4em; }
 
 </style>
 </%block>
-<div>
-<a href=/svg>Here is a view on the graph based rendering</a>
-</div>
+<input  type=submit value=post >
 <%def name="print_comment(comment, depth=0)">
 <div class=top>
     <p class="${comment["category"]}" >
     <input type=hidden class=hidden name=id value=${comment["id"]} >
+    ${comment["id"]} @${comment["user_id"]}:
     ${comment["category"]}<br/>
-    ${comment["message"]}
+    <code>
+    ${comment["message"].replace("\n","<br/>")}
+    </code>
     <br/>
 
     <a href=${comment["factoid"]}>${comment["factoid"] or ""}</a><br/>
@@ -51,6 +65,8 @@ svg { rgba(255,255,255,.9) }
             <div>
                 <p class=${item["category"]} >
                 <input type=hidden class=hidden name=id value=${item["id"]} >
+                <input type=hidden name=user_id value=@${item["user_id"]} >
+                ${item["id"]} @${item["user_id"]}:
                 ${item["category"]}<br/>
                 ${item["message"]}
                 <br/>
@@ -70,15 +86,17 @@ svg { rgba(255,255,255,.9) }
     ${ print_comment(item, 0) }
 %endfor
 
-
-    <form class=modal action=/comment >
+<div class=modal style=background:transparent>
+    <input type=submit value=close >
+    <form action=/comment >
     <input type=hidden name=id />
-    <inpu ttype=hidden name=user_id value=${fo.get("_user_id",[-1])[0]} />
+    <input type=hidden name=user_id value=${fo.get("_user_id",[-1])[0]} />
 
     <input type=hidden name=comment_id  />
     <textarea name=message rows=10 cols=50 nullable=false ></textarea>
+    <input type=hidden name=_redirect value=comment />
     <input type=url name=factoid />
         <%include file="category.mako" args='category="category"'  />
         <input name=_action type=submit value=create >
-        <input name=_redirect type=hidden value="/svg" >
     </form>
+    </div>

@@ -2,50 +2,88 @@
 <%block name="include_head" >
 <script>
 $("svg").ready(() => {
-    $("[value=close]").click( () => { $(".modal").fadeOut() } )
-    $("[value=load]").on("click",function(e) {
+    $("[value=close]").click( () => { event.preventDefault(); $(".modal").fadeOut() } )
+    $("[value=post]").on("click",(e) => {
+        $(".modal").fadeIn()
+        $(".sel").hide()
+        $("[name=_rep]").css("display","block")
+        e.preventDefault();
+        })
+    $("[value=edit]").on("click",function(e) {
+        $(".sel").hide()
+        $("[name=_ed]").css("display","block")
         $.ajax({
             url: "/comment",
-            data : { "id" : $("[name=id]",$($(this).parent())).val(), _action : "search" }
+            data : { "id" : $("[name=clicked]").val(), _action : "search" }
         }).done((msg) => {
-            $("input:not([type=submit],[type=file],[type=password]),select,textarea", $($(this).parent())).each((i,el) => {
+            $("input:not([type=submit],[type=file],[name=_redirect],[type=password]),select,textarea", $($("form")[3])).each((i,el) => {
                 $(el).val(msg.result[0][0][$(el).attr("name")]);
             })
         })
         e.preventDefault();
     })
+    $("[value=share]").click( function() {
+        comment_id=$("[name=clicked]").val()
 
-    $("[name=reply]").click( function() {
         event.preventDefault()
-        comment_id=$("title",$(this).parent().parent()).html()
-        console.log(comment_id)
-        $("[name=comment_id]",$($("form")[0])).val(comment_id)
-        $(".modal").toggleClass("focus").fadeIn()
-        $("[name=_del]").css("display","none")
-        $("[name=_rep]").css("display","block")
+
+        $(".sel").hide()
+        $("[name=_share]").css("display","block").fadeIn()
+        url="/comment?id=" + comment_id;
+        $("[name=share]").attr("href",url);
+
 
     })
-    $("[name=delete]").click( function() {
+    $("[value=reply]").click( function() {
         event.preventDefault()
-        
-        comment_id=$("title",$(this).parent().parent()).html()
+        $(".sel").hide()
+        $("[name=_rep]").css("display","block")
+    })
+    $("[value=transition]").click( function() {
+        event.preventDefault()
+        $("[name=comment_id]",$($("form")[0])).val("")
+        $(".sel").hide()
+        $("[name=_trans]").css("display","block").fadeIn()
+    })
+
+    $(".node").click( function() {
+        event.preventDefault()
+        comment_id=$($("title",$(this))[0]).html()
+        console.log($("title",this).html())
+        $("[name=clicked]").val(comment_id)
+        $("[name=comment_id]",$($("form")[0])).val(comment_id)
         $("[name=id]",$($("form")[1])).val(comment_id)
-        $("[name=previous_comment_id]").val(comment_id)
-        console.log(comment_id)
+        $("[name=previous_comment_id]",$($("form")[2])).val(comment_id)
+        $("[name=previous_comment_id]",$($("form")[3])).val(comment_id)
         $(".modal").toggleClass("focus").fadeIn()
+        $(".sel").hide()
+        $("[name=_ed]").css("display","block").fadeIn()
+        $("[value=edit]").click()
+
+    })
+    $("[value=del]").click( function() {
+        event.preventDefault()
+        console.log(comment_id)
+        $(".sel").hide()
         $("[name=_del]").css("display","block")
-        $("[name=_rep]").css("display","none")
 
     })
 })
 </script>
 <style>
+.graph { background:#117; color:white; border-radius:.5em; }
 .focus { background:#f5f5FF;border-radius:.5em; }
-.modal {display:none;position:fixed; background:transparent;left:0; top:0; width:30em; }
+.node {cursor: pointer }
+text:hover, .node:hover {z-index:10; color:red; box-shadow: 4px 1px 1px #337; border-radius:.5em;border:1px solid red;}
+g.a { text-decoration: underline; }
+[value=post] { position:fixed; left:1em;top:4em }
+
+.modal {display:none;position:fixed; background:transparent;left:0; top:0em; width:30em; }
 p { box-shadow: 4px 1px 1px #333;border-radius:.5em;border:1px solid #eee; }
-.comment { border-bottom: 1px solid #aaa; background:#ccc; }
+.comment { border-bottom: 1px solid #aaa; background:#eef; }
 .story { border-bottom: 1px solid red; background:#fbc}
 .story_item { border-bottom: 1px solid  blue;background: #bae1ff; }
+[name=share] { padding:1em; position:fixed;left:1em; top:10em; z-index:2; margin:auto; border:1px solid #bbb; border-radius:1em;box-shadow: 4px 1px 1px #333;background:white;}
 .question { border-bottom: 1px solid  orange;background:#fec }
 .answers { border-bottom: 1px solid  green; background:#cfd }
 .test { border-bottom: 1px solid  #abc; }
@@ -56,35 +94,57 @@ svg { rgba(255,255,255,.9) }
 
 </style>
 </%block>
-<div>
-<a href=/comment>Here is a view on the thread based rendering</a>
-</div>
+    <input type=submit value=post />
+    <input type=hidden name=clicked value="">
 <div class=modal>
     <input type=submit value=close />
-    <span name=_rep>
+    <input type=submit value=reply />
+    <input type=submit value=edit />
+    <input type=submit value=del />
+    <input type=submit value=transition />
+    <input type=submit value=share />
+    <div name=_rep class=sel >
     <form action=/comment >
     <input type=hidden name=id />
     <input type=hidden name=user_id value=${fo.get("_user_id",[-1])[0]} />
     <input type=hidden name=comment_id  />
     <textarea name=message rows=10 cols=50 nullable=false ></textarea>
     <input type=url name=factoid />
-        <%include file="category.mako" args='category="category"'  />
-        <input name=_action type=submit value=create >
-        <input name=_redirect type=hidden value=/svg >
+    <%include file="category.mako" args='category="category"'  />
+    <input name=_action type=submit value=create >
+    <input name=_redirect type=hidden value=/svg >
     </form>
-    </span>
-    <div name=_del >
+    </div>
+    <div name=_del class=sel >
     <form action=/comment >
     <input type=hidden name=id />
         <input name=_redirect type=hidden value=/svg >
         <input name=_action type=submit value=delete >
     </form>
+    </div>
+    <div name=_trans class=sel >
     <form action=/transition >
     <input type=number name=previous_comment_id />
     <input type=number name=next_comment_id />
     <input name=_redirect type=hidden value=/svg >
     <input name=_action type=submit value=create >
     </form>
+    </div>
+    <div name=_ed class=sel >
+    <form action=/comment >
+    <input type=hidden name=id />
+    <input type=hidden name=user_id value=${fo.get("_user_id",[-1])[0]} />
+    <input type=hidden name=comment_id  />
+    <textarea name=message rows=10 cols=50 nullable=false ></textarea>
+    <input type=url name=factoid />
+    <input name=_redirect type=hidden value="/svg" >
+    <%include file="category.mako" args='category="category"'  />
+    <input name=_action type=submit value=update >
+    </form>
+    </div>
+    <div name=_share class=sel >
+    <a name=share href=/comment >Link to this post</a>
+
     </div>
 </div>
 <%include file="../diag2.svg" />

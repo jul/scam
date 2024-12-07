@@ -83,7 +83,6 @@ class HTMLtoData(HTMLParser):
                 table=attrs.get("name").split("_")
                 additional = attrs.get("ondelete") and {"ondelete": attrs["ondelete"]} or dict()
                 additional_col = transtype_input(attrs )
-                print(additional)
                 self.cols.append( Column(attrs["name"], Integer, ForeignKey(attrs["reference"], **additional), **additional_col) )
                 return
 
@@ -197,17 +196,21 @@ def simple_app(environ, start_response):
     action = fo.get("_action", "")
 
     def validate(fo):
+        log("in validate")
         with Session(engine) as session:
             User = Base.classes.user
             try:
                 user = session.scalars(select(User).where(User.secret_token==fo["_secret_token"])).one()
                 log("token emitted since " + str( dt.now(UTC) - dt.fromtimestamp(TimeUUID(bytes=UUIDM("{%s}" % fo["_secret_token"]).bytes).get_timestamp(), UTC)), ln=line(),)
+                log("why not here????")
                 fo["_user_id"]=user.id
+                fo["_user_pic"]=user.pic_file
 
                 return False
             except Exception as e:
                 log(traceback.format_exc(), ln=line(), context=fo)
-                start_response('302 Found', [('Location',"/login?_redirect=/login")], )
+                start_response('302 Found', [('Location',f"""/login?_redirect={fo.get("_redirect","/")}""")], )
+
                 return [ f"""<html><head><meta http-equiv="refresh" content="0; url="/login?_redirect=/</head></html>""".encode() ]
 
     if route=="grant":
@@ -220,7 +223,7 @@ def simple_app(environ, start_response):
             session.commit()
             if fo["validate"]:
                 # /!\ CRSF HERE /!\ unsecure 
-                start_response('302 Found', [('Location',"/"),('Set-Cookie', "Token=%s" % user.secret_token)], )
+                start_response('302 Found', [('Location',f"""{fo.get("_redirect","/")}"""),('Set-Cookie', "Token=%s" % user.secret_token)], )
                 return [ f"""<html><head><meta http-equiv="refresh" content="0; url="{fo.get("_redirect","/")}")</head></html>""".encode() ]
             else:
                 start_response('403 wrong auth', [('Location',"/"), ])
@@ -250,7 +253,7 @@ def simple_app(environ, start_response):
                         return redirect("/user_view?id=%s" % new_item.id)
 
                 if action == "update":
-                    fo["_redirect"]= "/login"
+                    log(fo,ln=line())
                     if fail:= validate(fo):
                         return fail
                     item = session.scalars(select(Item).where(Item.id==fo["id"])).one()
@@ -280,9 +283,10 @@ def simple_app(environ, start_response):
         route="index"
     to_write=""
     if route == "svg":
+        if fail := validate(fo):
+            return fail
         os.system("python ./generate_state_diagram.py sqlite:///test.db > out.dot ;dot -Tsvg out.dot > diag2.svg; ")
-        os.system("perl -i.bak -pe 's!\\[\\[!<!g' diag2.svg")
-        os.system("perl -i.bak -pe 's!\\]\\]!>!g' diag2.svg")
+    
     if route == "comment":
         if fail := validate(fo):
             return fail
@@ -292,15 +296,31 @@ def simple_app(environ, start_response):
         todo = set([])
         fo["result"] = []
         with engine.connect() as cnx:
-            for s in cnx.execute(text("select id, message, factoid, category, comment_id from comment")):
-                id, message, factoid, category, comment_id= s
-                stack[id] = dict(
-                    message=message,id=id,
-                    category=category, factoid=factoid, comment_id= comment_id
-                ) 
-        for id,comment in stack.items():
-            if comment["comment_id"] == None:
-                todo |= { id, }
+            if id := fo.get("id"):
+                for s in cnx.execute(text(f"""select id, message, factoid, category, comment_id, user_id from comment where comment.id IN (
+            with recursive is_fin(b) as
+                (
+                    SELECT {id}
+                    UNION
+                    select id
+                    from comment JOIN  is_fin
+                    ON comment.comment_id=is_fin.b
+               ) SELECT id FROM comment where id in is_fin )
+                    """)):
+                    id, message, factoid, category, comment_id,user_id= s
+                    stack[id] = dict(
+                        message=message,id=id,user_id=user_id,
+                        category=category, factoid=factoid, comment_id= comment_id
+                    ) 
+            else:
+                for s in cnx.execute(text("select id, message, factoid, category, comment_id, user_id from comment order by created_at_time DESC")):
+                    id, message, factoid, category, comment_id,user_id= s
+                    stack[id] = dict(
+                        message=message,id=id,user_id=user_id,
+                        category=category, factoid=factoid, comment_id= comment_id
+                    ) 
+        seen=set([])
+        todo=set(stack.keys())
         last_seen = -1 
         while len(seen) != last_seen:
             last_seen = len(seen)
@@ -308,12 +328,14 @@ def simple_app(environ, start_response):
             for id, comment in stack.items():
                 for dest in todo:
                     if comment["comment_id"] == dest and dest != None:
-                        transition += [( id, dest ),]
-                        todo2 -= { dest, }
-                        todo2 |= {id,}
-                        seen |= {id,}
+                        if id not in seen:
+                            transition += [( id, dest ),]
+                            todo2 -= { dest, }
+                            todo2 |= {id,}
+                            seen |= {id,}
             todo = todo2.copy()
         to_remove = set()
+        log("trans", ln=line(), context=transition)
         for t in reversed(transition):
             _from, _to =t 
             if not "answer" in stack[_to]:

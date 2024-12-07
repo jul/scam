@@ -1,4 +1,9 @@
 <%inherit file="base.mako" />
+<%block name="include_head" >
+<style>
+.login { background:#117; color:white; border-radius:.5em; }
+</style>
+</%block>
 
 <form action=/grant >
 <input type=text name=email>

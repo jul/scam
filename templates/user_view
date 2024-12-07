@@ -24,6 +24,9 @@ id : ${fo["id"][0]},
 })
 
 </script>
+<style>
+.users { background:#117; color:white; border-radius:.5em; }
+</style>
 </%block>
 
 <span name=clone >

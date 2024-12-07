@@ -20,30 +20,5 @@
         <input type=number name=previous_comment_id reference=comment.id nullable=false />
         <input type=number name=next_comment_id reference=comment.id nullable=false />
     </form>
-    <form action=/follower >
-        <input type=number name=id />
-        <input type=number name=followed_id reference=user.id nullable=false />
-        <input type=number name=follower_id reference=user.id nullable=false >
-    </form>
-    <form action=/annexe_comment >
-        <input type=number name=id />
-        <input type=file name=annexe_file nullable=false />
-        <input type=number name=comment_id reference=comment.id ondelete=CASCADE />
-   </form>
-   <form action=/like >
-        <input type=number name=id />
-        <input type=number name=user_id reference=user.id nullable=false />
-        <input type=number name=comment_id reference=comment.id nullable=false ondelete=cascade />
-   </form>
-   <form action=/spam >
-        <input type=number name=id />
-        <input type=number name=user_id reference=user.id nullable=false />
-        <input type=number name=comment_id reference=comment.id nullable=false />
-   </form>
-   <form action=/share >
-        <input type=number name=id />
-        <input type=number name=user_id reference=user.id nullable=false />
-        <input type=number name=comment_id reference=comment.id nullable=false />
-   </form>
 
 

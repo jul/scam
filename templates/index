@@ -29,16 +29,10 @@ $(document).ready(() => {
 });
 
 </script>
+<style>
+.CRUD { background:#117; color:white; border-radius:.5em; }
+</style>
 </%block>
-<div>
-    <ul>
-    <li>try <a href=/login >here to get granted the authorization to use update/delete action</a></li>
-    <li>try <a href=/user_view?id=1 > here once you filled in your first user</a></li>
-    <li>try <a href=/user_view> here is a list of all known users</a></li>
-    <li>try <a href=/comment>the supposed heart of the application</a></li>
-    <li>try <a href=/svg>or better it's graph like interface ?</a></li>
-</ul>
-</div>
 <img src=diag.png />
 <%include file="model.mako" />
 
