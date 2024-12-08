@@ -1,4 +1,5 @@
 <%inherit file="base.mako" />
+<% from html import escape %>
 <%block name="include_head" >
 <script>
 $("[value=reply]").ready(() => {
@@ -52,14 +53,14 @@ svg { rgba(255,255,255,.9) }
 </div>
     <p class="${comment["category"]}" >
     <input type=hidden class=hidden name=id value=${comment["id"]} >
-    ${comment["id"]} : @${fo["_name"][0][comment["user_id"]]} :
-    ${comment["category"]}<br/>
+    ${comment["id"]} : @${fo["_name"][0][comment["user_id"]]|h} :
+    ${comment["category"]|h}<br/>
     <code>
-    ${comment["message"].replace("\n","<br/>")}
+    ${escape(comment["message"]).replace("\n","<br/>")}
     </code>
     <br/>
 
-    <a href=${comment["factoid"]}>${comment["factoid"] or ""}</a><br/>
+    <a href=${comment["factoid"]}>${comment["factoid"] or ""|u}</a><br/>
     <input type=submit value=reply />
 </p>
 % if "answer" in  comment.keys():
@@ -74,11 +75,11 @@ svg { rgba(255,255,255,.9) }
                 <p class=${item["category"]} >
                 <input type=hidden class=hidden name=id value=${item["id"]} >
                 <input type=hidden name=user_id value=@${item["user_id"]} >
-                ${item["id"]} : @${fo["_name"][0][item["user_id"]]} :
-                ${item["category"]}<br/>
-                ${item["message"]}
+                ${item["id"]} : @${fo["_name"][0][item["user_id"]]|h} :
+                ${item["category"]|h}<br/>
+                ${escape(item["message"]).replace("\n","<br>")}
                 <br/>
-                <a href=${item["factoid"]}>${item["factoid"] or ""}</a><br/>
+                <a href=${item["factoid"]}>${item["factoid"] or ""|u}</a><br/>
                 <input type=submit value=reply />
             </div>
             </p>
