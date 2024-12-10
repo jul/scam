@@ -3,9 +3,22 @@
 <%block name="include_head" >
 <script>
 $("[value=reply]").ready(() => {
-    $("[value=reply]").click( function() {
-        $("[name=comment_id]",$($("form")[0])).val($("[name=id]",$(this).parent("p")).val())
+    $("[value=attach]").click( function() {
+        $("[name=id]",$($("form")[1])).val($("[name=id]",$(this).parent("p")).val())
+        console.log($($("form")[1]).html())
         console.log($("[name=id]",$(this).parent("p")).val())
+        $("[name=comment]").hide()
+        $("[name=annexe]").show()
+        $(".focus").toggleClass("focus")
+        $(this).parent("p").toggleClass("focus")
+        $(".modal").toggleClass("focus").fadeOut().fadeIn()
+    })
+
+    $("[value=reply]").click( function() {
+        $("[name=annexe]").hide()
+        console.log($("[name=id]",$(this).parent("p")).val())
+        $("[name=comment]").show()
+        $("[name=comment_id]",$($("form")[0])).val($("[name=id]",$(this).parent("p")).val())
         $("[name=user_id]").val("${fo["_user_id"][0]}")
         $(".focus").toggleClass("focus")
         $(this).parent("p").toggleClass("focus")
@@ -13,6 +26,8 @@ $("[value=reply]").ready(() => {
 
     })
     $("[value=post]").click( function() {
+        $("[name=comment]").show()
+        $("[name=annexe]").hide()
         $("[name=comment_id]",$($("form")[0])).val("")
         $("[name=user_id]").val("${fo["_user_id"][0]}")
         $(".focus").toggleClass("focus")
@@ -26,7 +41,7 @@ $("[value=reply]").ready(() => {
 <style>
 .focus { background:#f5f5FF;border-radius:.5em; }
 .modal {display:none;position:fixed; left:0; top:0em; width:30em; background: #f5f5ff;z-index:1 }
-p { box-shadow: 4px 1px 1px #333;border-radius:.5em;border:1px solid #eee; }
+p { box-shadow: 2px 2px 4px #333;border-radius:.5em;border:1px solid #eee; }
 .thread { background:#117; color:white; border-radius:.5em; }
 .comment { border-bottom: 1px solid #aaa; }
 .story { border-bottom: 1px solid red; background: #f0b0c0}
@@ -35,10 +50,12 @@ p { box-shadow: 4px 1px 1px #333;border-radius:.5em;border:1px solid #eee; }
 .answer { border-bottom: 1px solid  yellow; background: #f0f0c0}
 .test { border-bottom: 1px solid  orange; background:#f0c060 }
 .delivery { border-bottom: 1px solid  green;background:#c0f0d0 }
+embed { width:90%;min-height:10em; margin:auto;margin-bottom:1em;display:block; border-radius:.5em;border:1px solid #ccc; }
+[type=submit] { margin-right:.1em; }
 .bottom { position:fixed; top:0;right:2em;height:100%; width:30%;overflow:visible; }
 .top { position:relative; top:0%;height:50%; display:block; overflow:visible; }
 text { text-align:start;text-anchor:start }
-.lefty { position:absolute; left:-52px;width:0px }
+.lefty { position:absolute; left:-52px;width:0px;background:transparent; }
 svg { rgba(255,255,255,.9) }
 [value=post] { position:fixed; left:1em;top:4em; }
 
@@ -59,9 +76,15 @@ svg { rgba(255,255,255,.9) }
     ${escape(comment["message"]).replace("\n","<br/>")}
     </code>
     <br/>
+    <input type=submit value=reply >
+    <input type=submit value=attach ><br/>
 
-    <a href=${comment["factoid"]}>${comment["factoid"] or ""|u}</a><br/>
-    <input type=submit value=reply />
+    %if comment["factoid"]:
+    <a href=${comment["factoid"]}>${comment["factoid"] |u}</a><br/>
+    %endif 
+    % for annexe in fo["annexe"][0].get(comment['id'], []):
+    <embed src="${annexe}" width=100%  />
+    % endfor
 </p>
 % if "answer" in  comment.keys():
     % for item in comment["answer"]:
@@ -79,8 +102,18 @@ svg { rgba(255,255,255,.9) }
                 ${item["category"]|h}<br/>
                 ${escape(item["message"]).replace("\n","<br>")}
                 <br/>
-                <a href=${item["factoid"]}>${item["factoid"] or ""|u}</a><br/>
-                <input type=submit value=reply />
+
+    %if comment["factoid"]:
+    <a href=${comment["factoid"]}>${comment["factoid"] |u}</a><br/>
+    %endif 
+    <input type=submit value=reply >
+    <input type=submit value=attach >
+    <br/>
+
+    <a href=${comment["factoid"]} >${comment["factoid"] or ""|u}</a><br/>
+    % for annexe in fo["annexe"][0].get(item['id'], []):
+    <embed src="${annexe}" width=100%  />
+    % endfor
             </div>
             </p>
         % endif
@@ -96,8 +129,10 @@ svg { rgba(255,255,255,.9) }
 %endfor
 
 <div class=modal style=background:transparent>
+
     <input type=submit value=close >
-    <form action=/comment >
+<span name=comment>
+<form action=/comment >
     <input type=hidden name=id />
     <input type=hidden name=user_id value=${fo.get("_user_id",[-1])[0]} />
 
@@ -108,4 +143,14 @@ svg { rgba(255,255,255,.9) }
         <%include file="category.mako" args='category="category"'  />
         <input name=_action type=submit value=create >
     </form>
+    </span>
+    <span name=annexe >
+    <form action=/annexe >
+        <input type=hidden name=id  >
+        <input type=file name=annexe_file nullable=false />
+    <input type=hidden name=_redirect value=comment />
+        <input name=_action type=submit value=create >
+        <input name=_action type=submit value=delete >
+    </form>
+    </span>
     </div>

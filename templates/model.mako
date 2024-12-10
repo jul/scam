@@ -22,5 +22,10 @@
         <input type=number name=previous_comment_id reference=comment.id nullable=false />
         <input type=number name=next_comment_id reference=comment.id nullable=false />
     </form>
+    <form action=/annexe >
+        <input type=number name=id nullable=false reference=comment.id ondelete=cascade >
+        <input type=file name=annexe_file nullable=false />
+    </form>
+
 
 

@@ -1,7 +1,15 @@
 <%inherit file="base.mako" />
 <%block name="include_head" >
+<% from json import dumps %>
 <script>
 $("svg").ready(() => {
+    $(".node").hover(
+        function() { 
+            annexe = ${dumps(fo["annexe"])}
+            $("embed").show()
+            $("embed").attr("src","")
+            $("embed").attr("src",annexe[0][$("title",this).html()])},
+        function() { $("embed").hide() }) 
     $("[value=close]").click( () => { event.preventDefault(); $(".modal").fadeOut() } )
     $("[value=post]").on("click",(e) => {
         $(".modal").fadeIn()
@@ -73,17 +81,17 @@ $("svg").ready(() => {
 <style>
 .graph { background:#117; color:white; border-radius:.5em; }
 .focus { background:#f5f5FF;border-radius:.5em; }
-.node {cursor: pointer }
-text:hover, .node:hover {z-index:10; color:red; box-shadow: 4px 1px 1px #337; border-radius:.5em;border:1px solid red;}
+.node {cursor: pointer; }
 g.a { text-decoration: underline; }
 [value=post] { position:fixed; left:1em;top:4em }
 
 .modal {display:none;position:fixed; background:transparent;left:0; top:0em; width:30em; }
-p { box-shadow: 4px 1px 1px #333;border-radius:.5em;border:1px solid #eee; }
+embed { display:none; position:fixed; width:33%;right:3em;border-radius:.5em; }
+p { box-shadow: 2px 2px #333;border-radius:.5em;border:1px solid #eee; }
 .comment { border-bottom: 1px solid #aaa; background:#eef; }
 .story { border-bottom: 1px solid red; background:#fbc}
 .story_item { border-bottom: 1px solid  blue;background: #bae1ff; }
-[name=share] { padding:1em; position:fixed;left:1em; top:10em; z-index:2; margin:auto; border:1px solid #bbb; border-radius:1em;box-shadow: 4px 1px 1px #333;background:white;}
+[name=share] { padding:1em; position:fixed;left:1em; top:10em; z-index:2; margin:auto; border:1px solid #bbb; border-radius:1em;box-shadow: 2px 2px #333;background:white;}
 .question { border-bottom: 1px solid  orange;background:#fec }
 .answers { border-bottom: 1px solid  green; background:#cfd }
 .test { border-bottom: 1px solid  #abc; }
@@ -147,4 +155,5 @@ svg { rgba(255,255,255,.9) }
 
     </div>
 </div>
+<embed src="" width=50% >
 <%include file="../diag2.svg" />

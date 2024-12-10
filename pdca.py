@@ -13,6 +13,7 @@ import sys
 import os
 # external dependencies
 # lightweight
+from archery import mdict
 from dateutil import parser
 from time_uuid import TimeUUID
 # NEEDS A BINARY INSTALL (scrypt)
@@ -179,7 +180,7 @@ def simple_app(environ, start_response):
     Base = automap_base(metadata=metadata)
     Base.prepare()
 
-    dest=os.path.join(__DIR__, "assets",'diag.png')
+    dest=os.path.join(__DIR__, "assets",'diag.%s.png' % hash(model))
     
 
 
@@ -188,12 +189,10 @@ def simple_app(environ, start_response):
         os.system("neato out.dot -T png >  " + dest);
         print(dest)
     potential_file = os.path.join(__DIR__, "assets", route )
-    log(f"bingo {potential_file}")
     if os.path.isfile(potential_file ):
 ## python-magic
         import magic
         start_response('200 OK', [('content-type', magic.from_file(potential_file, mime=True)), ])
-        log(f"bingo {potential_file}")
         return [ open(potential_file, "rb").read() ]
 
 
@@ -213,24 +212,20 @@ def simple_app(environ, start_response):
     action = fo.get("_action", "")
 
     def validate(fo):
-        log("in validate")
         with Session(engine) as session:
             User = Base.classes.user
             try:
                 user = session.scalars(select(User).where(User.secret_token==fo["_secret_token"])).one()
                 log("token emitted since " + str( dt.now(UTC) - dt.fromtimestamp(TimeUUID(bytes=UUIDM("{%s}" % fo["_secret_token"]).bytes).get_timestamp(), UTC)), ln=line(),)
-                log("why not here????")
                 fo["_user_id"]=user.id
                 fo["_user_pic"]=user.pic_file
-                log("heree", context=fo, ln=line())
                 all_user = session.execute(select(User)).scalars().all()
                 fo["_pics"] = dict(map(lambda user:(user.id,user.pic_file),all_user))
                 fo["_name"] = dict(map(lambda user:(user.id,user.name),all_user))
 
                 return False
             except Exception as e:
-                log(traceback.format_exc(), ln=line(), context=fo)
-                log(here,ln=line())
+                log(traceback.format_exc(), ln=line())
                 start_response('302 Found', [('Location',f"""/login?_redirect={fo.get("_redirect",here)}""")], )
 
 
@@ -259,7 +254,6 @@ def simple_app(environ, start_response):
 
 
     if "_action" in fo and route in tables.keys():
-        log("action")
         with Session(engine) as session:
             try:
                 Item = getattr(Base.classes, table)
@@ -274,14 +268,21 @@ def simple_app(environ, start_response):
                     fo["result"] = "deleted"
                 if action == "create":
                     new_item = Item(**form_to_db(fo))
-                    session.add(new_item)
-                    ret=session.commit()
-                    fo["result"] = new_item.id
+                    ret=0
+                    try:
+                        session.add(new_item)
+                        ret=session.commit()
+                        log(ret, ln=line())
+                    except:
+                        session.rollback()
+                        log("pan", ln=line())
+                        session.merge(new_item)
+                        session.commit()
+                    fo["result"] = ret
                     if table == "user":
                         return redirect("/user_view?id=%s" % new_item.id)
 
                 if action == "update":
-                    log(fo,ln=line())
                     if fail:= validate(fo):
                         return fail
                     item = session.scalars(select(Item).where(Item.id==fo["id"])).one()
@@ -299,9 +300,8 @@ def simple_app(environ, start_response):
                     fo["result"] = result
             except Exception as e:
                 fo["error"] = e
-                log(traceback.format_exc(), ln=line(), context=fo)
+                log(traceback.format_exc(), ln=line() )
                 session.rollback()
-            log(repr(fo.dict), ln=line())
             if to:=fo.get("_redirect"):
                 log("redirect caught %s " % to)
                 return redirect(to)
@@ -375,6 +375,13 @@ def simple_app(environ, start_response):
         for id, comment in stack.items():
             if id not in to_remove:
                 fo["result"] += [ comment, ]
+    if route in { "comment", "svg"}:
+        fo["annexe"]= mdict()
+
+        with engine.connect() as cnx:
+            for s in cnx.execute(text(f"""select id, annexe_file from annexe """)):
+                comment_id, annexe_file=s
+                fo['annexe'] += mdict({comment_id: [annexe_file]})
 
 # MAKO HANDLING
     
