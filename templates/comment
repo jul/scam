@@ -40,20 +40,22 @@ $("[value=reply]").ready(() => {
 </script>
 <style>
 .focus { background:#f5f5FF;border-radius:.5em; }
-.modal {display:none;position:fixed; left:0; top:0em; width:30em; background: #f5f5ff;z-index:1 }
-p { box-shadow: 2px 2px 4px #333;border-radius:.5em;border:1px solid #eee; }
-.thread { background:#117; color:white; border-radius:.5em; }
-.comment { border-bottom: 1px solid #aaa; }
-.story { border-bottom: 1px solid red; background: #f0b0c0}
-.story_item { border-bottom: 1px solid  brown; background: #d0b080}
-.question { border-bottom: 1px solid  blue;background: #c0e0f0 }
-.answer { border-bottom: 1px solid  yellow; background: #f0f0c0}
-.test { border-bottom: 1px solid  orange; background:#f0c060 }
-.delivery { border-bottom: 1px solid  green;background:#c0f0d0 }
-embed { width:90%;min-height:10em; margin:auto;margin-bottom:1em;display:block; border-radius:.5em;border:1px solid #ccc; }
+.modal {display:none;position:fixed; left:0; top:0em; width:30em; background: transparent;z-index:2 }
+
+.thread { background:#117; color:white !important; border-radius:.5em; }
+p { box-shadow: 2px 2px 4px #333;background:white;border-radius:.5em;border:1px solid #eee;padding-left:2em;padding-top:1em ;}
+.comment { border-bottom: 1px solid #ccc; }
+.story { border-bottom: 1px solid #ccc; background: #f0b0c0}
+.story_item { border-bottom: 1px solid  #ccc; background: #ffe0f0}
+.question { border-bottom: 1px solid  #ccc;background: #e0f0f0 }
+.answer { border-bottom: 1px solid  #ccc; background: #f0f0e0}
+.test { border-bottom: 1px solid  #ccc; background:#ffe0d0 }
+.delivery { border-bottom: 1px solid #ccc;background:#c0f0d0 }
+embed { width:90%;min-height:20em; margin:auto;margin-bottom:1em; border-radius:.5em;border:1px solid #ccc; }
 [type=submit] { margin-right:.1em; }
+[value=reply], [value=attach] { margin:.5em 0em 0.5em .5em ; }
 .bottom { position:fixed; top:0;right:2em;height:100%; width:30%;overflow:visible; }
-.top { position:relative; top:0%;height:50%; display:block; overflow:visible; }
+.top { position:relative; ;top:0%;height:50%; display:block; overflow:visible; }
 text { text-align:start;text-anchor:start }
 .lefty { position:absolute; left:-52px;width:0px;background:transparent; }
 svg { rgba(255,255,255,.9) }
@@ -76,15 +78,16 @@ svg { rgba(255,255,255,.9) }
     ${escape(comment["message"]).replace("\n","<br/>")}
     </code>
     <br/>
-    <input type=submit value=reply >
-    <input type=submit value=attach ><br/>
 
     %if comment["factoid"]:
-    <a href=${comment["factoid"]}>${comment["factoid"] |u}</a><br/>
+    <a href=${comment["factoid"]}>${comment["factoid"] |h}</a><br/>
     %endif 
     % for annexe in fo["annexe"][0].get(comment['id'], []):
     <embed src="${annexe}" width=100%  />
+    <br/>
     % endfor
+    <input type=submit value=reply >
+    <input type=submit value=attach >
 </p>
 % if "answer" in  comment.keys():
     % for item in comment["answer"]:
@@ -104,16 +107,18 @@ svg { rgba(255,255,255,.9) }
                 <br/>
 
     %if comment["factoid"]:
-    <a href=${comment["factoid"]}>${comment["factoid"] |u}</a><br/>
+    <a href=${comment["factoid"]}>${comment["factoid"] |h}</a><br/>
     %endif 
-    <input type=submit value=reply >
-    <input type=submit value=attach >
     <br/>
 
-    <a href=${comment["factoid"]} >${comment["factoid"] or ""|u}</a><br/>
+    <a href=${comment["factoid"]} >${comment["factoid"] or ""|h}</a><br/>
     % for annexe in fo["annexe"][0].get(item['id'], []):
     <embed src="${annexe}" width=100%  />
+    <br/>
     % endfor
+
+    <input type=submit value=reply >
+    <input type=submit value=attach >
             </div>
             </p>
         % endif

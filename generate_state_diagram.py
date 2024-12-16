@@ -9,9 +9,12 @@ from html import escape
 from sys import argv
 
 print( """digraph structs {
+          fontname="Courier New"
     graph [
        rankdir= "TB"
+       bgcolor = "#f5f5ff"
     ]
+
     overlapse=false
     
     node [ 
@@ -37,16 +40,17 @@ cat_colors=dict(
     finish="black",
     delivery="green",
 )
+cat_colors= dict()
 cat_bg_colors=dict(
     end="#a0a0f0",
-    comment="#e0e0e0",
-    story="#f0b0c0",
-    story_item="#d0b080",
-    question="#c0e0f0",
-    answer="#f0f0c0",
-    test="#f0c060",
-    finish="#d0d0d0",
+    comment="#ffffff",
+    answer="#f0f0e0",
+    story="#f0c0d0",
+    story_item="#ffe0f0",
+    question="#e0f0f0",
+    test="#ffe0d0",
     delivery="#c0f0d0",
+    finish="#d0d0d0",
 )
 seen = dict()
 with db.connect() as sql:

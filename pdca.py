@@ -10,6 +10,7 @@ from  http.cookies import SimpleCookie as Cookie
 from uuid import UUID as  UUIDM # conflict with sqlachemy
 from datetime import datetime as dt, UTC, timezone
 import sys
+from zlib import adler32
 import os
 # external dependencies
 # lightweight
@@ -83,11 +84,24 @@ class HTMLtoData(HTMLParser):
             )
         if tag in { "input" }:
             if attrs.get("name") == "id":
-                self.cols.append(
-                    Column(
-                        'id', Integer,
-                        **(dict(primary_key = True)|transtype_input(attrs))
-                ))
+                additional = attrs.get("ondelete") \
+                    and {"ondelete": attrs["ondelete"]} \
+                    or dict()
+                additional_col = dict(primary_key=True) | transtype_input(attrs)
+                if "reference" in attrs:
+                    self.cols.append(
+                        Column(
+                            attrs["name"], Integer,
+                            ForeignKey(attrs["reference"], **additional),
+                            **additional_col)
+                    )
+                else:
+                    self.cols.append(
+                        Column(
+                            attrs["name"], Integer,
+                            **additional_col)
+                    )
+
                 return
             if attrs.get("name").endswith("_id"):
                 table=attrs.get("name").split("_")
@@ -179,14 +193,14 @@ def simple_app(environ, start_response):
     
     Base = automap_base(metadata=metadata)
     Base.prepare()
-
-    dest=os.path.join(__DIR__, "assets",'diag.%s.png' % hash(model))
+    fo["_model"] = version = adler32(model.encode())
+    dest=os.path.join(__DIR__, "assets",'diag.%s.png' % version)
     
 
 
     if not os.path.isfile(dest):
         os.system(os.path.join(__DIR__, "generate_diagram.py") + " " + DSN);
-        os.system("neato out.dot -T png >  " + dest);
+        os.system("dot out.dot -T png >  " + dest);
         print(dest)
     potential_file = os.path.join(__DIR__, "assets", route )
     if os.path.isfile(potential_file ):
@@ -315,7 +329,7 @@ def simple_app(environ, start_response):
             return fail
         from filelock import FileLock
         with FileLock('out.dot.lock'):
-            os.system("python ./generate_state_diagram.py sqlite:///test.db > out.dot ;dot -Tsvg out.dot > diag2.svg; ")
+            os.system(f"python ./generate_state_diagram.py {DSN} > out.dot ;dot -Tsvg out.dot > diag2.svg; ")
     
     if route == "comment":
         if fail := validate(fo):

@@ -1,15 +1,17 @@
 <style>
 * {    font-family: sans-serif }
-body { text-align: center;background:white; }
-div, table { background:white;border-spacing:0;text-align:left;width:40em;margin:auto;border-radius:.5em;margin-bottom:1em;padding-left:.5em; }
-tbody tr:nth-child(odd) {  background-color: #eee;}
-fieldset { box-shadow: 2px 2px 4px #113; border: 1px solid #666;  border-radius: .5em; width: 30em; margin: auto; background:#eef; }
+body { text-align: center;background:#f5f5ff; }
+div, table { background:#f5f5ff;border-spacing:0;text-align:left;width:40em;margin:auto;border-radius:.5em;margin-bottom:1em;padding-left:.5em; }
+tbody tr:nth-child(odd) {  background-color: #ccd;}
+fieldset {margin:auto; box-shadow: 2px 2px 4px #113; border: 1px solid #666;  border-radius: .5em; width: 30em;  background:#eef; }
 
-a:hover,select:hover, [type=submit]:hover { background:#117; color:white; border-radius:.5em; }
-a { padding:.4em; font-weight:1000; color:#117 }
+.spacer { width:40em; margin:auto;height:5em  }
+.bandeau a:hover,select:hover, [type=submit]:hover { background:#117; color:white; border-radius:.5em; }
+.bandeau { text-align:center;background:#f5f5ff;position:fixed;width:50em; z-index:1;top:0;margin-top:0; left:0; right:0; margin:auto;height:5em }
+.bandeau a { padding:.4em; font-weight:1000; color:#117 }
 :visited { color:#117 }
 [type=submit] { cursor:pointer; box-shadow:1px 1px 2px #aaa }
-embed { max-height:30em; }
+embed { max-height:30em;min-height:20em; display:inline; }
 form { text-align: left; display:inline-block; }
 input,select { margin-bottom:1em; padding:.5em;} ::file-selector-button { padding:.5em}
 input:not([type=file]) { border:1px solid #666; border-radius:.5em}
@@ -21,6 +23,7 @@ input:not([type=file]) { border:1px solid #666; border-radius:.5em}
 [value=attach] { background: #efd }
 [value=post] { background: #def; }
 .hidden { display:none;}
+textarea { resize:none }
 [type=submit] { margin-right:1em; margin-bottom:0em; border:1px solid #333; padding:.5em; border-radius:.5em; }
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>

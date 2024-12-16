@@ -25,7 +25,8 @@ id : ${fo["id"][0]},
 
 </script>
 <style>
-.users { background:#117; color:white; border-radius:.5em; }
+.users { background:#117; color:white !important; border-radius:.5em; }
+table { margin-bottom:3em }
 </style>
 </%block>
 

@@ -1,7 +1,7 @@
 <%inherit file="base.mako" />
 <%block name="include_head" >
 <style>
-.login { background:#117; color:white; border-radius:.5em; }
+.login { background:#117; color:white !important; border-radius:.5em; }
 </style>
 </%block>
 

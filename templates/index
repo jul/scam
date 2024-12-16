@@ -30,9 +30,10 @@ $(document).ready(() => {
 
 </script>
 <style>
-.CRUD { background:#117; color:white; border-radius:.5em; }
+.CRUD { background:#117; color:white ! important; border-radius:.5em; }
 </style>
 </%block>
-<img src=diag.png />
+
+<img src=diag.${fo["_model"][0]}.png />
 <%include file="model.mako" />
 

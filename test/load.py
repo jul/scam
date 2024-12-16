@@ -39,7 +39,7 @@ form_to_db = transtype_input = lambda attrs : {  k: (
                 for k,v in attrs.items() if v  and not k.startswith("_")
 }
 
-post(url("user"), params = dict(id=1,  secret_password="toto", name="jul2", email="j@j.com", _action="create"), files=dict(pic_file=open("./assets/diag.png", "rb").read())).status_code
+post(url("user"), params = dict(id=1,  secret_password="toto", name="jul2", email="j@j.com", _action="create"), files=dict(pic_file=open("./assets/favicon.ico", "rb").read())).status_code
 #os.system(f"curl {ENDPOINT}/user?_action=search")
 #os.system(f"sqlite3 {DB} .dump")
 
@@ -171,7 +171,6 @@ os.system("python ./generate_state_diagram.py sqlite:///test.db > out.dot ;dot -
 s = requests.session()
 
 os.system(f"DB={DB} DB_DRIVER={DB_DRIVER} python pdca.py & sleep 1")
-
 
 print(s.post(url("grant"), params = dict(secret_password="toto", email="j@j.com",group_id=1, )).status_code)
 print(s.post(url("grant"), params = dict(_redirect="/group",secret_password="toto", email="j@j.com",group_id=2, )).status_code)

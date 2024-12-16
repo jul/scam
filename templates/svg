@@ -4,10 +4,20 @@
 <script>
 $("svg").ready(() => {
     $(".node").hover(
-        function() { 
+        function(e) { 
             annexe = ${dumps(fo["annexe"])}
+            console.log(e.clientX)
             $("embed").show()
             $("embed").attr("src","")
+            if( e.screenX > window.innerWidth / 2 ) { 
+
+                $("embed").removeClass("right")
+                $("embed").addClass("left")
+                console.log("here")
+            } else {
+                $("embed").removeClass("left")
+                $("embed").addClass("right")
+            }
             $("embed").attr("src",annexe[0][$("title",this).html()])},
         function() { $("embed").hide() }) 
     $("[value=close]").click( () => { event.preventDefault(); $(".modal").fadeOut() } )
@@ -45,7 +55,7 @@ $("svg").ready(() => {
     $("[value=reply]").click( function() {
         event.preventDefault()
         $(".sel").hide()
-        $("[name=_rep]").css("display","block")
+        $("[name=_rep]").fadeIn()
     })
     $("[value=transition]").click( function() {
         event.preventDefault()
@@ -57,7 +67,6 @@ $("svg").ready(() => {
     $(".node").click( function() {
         event.preventDefault()
         comment_id=$($("title",$(this))[0]).html()
-        console.log($("title",this).html())
         $("[name=clicked]").val(comment_id)
         $("[name=comment_id]",$($("form")[0])).val(comment_id)
         $("[name=id]",$($("form")[1])).val(comment_id)
@@ -65,13 +74,12 @@ $("svg").ready(() => {
         $("[name=previous_comment_id]",$($("form")[3])).val(comment_id)
         $(".modal").toggleClass("focus").fadeIn()
         $(".sel").hide()
-        $("[name=_ed]").css("display","block").fadeIn()
-        $("[value=edit]").click()
+        $("[value=reply]").click() 
 
     })
     $("[value=del]").click( function() {
         event.preventDefault()
-        console.log(comment_id)
+
         $(".sel").hide()
         $("[name=_del]").css("display","block")
 
@@ -79,14 +87,18 @@ $("svg").ready(() => {
 })
 </script>
 <style>
-.graph { background:#117; color:white; border-radius:.5em; }
+.graph { background:#117; color:white !important; border-radius:.5em; }
 .focus { background:#f5f5FF;border-radius:.5em; }
 .node {cursor: pointer; }
 g.a { text-decoration: underline; }
-[value=post] { position:fixed; left:1em;top:4em }
-
-.modal {display:none;position:fixed; background:transparent;left:0; top:0em; width:30em; }
-embed { display:none; position:fixed; width:33%;right:3em;border-radius:.5em; }
+[value=post] { position:fixed; left:3em;top:4em }
+fieldset { margin-left:0 }
+.modal {display:none;position:fixed; background:transparent;left:0;  top:0em; width:30em;z-index:2 }
+.sel { background:transparent; margin-left:0 }
+.node:hover { filter: drop-shadow( 1px 1px 1px rgba(0, 0, 0, .5)); }
+embed { display:none; position:fixed;box-shadow:2px 2px 4px #666; width:33%;border-radius:.5em;top:10em; min-height:0 ; }
+.left { left:3em !important; }
+.right { right:3em !important; }
 p { box-shadow: 2px 2px #333;border-radius:.5em;border:1px solid #eee; }
 .comment { border-bottom: 1px solid #aaa; background:#eef; }
 .story { border-bottom: 1px solid red; background:#fbc}
@@ -155,5 +167,5 @@ svg { rgba(255,255,255,.9) }
 
     </div>
 </div>
-<embed src="" width=50% >
+<embed src=""  >
 <%include file="../diag2.svg" />
