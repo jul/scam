@@ -33,10 +33,10 @@ __DIR__= os.path.dirname(os.path.abspath(__file__))
 DB=os.environ.get('DB','pdca.db')
 DB_DRIVER=os.environ.get('DB_DRIVER','sqlite')
 DSN=f"{DB_DRIVER}://{DB_DRIVER == 'sqlite' and not DB.startswith('/') and '/' or ''}{DB}"
+
 engine = create_engine(DSN)
 if not database_exists(engine.url):
     create_database(engine.url)
-
 
 
 tables = dict()
@@ -161,11 +161,14 @@ def log(msg, ln=0, context={}):
 
 line = lambda : sys._getframe(1).f_lineno
 log(f"connecting {DSN}", ln=line())
+
 # single page app python part
+
 def simple_app(environ, start_response):
     def redirect(to):
         start_response('302 Found', [('Location',f"{to}")])
         return [ f"""<html><head><meta http-equiv="refresh" content="0; url="{to}"</head></html>""".encode() ]
+
     fo, fi=multipart.parse_form_data(environ)
     fo.update(**{ k: dict(
             name=fi[k].filename,
@@ -173,10 +176,9 @@ def simple_app(environ, start_response):
             content=b64encode(fi[k].file.read())
         ) for k,v in fi.items()})
 
-
-
     table = route = environ["PATH_INFO"][1:]
     here = environ["PATH_INFO"][0]
+
     fo.update(**dict(parse_qsl(environ["QUERY_STRING"])))
     try:
         fo["_secret_token"] = Cookie(environ["HTTP_COOKIE"])["Token"].value
@@ -190,18 +192,17 @@ def simple_app(environ, start_response):
     HTMLtoData().feed(model)
     metadata = MetaData()
     metadata.reflect(bind=engine)
-    
+
     Base = automap_base(metadata=metadata)
     Base.prepare()
     fo["_model"] = version = adler32(model.encode())
     dest=os.path.join(__DIR__, "assets",'diag.%s.png' % version)
     
-
-
     if not os.path.isfile(dest):
         os.system(os.path.join(__DIR__, "generate_diagram.py") + " " + DSN);
         os.system("dot out.dot -T png >  " + dest);
         print(dest)
+
     potential_file = os.path.join(__DIR__, "assets", route )
     if os.path.isfile(potential_file ):
 ## python-magic

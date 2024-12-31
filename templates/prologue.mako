@@ -8,7 +8,7 @@ fieldset {margin:auto; box-shadow: 2px 2px 4px #113; border: 1px solid #666;  bo
 .spacer { width:40em; margin:auto;height:5em  }
 .bandeau a:hover,select:hover, [type=submit]:hover { background:#117; color:white; border-radius:.5em; }
 .bandeau { text-align:center;background:#f5f5ff;position:fixed;width:50em; z-index:1;top:0;margin-top:0; left:0; right:0; margin:auto;height:5em }
-.bandeau a { padding:.4em; font-weight:1000; color:#117 }
+.bandeau a { padding:.4em;font-size:120%; font-weight:1000; color:#117 }
 :visited { color:#117 }
 [type=submit] { cursor:pointer; box-shadow:1px 1px 2px #aaa }
 embed { max-height:30em;min-height:20em; display:inline; }
