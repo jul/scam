@@ -68,7 +68,13 @@ with db.connect() as sql:
                     ON comment.id=is_fin.b
                ) SELECT id FROM comment where id in is_fin ) ;""")):
         id, user_id,message, factoid, category= s
-        print(f'''{id} [label="{id}:{category}:@{user_id}\\n{"\\l".join(wrap(escape(message).replace("\n","\\l"),width=60))}\\l" fillcolor="{cat_bg_colors.get(category,"gray")}" color="{cat_colors.get(category, "gray")}"];''')
+        new_message = message.split("\n")
+        new_message = list(map(lambda s:wrap(escape(s).replace("\n", "\\l")), new_message))
+        new_message = "\\l".join(list(map("\\l".join, new_message)))
+        if factoid != None:
+            new_message += "\\l" + f"""{factoid}"""
+
+        print(f"""{id} [label="{id}:{category}:@{user_id}\\n{new_message}\l" fillcolor="{cat_bg_colors.get(category,"gray")}" color="{cat_colors.get(category, "gray")}"];""")
         
 
 
