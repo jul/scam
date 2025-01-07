@@ -4,7 +4,7 @@ import multipart
 from wsgiref.simple_server import make_server
 from json import dumps, loads
 from html.parser import HTMLParser
-from base64 import b64encode
+from base64 import b64encode, b64decode
 from urllib.parse import parse_qsl, urlparse
 import traceback
 from  http.cookies import SimpleCookie as Cookie
@@ -220,7 +220,10 @@ def simple_app(environ, start_response):
                     "date" in k or "time" in k and v and type(k) == str )
                         and parser.parse(v) or
                     # handling of input type = form havin "file" in the name of the inpur
-                    "file" in k and f"""data:{fo[k]["content_type"]}; base64, {fo[k]["content"].decode()}""" or
+                    "file" in k \
+                        and open(f"""./assets/{DB}.{fo["id"]}""", "wb").write(b64decode(fo[k]["content"])) \
+                        and f"""data:{fo[k]["content_type"]}; base64, {fo[k]["content"].decode()}""" or
+
                     # handling of boolean mapping which input begins with "is_"
                     k.startswith("is_") and [False, True][v == "on"] or
                     # password ?
