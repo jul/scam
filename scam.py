@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # STDLIB 
 import multipart
 from wsgiref.simple_server import make_server
@@ -30,7 +31,7 @@ from mako.lookup import TemplateLookup
 
 
 __DIR__= os.path.dirname(os.path.abspath(__file__))
-DB=os.environ.get('DB','pdca.db')
+DB=os.environ.get('DB','scam.db')
 DB_DRIVER=os.environ.get('DB_DRIVER','sqlite')
 DSN=f"{DB_DRIVER}://{DB_DRIVER == 'sqlite' and not DB.startswith('/') and '/' or ''}{DB}"
 
@@ -207,7 +208,10 @@ def simple_app(environ, start_response):
     if os.path.isfile(potential_file ):
 ## python-magic
         import magic
-        start_response('200 OK', [('content-type', magic.from_file(potential_file, mime=True)), ])
+        start_response('200 OK', [('content-type',
+            potential_file.endswith(".css") and "text/css"
+            or magic.from_file(potential_file, mime=True)), ])
+        log(magic.from_file(potential_file, mime=True), ln=line())
         return [ open(potential_file, "rb").read() ]
 
 
@@ -325,9 +329,21 @@ def simple_app(environ, start_response):
     if route =="":
         route="index"
     to_write=""
+    if route == "doc":
+        if fail := validate(fo):
+            return fail
+
+        from subprocess import run, PIPE
+        from urllib.parse import unquote
+        run([ "pandoc", "-" , "--standalone", "-s", "-c" ,"pandoc.css","--metadata", "title=",  "-o" ,f"""./assets/{fo["id"]}.html""" ], input=unquote(fo.get("text","")).encode(), stdout=PIPE)
+        start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
+        return [ open(f"""./assets/{fo["id"]}.html""", "rt").read().encode() ]
+    
+
     if route == "svg":
         if fail := validate(fo):
             return fail
+            
         from filelock import FileLock
         with FileLock('out.dot.lock'):
             os.system(f"python ./generate_state_diagram.py {DSN} > out.dot ;dot -Tsvg out.dot > diag2.svg; ")
@@ -342,24 +358,27 @@ def simple_app(environ, start_response):
         fo["result"] = []
         with engine.connect() as cnx:
             if id := fo.get("id"):
-                for s in cnx.execute(text(f"""select id, message, factoid, category, comment_id, user_id from comment where comment.id IN (
+                from sqlalchemy import text
+                for s in cnx.execute(text("""select id, message, factoid, category, comment_id, user_id from comment where comment.id IN (
             with recursive is_fin(b) as
                 (
-                    SELECT {id}
+                    SELECT :id
                     UNION
                     select id
                     from comment JOIN  is_fin
                     ON comment.comment_id=is_fin.b
                ) SELECT id FROM comment where id in is_fin )
-                    """)):
+                    """,id=id)):
                     id, message, factoid, category, comment_id,user_id= s
                     stack[id] = dict(
                         message=message,id=id,user_id=user_id,
                         category=category, factoid=factoid, comment_id= comment_id
                     ) 
             else:
-                for s in cnx.execute(text("select id, message, factoid, category, comment_id, user_id from comment order by created_at_time DESC")):
+                from sqlalchemy import text 
+                for s in cnx.execute(text("select id, message, factoid, category, comment_id, user_id from comment order by created_at_time ASC")):
                     id, message, factoid, category, comment_id,user_id= s
+                    log(id, ln=line())
                     stack[id] = dict(
                         message=message,id=id,user_id=user_id,
                         category=category, factoid=factoid, comment_id= comment_id
@@ -369,7 +388,7 @@ def simple_app(environ, start_response):
         last_seen = -1 
         while len(seen) != last_seen:
             last_seen = len(seen)
-            todo2=todo.copy()
+            todo2 = todo.copy()
             for id, comment in stack.items():
                 for dest in todo:
                     if comment["comment_id"] == dest and dest != None:
@@ -378,7 +397,7 @@ def simple_app(environ, start_response):
                             todo2 -= { dest, }
                             todo2 |= {id,}
                             seen |= {id,}
-            todo = todo2.copy()
+                    todo = todo2.copy()
         to_remove = set()
         log("trans", ln=line(), context=transition)
         for t in reversed(transition):
@@ -386,7 +405,8 @@ def simple_app(environ, start_response):
             if not "answer" in stack[_to]:
                 stack[_to]["answer"] = []
             stack[_to]["answer"] +=  [ stack[_from], ]
-            to_remove |= {_from,}
+            if _from != _to:
+                to_remove |= {_from,}
         for id, comment in stack.items():
             if id not in to_remove:
                 fo["result"] += [ comment, ]
@@ -394,6 +414,7 @@ def simple_app(environ, start_response):
         fo["annexe"]= mdict()
 
         with engine.connect() as cnx:
+            from sqlalchemy import text 
             for s in cnx.execute(text(f"""select id, annexe_file from annexe """)):
                 comment_id, annexe_file=s
                 fo['annexe'] += mdict({comment_id: [annexe_file]})

@@ -26,6 +26,13 @@
         <input type=number name=id nullable=false reference=comment.id ondelete=cascade >
         <input type=file name=annexe_file nullable=false />
     </form>
+    <form action=/text >
+        <input type=number name=id />
+        <input type=number name=user_id reference=user.id nullable=false />
+        <input type=number name=comment_id reference=comment.id ondelete=cascade >
+        <textarea name=text rows=100 cols=80 nullable=false ></textarea>
+   </form>
+
 
 
 

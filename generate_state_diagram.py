@@ -74,7 +74,7 @@ with db.connect() as sql:
         if factoid != None:
             new_message += "\\l" + f"""{factoid}"""
 
-        print(f"""{id} [label="{id}:{category}:@{user_id}\\n{new_message}\l" fillcolor="{cat_bg_colors.get(category,"gray")}" color="{cat_colors.get(category, "gray")}"];""")
+        print(f"""{id} [label="{id}:{category}:@{user_id}\\n{new_message}\\l" fillcolor="{cat_bg_colors.get(category,"gray")}" color="{cat_colors.get(category, "gray")}"];""")
         
 
 

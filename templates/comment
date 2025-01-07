@@ -88,10 +88,12 @@ svg { rgba(255,255,255,.9) }
     % endfor
     <input type=submit value=reply >
     <input type=submit value=attach >
+    &nbsp;
+    <a href=/text?id=${comment["id"]} >text</a>
 </p>
 % if "answer" in  comment.keys():
     % for item in comment["answer"]:
-        % if "answer" in item.keys():
+        % if "answer" in item.keys() and comment["id"] != comment["comment_id"]:
             ${print_comment(item, depth+1)}
         % else:
             <div>
@@ -119,6 +121,8 @@ svg { rgba(255,255,255,.9) }
 
     <input type=submit value=reply >
     <input type=submit value=attach >
+    &nbsp;
+    <a href=/text?id=${comment["id"]} >text</a>
             </div>
             </p>
         % endif
@@ -126,7 +130,6 @@ svg { rgba(255,255,255,.9) }
 % endif
 </div>
 </%def>
-
 
 
 %for item in fo["result"][0]:
