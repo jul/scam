@@ -30,7 +30,7 @@
         <input type=number name=id />
         <input type=number name=user_id reference=user.id nullable=false />
         <input type=number name=comment_id reference=comment.id ondelete=cascade >
-        <input type=number name=book_order >
+        <input type=number name=book_order default=200 >
         <textarea name=text rows=100 cols=80 nullable=false ></textarea>
    </form>
 

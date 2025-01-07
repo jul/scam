@@ -6,24 +6,18 @@ $("svg").ready(() => {
     $(".node").hover(
         function(e) { 
             annexe = ${dumps(fo["annexe"])}
-            $("iframe").show()
-            $("embed").show()
-            $("embed").attr("src","")
+            $(".modal2").show()
             if( e.screenX > window.innerWidth / 2 ) { 
-                $("iframe").removeClass("left")
-                $("iframe").addClass("right")
-                $("embed").removeClass("right")
-                $("embed").addClass("left")
+                $(".modal2").removeClass("right")
+                $(".modal2").addClass("left")
             } else {
-                $("iframe").removeClass("right")
-                $("iframe").addClass("left")
-                $("embed").removeClass("left")
-                $("embed").addClass("right")
+                $(".modal2").removeClass("left")
+                $(".modal2").addClass("right")
             }
-            $("embed").attr("src",annexe[0][$("title",this).html()])
-            $("iframe").attr("src",$("title",this).html()+".html")},
+            $("iframe").attr("src",${fo["_DB"]}+ "." + $("title",this).html()+".html")},
         function() { $("embed").hide() }) 
     $("[value=close]").click( () => { event.preventDefault(); $(".modal").fadeOut() } )
+    $("[value=X]").click( () => { event.preventDefault(); $(".modal2").fadeOut() } )
     $("[value=post]").on("click",(e) => {
         $(".modal").fadeIn()
         $(".sel").hide()
@@ -100,7 +94,8 @@ fieldset { margin-left:0 }
 .sel { background:transparent; margin-left:0 }
 .node:hover { filter: drop-shadow( 1px 1px 1px rgba(0, 0, 0, .5)); }
 embed { display:none; position:fixed;box-shadow:2px 2px 4px #666; width:33%;border-radius:.5em;top:10em; min-height:0 ; }
-iframe { display:none; position:fixed;box-shadow:2px 2px 4px #666; width:33%;border-radius:.5em;top:10em; min-height:40em ; }
+.modal2 { display:none; position:fixed; width:33%;top:4em; height:85% ;z-index:4 }
+iframe { box-shadow:2px 2px 4px #666;width:100%;height:100% }
 .left { left:3em !important; }
 .right { right:3em !important; }
 p { box-shadow: 2px 2px #333;border-radius:.5em;border:1px solid #eee; }
@@ -171,6 +166,8 @@ svg { rgba(255,255,255,.9) }
 
     </div>
 </div>
-<embed src=""  >
+<div class=modal2>
+<input type=submit value=X id=modal >
 <iframe  ></iframe>
+</div>
 <%include file="../diag2.svg" />

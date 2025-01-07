@@ -240,6 +240,7 @@ def simple_app(environ, start_response):
                 user = session.scalars(select(User).where(User.secret_token==fo["_secret_token"])).one()
                 log("token emitted since " + str( dt.now(UTC) - dt.fromtimestamp(TimeUUID(bytes=UUIDM("{%s}" % fo["_secret_token"]).bytes).get_timestamp(), UTC)), ln=line(),)
                 fo["_user_id"]=user.id
+                fo["_DB"] = DB
                 fo["_user_pic"]=user.pic_file
                 all_user = session.execute(select(User)).scalars().all()
                 fo["_pics"] = dict(map(lambda user:(user.id,user.pic_file),all_user))
@@ -338,10 +339,13 @@ def simple_app(environ, start_response):
 
         from subprocess import run, PIPE
         from urllib.parse import unquote
-        run([ "pandoc", "-" , "--standalone", "-s", "-c" ,"pandoc.css","--metadata", "title=",  "-o" ,f"""./assets/{fo["id"]}.html""" ], input=unquote(fo.get("text","")).encode(), stdout=PIPE)
+        run([ "pandoc", "-" , "--standalone", "-s", "-c" ,"pandoc.css","--metadata", "title=",  "-o" ,f"""./assets/{DB}.{fo["id"]}.html""" ], input=unquote(fo.get("text","")).encode(), stdout=PIPE)
         start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
-        return [ open(f"""./assets/{fo["id"]}.html""", "rt").read().encode() ]
+        return [ open(f"""./assets/{DB}.{fo["id"]}.html""", "rt").read().encode() ]
     
+    if route == "text":
+        if fail := validate(fo):
+            return fail
 
     if route == "svg":
         if fail := validate(fo):

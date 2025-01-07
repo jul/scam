@@ -121,5 +121,11 @@ with recursive is_fin(b) as
         if None not in { comment_id, id }:
             
             print(f"""{comment_id} -> {id};""")
+    order=[]
+    for s in sql.execute(text("""select id from text where text is NOT NULL order by book_order DESC, id DESC""")):
+        order += [ s[0] ]
+    if order:
+        print(" -> ".join(map(str,order)) + " [ color=red ]")
+        
 
 print("}")
