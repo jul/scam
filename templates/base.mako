@@ -11,7 +11,8 @@
     <a class=users href=/user_view>users</a> /
     <a class=thread href=/comment>thread</a> /
     <a class=graph href=/svg>graph</a> /
-    <a class=text href=/text>text</a>
+    <a class=text href=/text>text</a> /
+    <a class=book href=/book>book</a>
     <img height=48px width=48px  style=vertical-align:middle;border-radius:24px src="${fo.get("_user_pic",[""])[0] }">
 </div>
 <div class=spacer >

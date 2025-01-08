@@ -6,6 +6,7 @@ from json import dumps, loads
 from html.parser import HTMLParser
 from base64 import b64encode, b64decode
 from urllib.parse import parse_qsl, urlparse
+from os import chdir
 import traceback
 from  http.cookies import SimpleCookie as Cookie
 from uuid import UUID as  UUIDM # conflict with sqlachemy
@@ -346,6 +347,8 @@ def simple_app(environ, start_response):
     if route == "text":
         if fail := validate(fo):
             return fail
+    if route == "book":
+        os.system("./mkdoc.sh")
 
     if route == "svg":
         if fail := validate(fo):
