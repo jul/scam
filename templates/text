@@ -1,0 +1,57 @@
+<%inherit file="base.mako"/>
+<%block name="include_head">
+<script>
+$(document).ready(() => {
+    already=false;
+    $("form").each((i,el) => {
+        $(el).append("<input name=_action type=submit value=create action=" + el.action +" >")
+        $(el).append("<input name=_action type=submit value=search >")
+        $(el).append("<input name=_action type=submit action=" + el.action +" value=update > <input name=_action type=submit value=delete >")
+        $(el).append("<input name=_action type=submit action=" + el.action +" value=load >")
+        $(el).append("<input name=_action type=submit value=clear >")
+    });
+    $("[value=clear]").on("click",function(e) {
+        e.preventDefault();
+            $("input:not([type=submit],[type=file],[type=password]),select,textarea", $($(this).parent())).each((i,el) => {
+                $(el).val("");
+            })
+    })
+    $("[value=load]").on("click",function(e) {
+        $.ajax({
+            url: $(this).attr("action"),
+            data : { "id" : $("[name=id]").val(), _action : "search" }
+        }).done((msg) => {
+            $("input:not([type=submit],[type=file],[type=password]),select,textarea", $($(this).parent())).each((i,el) => {
+                $(el).val(msg.result[0][0][$(el).attr("name")]);
+            })
+        })
+        e.preventDefault();
+    })
+$("textarea").on("keyup", function() {
+    if(already) {
+        clearTimeout(already)
+    }
+    already=setTimeout(function () { 
+    $("#iframe").attr("src", "doc?id=" + $("[name=id]").val() + "&text=" + encodeURI($("textarea").val().replace(/#/g, "%23").replace(/%0D%0A/g,'<br>').replace(/%0A/g,'<br>').replace(/%0D/g,'<br>') ))
+    }, 700)
+});
+    $("[value=load]").click()
+});
+</script>
+<style>
+    .text { background:#117; color:white ! important; border-radius:.5em; }
+    fieldset { position:absolute; left:3%; width:45% }
+    iframe { position:absolute; margin-right:3em; width:45%;  }
+</style>
+</%block>
+
+
+    <form action=/text >
+        <input type=number name=id value="${fo["id"][0]}" />
+        <input type=number name=book_order />
+        <input type=hidden name=user_id value=${fo["_user_id"][0]}  />
+        <input type=hidden name=comment_id >
+        <textarea name=text rows=20 cols=80 nullable=false ></textarea>
+   </form>
+   <iframe id=iframe width=50% height=100% style=right:0 src=/${fo["_DB"]}.${fo["id"][0]}.html >
+   </iframe>
