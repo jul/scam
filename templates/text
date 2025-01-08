@@ -53,5 +53,5 @@ $("textarea").on("keyup", function() {
         <input type=hidden name=comment_id >
         <textarea name=text rows=20 cols=80 nullable=false ></textarea>
    </form>
-   <iframe id=iframe width=50% height=100% style=right:0 src=/${fo["_DB"]}.${fo["id"][0]}.html >
+   <iframe id=iframe width=50% height=100% style=right:0 src=/${fo["_DB"][0]}.${fo["id"][0]}.html >
    </iframe>
