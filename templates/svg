@@ -35,6 +35,7 @@ $("svg").ready(() => {
                 $(el).val(msg.result[0][0][$(el).attr("name")]);
             })
         })
+        $('#a').attr("href","text?id=" + $("[name=id]", $($("form")[3])).val())
         e.preventDefault();
     })
     $("[value=share]").click( function() {
@@ -122,6 +123,7 @@ svg { rgba(255,255,255,.9) }
     <input type=submit value=del />
     <input type=submit value=transition />
     <input type=submit value=share />
+    &nbsp;<a id=a>text</a>
     <div name=_rep class=sel >
     <form action=/comment >
     <input type=hidden name=id />
