@@ -1,6 +1,6 @@
 FROM debian
 ENV LANG C.UTF-8
-ENV DB scam
+ENV DB ${DB:-scam}
 RUN mkdir -p /usr/share/man/man1 && mkdir -p /usr/share/man/man7
 RUN apt-get update && apt-get -y dist-upgrade \
     && rm -rf /var/lib/apt/lists/*
@@ -22,4 +22,4 @@ COPY requirements.full.txt .
 ENV PYTHONPATH=/venv/bin
 RUN /venv/bin/python -m pip install --no-cache-dir --disable-pip-version-check -r requirements.full.txt
 EXPOSE 5000
-CMD . /venv/bin/activate && /venv/bin/python /app/scam.py
+CMD . /venv/bin/activate && DB=DB /venv/bin/python /app/scam.py

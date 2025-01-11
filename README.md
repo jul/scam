@@ -2,5 +2,28 @@
 
 a stuff to make microblogging look more like a graph
 
-<video width=800px src=https://github.com/user-attachments/assets/272730a8-5c74-4bcb-a9a6-83960ff89d8f />
+# Scope Creep Amusing Technology
+
+At the beginning it was a proof of concept of HTML as a declarative model
+(instead of SQL).
+
+Then I decided I needed a practical example and I quickly set up a microblogging
+example.
+
+But, I was like, let's try to scam people in stopping to use scum meeting and
+instead use a microblogging platform because it is fun. And the scope creeped
+again.
+
+And, then I was like a « mind mapper sould be fun » I almost already have it.
+And another scope creep happened.
+
+And why not make the small post-it developpable in full text came into mind ...
+
+And then I remembered I had a toolchain to make books from pandoc and it would
+be nice to have a real time rendering in close to final result. And yet another
+scope crepp.
+
+And finally, here I am, with a sotfware to build a book latex rendered from
+markdown based on a mind mapper ...
+
 
