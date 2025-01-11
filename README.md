@@ -17,11 +17,14 @@ again.
 And, then I was like a « mind mapper should be fun » I almost already have it.
 And another scope creep happened.
 
+
 And why not make the small post-it developpable in full text came into mind ...
+![postit](img/dev)
 
 And then I remembered I had a toolchain to make books from pandoc and it would
 be nice to have a real time rendering in close to final result. And yet another
-scope crepp.
+scope creep.
+![markdown rendering](img/markdown)
 
 And finally, here I am, with a sotfware to build a book latex rendered from
 markdown based on a mind mapper ...
