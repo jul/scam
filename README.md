@@ -26,4 +26,4 @@ scope crepp.
 And finally, here I am, with a sotfware to build a book latex rendered from
 markdown based on a mind mapper ...
 
-
+<video width=800px src=https://github.com/jul/scam/raw/refs/heads/main/kazam.mp4 />
