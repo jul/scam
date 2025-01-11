@@ -7,6 +7,8 @@ from html.parser import HTMLParser
 from base64 import b64encode, b64decode
 from urllib.parse import parse_qsl, urlparse
 from os import chdir
+from subprocess import run, PIPE
+from urllib.parse import unquote
 import traceback
 from  http.cookies import SimpleCookie as Cookie
 from uuid import UUID as  UUIDM # conflict with sqlachemy
@@ -222,7 +224,7 @@ def simple_app(environ, start_response):
                         and parser.parse(v) or
                     # handling of input type = form havin "file" in the name of the inpur
                     "file" in k \
-                        and open(f"""./assets/{DB}.{fo["id"]}""", "wb").write(b64decode(fo[k]["content"])) \
+                        and open(f"""./assets/{DB}.{table}.{fo["id"]}""", "wb").write(b64decode(fo[k]["content"])) \
                         and f"""data:{fo[k]["content_type"]}; base64, {fo[k]["content"].decode()}""" or
 
                     # handling of boolean mapping which input begins with "is_"
@@ -338,8 +340,6 @@ def simple_app(environ, start_response):
         if fail := validate(fo):
             return fail
 
-        from subprocess import run, PIPE
-        from urllib.parse import unquote
         run([ "pandoc", "-" , "--standalone", "-s", "-c" ,"pandoc.css","--metadata", "title=",  "-o" ,f"""./assets/{DB}.{fo["id"]}.html""" ], input=unquote(fo.get("text","")).encode(), stdout=PIPE)
         start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
         return [ open(f"""./assets/{DB}.{fo["id"]}.html""", "rt").read().encode() ]
@@ -347,8 +347,11 @@ def simple_app(environ, start_response):
     if route == "text":
         if fail := validate(fo):
             return fail
+
     if route == "book":
-        os.system("./mkdoc.sh")
+        if fail := validate(fo):
+            return fail
+        os.system(f"DB={DB} ./mkdoc.sh")
 
     if route == "svg":
         if fail := validate(fo):
@@ -378,7 +381,7 @@ def simple_app(environ, start_response):
                     from comment JOIN  is_fin
                     ON comment.comment_id=is_fin.b
                ) SELECT id FROM comment where id in is_fin )
-                    """,id=id)):
+                    """),dict(id=id)):
                     id, message, factoid, category, comment_id,user_id= s
                     stack[id] = dict(
                         message=message,id=id,user_id=user_id,

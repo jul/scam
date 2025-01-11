@@ -17,6 +17,15 @@ $(document).ready(() => {
             })
     })
     $("[value=load]").on("click",function(e) {
+        $("textarea").val("")
+        $("input:not([type=submit],[name=id],[name=user_id])").each((i, el) => { $(el).val("") })
+        $.ajax({
+            url: "comment",
+            data : { "id" : $("[name=id]").val(), _action : "search" }
+        }).done((msg) => {
+            $("#comment").html(msg.result[0][0]["message"].replace(/\n/g,"<br>"))
+        })
+
         $.ajax({
             url: $(this).attr("action"),
             data : { "id" : $("[name=id]").val(), _action : "search" }
@@ -27,31 +36,40 @@ $(document).ready(() => {
         })
         e.preventDefault();
     })
-$("textarea").on("keyup", function() {
-    if(already) {
-        clearTimeout(already)
-    }
-    already=setTimeout(function () { 
-    $("#iframe").attr("src", "doc?id=" + $("[name=id]").val() + "&text=" + encodeURI($("textarea").val().replace(/#/g, "%23").replace(/%0D%0A/g,'<br>').replace(/%0A/g,'<br>').replace(/%0D/g,'<br>') ))
-    }, 700)
-});
+    keyup = () => {             $("#iframe").attr("src", "doc?id=" + $("[name=id]").val() + "&text=" + encodeURI($("textarea").val().replace(/#/g, "%23").replace(/%0D%0A/g,'<br>').replace(/%0A/g,'<br>').replace(/%0D/g,'<br>') ))
+        }
+    $("textarea").on("keyup", function() {
+        if(already) {
+            clearTimeout(already)
+        }
+        already=setTimeout(keyup, 700)
+    });
+    $("[name=id]").on("input", () => { 
+        $("[value=load]").click()
+        setTimeout(keyup, 150)
+    })
+
     $("[value=load]").click()
+
 });
 </script>
 <style>
     .text { background:#117; color:white ! important; border-radius:.5em; }
+    #comment { min-height:10em;overflow:auto }
     fieldset { position:absolute; left:3%; width:45% }
     iframe { position:absolute; margin-right:3em; width:45%;  }
 </style>
 </%block>
 
 
+   <div id=comment >
+   </div>
     <form action=/text >
-        <input type=number name=id value="${fo["id"][0]}" />
+        <input type=number name=id value="${fo.get("id", [1])[0]}" />
         <input type=number name=book_order />
         <input type=hidden name=user_id value=${fo["_user_id"][0]}  />
         <input type=hidden name=comment_id >
         <textarea name=text rows=20 cols=80 nullable=false ></textarea>
    </form>
-   <iframe id=iframe width=50% height=100% style=right:0 src=/${fo["_DB"][0]}.${fo["id"][0]}.html >
+   <iframe id=iframe width=50% height=100% style=right:0 src=/${fo["_DB"][0]}.${fo.get("id", [1])[0]}.html >
    </iframe>

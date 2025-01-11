@@ -35,7 +35,9 @@ $("svg").ready(() => {
                 $(el).val(msg.result[0][0][$(el).attr("name")]);
             })
         })
-        $('#a').attr("href","text?id=" + $("[name=id]", $($("form")[3])).val())
+
+        console.log($("[name=id]", $($("form")[3])).val())
+        setTimeout( function() { $('#a').attr("href","text?id=" + $("[name=id]", $($("form")[3])).val()) }, 150)
         e.preventDefault();
     })
     $("[value=share]").click( function() {
