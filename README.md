@@ -30,4 +30,4 @@ And finally, here I am, with a sotfware to build a book latex rendered from
 markdown based on a mind mapper ...
 ![book view](img/book)
 
-<video width=800px src=https://github.com/jul/scam/raw/refs/heads/main/kazam.mp4 />
+  <video width=800px src="https://github.com/jul/scam/raw/refs/heads/main/kazam.mp4" />
