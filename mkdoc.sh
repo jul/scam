@@ -30,8 +30,6 @@ cat "${DB}.titre.md" "${DB}.body.gfm.md" > "${DB}.book.html.md"
 
 pandoc "${DB}.book.html.md" --toc -c pandoc.css -so "${DB}.book.html"
 pandoc "${DB}.book.pdf.md"  --toc --pdf-engine=xelatex  \
-    -V documentclass=extreport   --variable fontsize=12pt \
-    -V papersize=a4 \
     -so "${DB}.book.pdf"
 
 cd ..
