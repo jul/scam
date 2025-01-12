@@ -14,7 +14,7 @@ $("svg").ready(() => {
                 $(".modal2").removeClass("left")
                 $(".modal2").addClass("right")
             }
-            $("iframe").attr("src",${fo["_DB"]}+ "." + $("title",this).html()+".html")},
+            $("iframe").attr("src",${fo["_DB"][0]}+ "." + $("title",this).html()+".html")},
         function() { $("embed").hide() }) 
     $("[value=close]").click( () => { event.preventDefault(); $(".modal").fadeOut() } )
     $("[value=X]").click( () => { event.preventDefault(); $(".modal2").fadeOut() } )
