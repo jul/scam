@@ -20,7 +20,7 @@ sqlite3 $DB 'select text || "
 
 sqlite3 $DB 'select "
 " || text || "
-" from text where id != 1 order by book_order ASC NULLS LAST, id ASC' > "assets/${DB}.body.md"
+" from text where id != 1 order by book_order ASC NULLS FIRST, id ASC' > "assets/${DB}.body.md"
 set -x
 cd assets
 pandoc "${DB}.body.md" -F ../graphviz.py -F pandoc-include -o "${DB}.body.gfm.md" 

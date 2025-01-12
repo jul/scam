@@ -107,9 +107,6 @@ src="aide.annexe.1" style="width:15cm" /></p>
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#playing-with-the-help-example"
-id="toc-playing-with-the-help-example">Playing with the help
-example</a></li>
 <li><a href="#synopsis" id="toc-synopsis">Synopsis</a></li>
 <li><a href="#installation" id="toc-installation">Installation</a></li>
 <li><a href="#walkthrough-writing-the-aide"
@@ -131,16 +128,13 @@ your first comment and setting your book title</a></li>
 id="toc-checking-on-your-book">Checking on your book</a></li>
 <li><a href="#rinse-and-repeat" id="toc-rinse-and-repeat">Rinse and
 repeat</a></li>
+<li><a href="#playing-with-the-help-example"
+id="toc-playing-with-the-help-example">Playing with the help
+example</a></li>
 </ul>
 </nav>
 <p>WTFPL 2.0 Do any thing you want with this book except claim you wrote
 it</p>
-<h1 id="playing-with-the-help-example">Playing with the help
-example</h1>
-<p>This book is available in the repository as a sqlite database.</p>
-<p>To try it :</p>
-<pre><code> docker run -i -t -e db=aide --mount type=bind,src=.,dst=/scam -p5000:5000  scam
- firefox http://127.0.0.1:5000</code></pre>
 <h1 id="synopsis">Synopsis</h1>
 <p>This is a front end to a pandoc toolchain based on mind mapping for
 structuring the toughts with a real time rendering of the markdown.</p>
@@ -160,32 +154,32 @@ github</a></p>
 full pip requirements solution because I need binary installs.</p>
 <p>As a result I resorted to the solution of the lazy man which source
 tells you all you need : making it a docker file.</p>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> debian</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">ENV</span> LANG C.UTF-8</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> <span class="at">-p</span> /usr/share/man/man1 <span class="kw">&amp;&amp;</span> <span class="fu">mkdir</span> <span class="at">-p</span> /usr/share/man/man7</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">apt-get</span> update <span class="kw">&amp;&amp;</span> <span class="ex">apt-get</span> <span class="at">-y</span> dist-upgrade <span class="dt">\</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&amp;&amp;</span> <span class="fu">rm</span> <span class="at">-rf</span> /var/lib/apt/lists/<span class="pp">*</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">apt-get</span> update <span class="kw">&amp;&amp;</span> <span class="ex">apt-get</span> <span class="at">-y</span> <span class="at">--no-install-recommends</span> install <span class="dt">\</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    python3 python3-pip python3-venv python3-setuptools python3-sqlalchemy texlive pandoc graphviz virtualenv  python3-magic sqlite3 texlive-xetex texlive-latex-extra <span class="dt">\</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    texlive-fonts-recommended texlive-lang-french lmodern</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">useradd</span> scam <span class="at">-d</span> /app <span class="at">--uid</span> 1000 <span class="at">-m</span> <span class="at">-s</span> /bin/bash</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> <span class="op">--chown=scam</span> . /app</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="kw">WORKDIR</span> /scam</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">chown</span> <span class="at">-R</span> scam:scam .</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> /scam/assets /venv</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">chown</span> <span class="at">-R</span> scam:scam /venv /scam/assets</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span>  . .</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">virtualenv</span> <span class="at">--system-site-packages</span> /venv</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="bu">.</span> /venv/bin/activate</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> requirements.full.txt .</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="kw">ENV</span> PYTHONPATH=/venv/bin</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">/venv/bin/python</span> <span class="at">-m</span> pip install <span class="at">--no-cache-dir</span> <span class="at">--disable-pip-version-check</span> <span class="at">-r</span> requirements.full.txt</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="kw">EXPOSE</span> 5000</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="kw">CMD</span> <span class="bu">.</span> /venv/bin/activate <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> /scam <span class="kw">&amp;&amp;</span> <span class="va">DB</span><span class="op">=</span><span class="va">${db</span><span class="op">:-</span>scam<span class="va">}</span> <span class="ex">/venv/bin/python</span> /app/scam.py</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> debian</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">ENV</span> LANG C.UTF-8</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> <span class="at">-p</span> /usr/share/man/man1 <span class="kw">&amp;&amp;</span> <span class="fu">mkdir</span> <span class="at">-p</span> /usr/share/man/man7</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">apt-get</span> update <span class="kw">&amp;&amp;</span> <span class="ex">apt-get</span> <span class="at">-y</span> dist-upgrade <span class="dt">\</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&amp;&amp;</span> <span class="fu">rm</span> <span class="at">-rf</span> /var/lib/apt/lists/<span class="pp">*</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">apt-get</span> update <span class="kw">&amp;&amp;</span> <span class="ex">apt-get</span> <span class="at">-y</span> <span class="at">--no-install-recommends</span> install <span class="dt">\</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    python3 python3-pip python3-venv python3-setuptools python3-sqlalchemy texlive pandoc graphviz virtualenv  python3-magic sqlite3 texlive-xetex texlive-latex-extra <span class="dt">\</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    texlive-fonts-recommended texlive-lang-french lmodern</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">useradd</span> scam <span class="at">-d</span> /app <span class="at">--uid</span> 1000 <span class="at">-m</span> <span class="at">-s</span> /bin/bash</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> <span class="op">--chown=scam</span> . /app</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">WORKDIR</span> /scam</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">chown</span> <span class="at">-R</span> scam:scam .</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> /scam/assets /venv</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">chown</span> <span class="at">-R</span> scam:scam /venv /scam/assets</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span>  . .</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">virtualenv</span> <span class="at">--system-site-packages</span> /venv</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="bu">.</span> /venv/bin/activate</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> requirements.full.txt .</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="kw">ENV</span> PYTHONPATH=/venv/bin</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">/venv/bin/python</span> <span class="at">-m</span> pip install <span class="at">--no-cache-dir</span> <span class="at">--disable-pip-version-check</span> <span class="at">-r</span> requirements.full.txt</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="kw">EXPOSE</span> 5000</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="kw">CMD</span> <span class="bu">.</span> /venv/bin/activate <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> /scam <span class="kw">&amp;&amp;</span> <span class="va">DB</span><span class="op">=</span><span class="va">${db</span><span class="op">:-</span>scam<span class="va">}</span> <span class="ex">/venv/bin/python</span> /app/scam.py</span></code></pre></div>
 <p>with the following requirements :</p>
 <pre><code>archery
 pandoc-include
@@ -309,5 +303,11 @@ the book</figcaption>
 <p>The « book order » is the red lines, they follow the ascending id
 order but can be overriden with the book_order rank available in the
 <strong>text</strong> view.</p>
+<h1 id="playing-with-the-help-example">Playing with the help
+example</h1>
+<p>This book is available in the repository as a sqlite database.</p>
+<p>To try it :</p>
+<pre><code> docker run -i -t -e db=aide --mount type=bind,src=.,dst=/scam -p5000:5000  scam
+ firefox http://127.0.0.1:5000</code></pre>
 </body>
 </html>
