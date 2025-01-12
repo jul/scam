@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="jul" />
+  <title>SCAM Manual</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="pandoc.css" />
+  
+  
+  
+  
+  
+  
+  
+  
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">SCAM Manual</h1>
+<p class="author">jul</p>
+<p class="date">Jan 2025<br />
+  <img src="aide.user.1" style="width:5cm" />    <img
+src="aide.annexe.1" style="width:15cm" /></p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#playing-with-the-help-example"
+id="toc-playing-with-the-help-example">Playing with the help
+example</a></li>
+<li><a href="#synopsis" id="toc-synopsis">Synopsis</a></li>
+<li><a href="#installation" id="toc-installation">Installation</a></li>
+<li><a href="#walkthrough-writing-the-aide"
+id="toc-walkthrough-writing-the-aide">Walkthrough: writing the aide</a>
+<ul>
+<li><a href="#creating-a-login" id="toc-creating-a-login">Creating a
+login</a></li>
+<li><a href="#your-first-postit-entry"
+id="toc-your-first-postit-entry">your first postit entry</a></li>
+<li><a href="#attaching-a-content-to-an-entry."
+id="toc-attaching-a-content-to-an-entry.">Attaching a content to an
+entry.</a></li>
+<li><a
+href="#developping-your-first-comment-and-setting-your-book-title"
+id="toc-developping-your-first-comment-and-setting-your-book-title">Developping
+your first comment and setting your book title</a></li>
+</ul></li>
+<li><a href="#checking-on-your-book"
+id="toc-checking-on-your-book">Checking on your book</a></li>
+<li><a href="#rinse-and-repeat" id="toc-rinse-and-repeat">Rinse and
+repeat</a></li>
+</ul>
+</nav>
+<p>WTFPL 2.0 Do any thing you want with this book except claim you wrote
+it</p>
+<h1 id="playing-with-the-help-example">Playing with the help
+example</h1>
+<p>This book is available in the repository as a sqlite database.</p>
+<p>To try it :</p>
+<pre><code> docker run -i -t -e db=aide --mount type=bind,src=.,dst=/scam -p5000:5000  scam
+ firefox http://127.0.0.1:5000</code></pre>
+<h1 id="synopsis">Synopsis</h1>
+<p>This is a front end to a pandoc toolchain based on mind mapping for
+structuring the toughts with a real time rendering of the markdown.</p>
+<p>Markdown that includes pandoc-include and my own one to integrate
+graphviz like this :</p>
+<p><img src="dot.6d9ab102426642bf07cc1ea68d2e1770fca90d0f.png" /></p>
+<figure>
+<img src="aide.annexe.2" style="width:16cm"
+alt="screenshot of the markdown editing page" />
+<figcaption aria-hidden="true">screenshot of the markdown editing
+page</figcaption>
+</figure>
+<p><a href="http://github.com/jul/scam">The home page of SCAM is on
+github</a></p>
+<h1 id="installation">Installation</h1>
+<p>I am too lazy to write an install script, make a debian package, or a
+full pip requirements solution because I need binary installs.</p>
+<p>As a result I resorted to the solution of the lazy man which source
+tells you all you need : making it a docker file.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> debian</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">ENV</span> LANG C.UTF-8</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> <span class="at">-p</span> /usr/share/man/man1 <span class="kw">&amp;&amp;</span> <span class="fu">mkdir</span> <span class="at">-p</span> /usr/share/man/man7</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">apt-get</span> update <span class="kw">&amp;&amp;</span> <span class="ex">apt-get</span> <span class="at">-y</span> dist-upgrade <span class="dt">\</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&amp;&amp;</span> <span class="fu">rm</span> <span class="at">-rf</span> /var/lib/apt/lists/<span class="pp">*</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">apt-get</span> update <span class="kw">&amp;&amp;</span> <span class="ex">apt-get</span> <span class="at">-y</span> <span class="at">--no-install-recommends</span> install <span class="dt">\</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    python3 python3-pip python3-venv python3-setuptools python3-sqlalchemy texlive pandoc graphviz virtualenv  python3-magic sqlite3 texlive-xetex texlive-latex-extra <span class="dt">\</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    texlive-fonts-recommended texlive-lang-french lmodern</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">useradd</span> scam <span class="at">-d</span> /app <span class="at">--uid</span> 1000 <span class="at">-m</span> <span class="at">-s</span> /bin/bash</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> <span class="op">--chown=scam</span> . /app</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="kw">WORKDIR</span> /scam</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">chown</span> <span class="at">-R</span> scam:scam .</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> /scam/assets /venv</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">chown</span> <span class="at">-R</span> scam:scam /venv /scam/assets</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span>  . .</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">virtualenv</span> <span class="at">--system-site-packages</span> /venv</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="bu">.</span> /venv/bin/activate</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> requirements.full.txt .</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="kw">ENV</span> PYTHONPATH=/venv/bin</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">/venv/bin/python</span> <span class="at">-m</span> pip install <span class="at">--no-cache-dir</span> <span class="at">--disable-pip-version-check</span> <span class="at">-r</span> requirements.full.txt</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="kw">EXPOSE</span> 5000</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="kw">CMD</span> <span class="bu">.</span> /venv/bin/activate <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> /scam <span class="kw">&amp;&amp;</span> <span class="va">DB</span><span class="op">=</span><span class="va">${db</span><span class="op">:-</span>scam<span class="va">}</span> <span class="ex">/venv/bin/python</span> /app/scam.py</span></code></pre></div>
+<p>with the following requirements :</p>
+<pre><code>archery
+pandoc-include
+dateutils
+multipart
+filelock
+Mako
+pandocfilters
+panflute
+passlib
+python-dateutil
+SQLAlchemy&gt;=2
+SQLAlchemy-Utils
+time-uuid</code></pre>
+<p>to use it I recommend the side car technique wich can be used this
+way so that you can access the assets dir which contain the book :</p>
+<pre><code>docker build -t scam . 
+docker run -i -t -e db=bookname \
+    --mount type=bind,src=.,dst=/scam \
+    -p5000:5000  scam 
+firefox http://127.0.0.1:5000</code></pre>
+<h1 id="walkthrough-writing-the-aide">Walkthrough: writing the aide</h1>
+<h2 id="creating-a-login">Creating a login</h2>
+<p><a href="http://127.0.0.1:5000/">The landing page</a> is a Create
+Retrieve Update Delete skeleton generated from the data model (which is
+the HTML of the page by design).</p>
+<p>It is recommended to create a user first because all other
+interesting page are accessible only when connected.</p>
+<figure>
+<img src="aide.annexe.4"
+alt="CRUD landing page : time to create your user" />
+<figcaption aria-hidden="true">CRUD landing page : time to create your
+user</figcaption>
+</figure>
+<p>On successful login you should see this :</p>
+<figure>
+<img src="aide.annexe.6" alt="succesfull login" />
+<figcaption aria-hidden="true">succesfull login</figcaption>
+</figure>
+<h2 id="your-first-postit-entry">your first postit entry</h2>
+<p>Time to create your first « idea » ; a small entry of less than 500
+characters, like a microblogging entry to know what topic you are gonna
+talk of</p>
+<figure>
+<img src="aide.annexe.7" alt="begin with the thread interface" />
+<figcaption aria-hidden="true">begin with the <strong>thread</strong>
+interface</figcaption>
+</figure>
+<figure>
+<img src="aide.annexe.8"
+alt="when you correctly add your first entry you have the following output" />
+<figcaption aria-hidden="true">when you correctly add your first entry
+you have the following output</figcaption>
+</figure>
+<h2 id="attaching-a-content-to-an-entry.">Attaching a content to an
+entry.</h2>
+<p>I chose the policy that one micro item is related to one and only one
+attachment of the embedable kind you want.</p>
+<p>These items will be available in the markdown editor</p>
+<figure>
+<img src="aide.annexe.9"
+alt="by clicking on the « attach » button you can attach a content to the post it entry" />
+<figcaption aria-hidden="true">by clicking on the « attach » button you
+can attach a content to the post it entry</figcaption>
+</figure>
+<h2
+id="developping-your-first-comment-and-setting-your-book-title">Developping
+your first comment and setting your book title</h2>
+<p>First comment is specific in the sense it is also used for the title.
+With pandoc you can add metada used for LaTeX.</p>
+<p>The <a
+href="https://pandoc.org/MANUAL.html#pandocs-markdown"><em>markdown</em>
+extension useds here is the pandoc one</a></p>
+<p>Here is the one that I put in the capture</p>
+<pre><code>% TITLE
+% AUTHOR
+% DATE \
+ \ 
+  ![](aide.user.1){width=5cm} 
+  \ 
+  \ ![](aide.annexe.1){width=15cm}
+
+---
+header-includes:
+ - \usepackage[french]{babel}
+ - \usepackage{hyperref}
+ - \definecolor{myblue}{rgb}{0.28, 0.24, 0.48}
+ - \hypersetup{colorlinks=true, allcolors=myblue} 
+ - \let\tmp\oddsidemargin
+ - \let\oddsidemargin\evensidemargin
+ - \let\evensidemargin\tmp
+  - \reversemarginpar
+ ---</code></pre>
+<p>Your real time markdown input is defintily confused, it is time to
+add more postists dans develop them.</p>
+<figure>
+<img src="aide.annexe.10" alt="screenshot of the development UI" />
+<figcaption aria-hidden="true">screenshot of the development
+UI</figcaption>
+</figure>
+<p>As you can see text input always have a reminder of the available for
+inclusion attachment and make it easy to insert it as a picture.</p>
+<h1 id="checking-on-your-book">Checking on your book</h1>
+<p><a href="http://127.0.0.1:5000/book">it’s now time to visit the book
+rendering URL</a>. You should have a side by side view of the generated
+standalone HTML and the generated PDF.</p>
+<figure>
+<img src="aide.annexe.11" alt="book rendering" />
+<figcaption aria-hidden="true">book rendering</figcaption>
+</figure>
+<h1 id="rinse-and-repeat">Rinse and repeat</h1>
+<p>Ather a few more entries that are boring because very repitive if <a
+href="http://127.0.0.1:5000/svg">you consult the graph URL</a> you
+should have now more entries.</p>
+<figure>
+<img src="aide.annexe.12"
+alt="Your graph should now expand itself as the book" />
+<figcaption aria-hidden="true">Your graph should now expand itself as
+the book</figcaption>
+</figure>
+<p>The « book order » is the red lines, they follow the ascending id
+order but can be overriden with the book_order rank available in the
+<strong>text</strong> view.</p>
+</body>
+</html>

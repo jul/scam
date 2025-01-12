@@ -14,21 +14,23 @@ Generates the book. Requires pandoc and xelatex for making the book
 =cut
 DB=${DB:-scam}
 
-sqlite3 $DB 'select text from title where id=1;' > assets/title.md
+
+sqlite3 $DB 'select text || "
+" from text where id = 1' > "assets/${DB}.titre.md"
+
 sqlite3 $DB 'select "
 " || text || "
-" from text order by book_order ASC NULLS LAST, id ASC' > assets/body.md
-
+" from text where id != 1 order by book_order ASC NULLS LAST, id ASC' > "assets/${DB}.body.md"
+set -x
 cd assets
-#pandoc -s body.md -f gfm  -o body.gfm.md
-cp body.md body.gfm.md 
-pandoc body.gfm.md -F ../add_link_list.py -o book.int.pdf.md
-cat title.md book.int.pdf.md > book.pdf.md
-cat title.md body.gfm.md > book.html.md
+pandoc "${DB}.body.md" -F ../graphviz.py -F pandoc-include -o "${DB}.body.gfm.md" 
+pandoc "${DB}.body.gfm.md" -F ../add_link_list.py -o "${DB}.book.pdf.int.md"
 
+cat "${DB}.titre.md" "${DB}.book.pdf.int.md" > "${DB}.book.pdf.md"
+cat "${DB}.titre.md" "${DB}.body.gfm.md" > "${DB}.book.html.md"
 
-pandoc book.html.md --toc -c pandoc.css -so "${DB}.book.html"
-pandoc book.pdf.md  --toc --pdf-engine=xelatex  \
+pandoc "${DB}.book.html.md" --toc -c pandoc.css -so "${DB}.book.html"
+pandoc "${DB}.book.pdf.md"  --toc --pdf-engine=xelatex  \
     -V documentclass=extreport   --variable fontsize=12pt \
     -V papersize=a4 \
     -so "${DB}.book.pdf"

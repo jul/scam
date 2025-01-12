@@ -340,7 +340,9 @@ def simple_app(environ, start_response):
         if fail := validate(fo):
             return fail
 
-        run([ "pandoc", "-" , "--standalone", "-s", "-c" ,"pandoc.css","--metadata", "title=",  "-o" ,f"""./assets/{DB}.{fo["id"]}.html""" ], input=unquote(fo.get("text","")).encode(), stdout=PIPE)
+        os.chdir("assets")
+        run([ "pandoc", "-" , "--standalone", "-s", "-F", os.path.join(__DIR__,"graphviz.py"), "-F", "pandoc-include", "-c" ,"pandoc.css","--metadata", "title=",  "-o" ,f"""./{DB}.{fo["id"]}.html""" ], input=unquote(fo.get("text","")).encode(), stdout=PIPE)
+        os.chdir("..")
         start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
         return [ open(f"""./assets/{DB}.{fo["id"]}.html""", "rt").read().encode() ]
     

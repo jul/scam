@@ -36,10 +36,6 @@
         <textarea name=text rows=100 cols=80 nullable=false ></textarea>
    </form>
    <br/>
-   <form action=/title >
-        <input type=number name=id />
-        <textarea name=text rows=100 cols=80 nullable=false></textarea>
-   </form>
 
 
 

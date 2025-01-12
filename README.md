@@ -1,7 +1,3 @@
-# Simple Convenient Agile Microblogging 
-
-a stuff to make microblogging look more like a graph
-
 # Scope Creep Amusing Technology
 
 At the beginning it was a proof of concept of HTML as a declarative model
@@ -16,6 +12,8 @@ again.
 
 And, then I was like a « mind mapper should be fun » I almost already have it.
 And another scope creep happened.
+
+[Manual is here](https://raw.githubusercontent.com/jul/scam/refs/heads/main/assets/aide.book.pdf)
 
 
 And why not make the small post-it developpable in full text came into mind ...

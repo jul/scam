@@ -64,6 +64,11 @@ $(document).ready(() => {
 
    <div id=comment >
    </div>
+   <div>
+   annexe : ${fo["_DB"][0]}.annexe.${fo.get("id", [1])[0]}  <br/>
+   <embed src='${fo["_DB"][0]}.annexe.${fo.get("id", [1])[0]}' height=10em />
+
+   </div>
     <form action=/text >
         <input type=number name=id value="${fo.get("id", [1])[0]}" />
         <input type=number name=book_order />
