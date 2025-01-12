@@ -122,7 +122,7 @@ with recursive is_fin(b) as
             
             print(f"""{comment_id} -> {id};""")
     order=[]
-    for s in sql.execute(text("""select id from text where text is NOT NULL order by book_order ASC NULLS FIRST, id ASC""")):
+    for s in sql.execute(text("""select id from text where text is NOT NULL order by book_order ASC NULLS LAST, id ASC""")):
         order += [ s[0] ]
     if order:
         print(" -> ".join(map(str,order)) + " [ color=red ]")
