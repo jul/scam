@@ -2,6 +2,7 @@
 # STDLIB 
 import multipart
 from wsgiref.simple_server import make_server
+import re
 from json import dumps, loads
 from html.parser import HTMLParser
 from base64 import b64encode, b64decode
@@ -18,6 +19,7 @@ from zlib import adler32
 import os
 # external dependencies
 # lightweight
+import magic
 from archery import mdict
 from dateutil import parser
 from time_uuid import TimeUUID
@@ -205,12 +207,21 @@ def simple_app(environ, start_response):
     if not os.path.isfile(dest):
         os.system(os.path.join(__DIR__, "generate_diagram.py") + " " + DSN);
         os.system("dot out.dot -T png >  " + dest);
-        print(dest)
 
     potential_file = os.path.join(__DIR__, "assets", route )
+    log(route, ln=line())
+    if not os.path.isfile(potential_file ):
+        if m:=re.compile(r'assets/' + DB + r'''\.annexe\.(\d+)$''').match(route):
+            with engine.connect() as cnx:
+                from sqlalchemy import text
+                _id=m.group(1)
+                for s in cnx.execute(text(f"""select annexe_file from annexe where id= :id"""), dict(id=_id)):
+                    with open(f"assets/{DB}.annexe.{_id}", "bw") as f:
+                        f.write(b64decode(re.match(".*; base64, (.*)$", s[0]).group(1)))
+                log("annexe est tu là?", ln=line())
+
     if os.path.isfile(potential_file ):
 ## python-magic
-        import magic
         start_response('200 OK', [('content-type',
             potential_file.endswith(".css") and "text/css"
             or magic.from_file(potential_file, mime=True)), ])
