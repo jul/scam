@@ -1,0 +1,11 @@
+<%inherit file="base.mako"/>
+<%block name="include_head">
+<style>
+    .book { background:#117; color:white ! important; border-radius:.5em; }
+    iframe { position:relative; margin-right:3em;margin:3em; width:40%;min-height:60em; ; }
+</style>
+</%block>
+    <iframe id=pdf width=100% height=100%  src="${fo["_DB"][0]}.book.pdf" >
+   </iframe>
+   <iframe id=html width=100% height=100%  src="${fo["_DB"][0]}.book.html" >
+   </iframe>

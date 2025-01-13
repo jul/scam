@@ -87,7 +87,7 @@ $(document).ready(() => {
         <input type=number name=id value="${fo.get("id", [1])[0]}" >
         <input type=number name=book_order >
         <input type=hidden name=user_id value=${fo["_user_id"][0]}  >
-        <input type=hidden name=comment_id >
+        <input type=hidden name=comment_id value="" >
         <textarea name=text rows=20 cols=80 nullable=false ></textarea>
    </form>
    <iframe id=iframe width=50% height=100% style=right:0 src="/${fo["_DB"][0]}.${fo.get("id", [1])[0]}.html" >
