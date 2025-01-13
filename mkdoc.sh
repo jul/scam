@@ -13,6 +13,7 @@ Generates the book. Requires pandoc and xelatex for making the book
 
 =cut
 DB=${DB:-scam}
+PDF=${PDF:-}
 
 
 sqlite3 $DB 'select text || "
@@ -29,7 +30,9 @@ cat "${DB}.titre.md" "${DB}.book.pdf.int.md" > "${DB}.book.pdf.md"
 cat "${DB}.titre.md" "${DB}.body.gfm.md" > "${DB}.book.html.md"
 
 pandoc "${DB}.book.html.md" --toc -c pandoc.css -so "${DB}.book.html"
+if [ ! -z "$PDF" ]; then
 pandoc "${DB}.book.pdf.md"  --toc --pdf-engine=xelatex  \
     -so "${DB}.book.pdf"
+fi
 
 cd ..

@@ -364,7 +364,8 @@ def simple_app(environ, start_response):
     if route == "book":
         if fail := validate(fo):
             return fail
-        os.system(f"DB={DB} ./mkdoc.sh")
+        log(fo.get("PDF"), ln=line())
+        os.system(f"""DB={DB} PDF={fo.get("PDF", "")} ./mkdoc.sh""")
 
     if route == "svg":
         if fail := validate(fo):
