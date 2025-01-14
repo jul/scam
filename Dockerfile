@@ -14,9 +14,7 @@ COPY --chown=scam . /app
 WORKDIR /scam
 RUN mkdir /scam/assets /venv
 RUN chown -R scam:scam .
-
 COPY  . .
-
 RUN virtualenv --system-site-packages /venv
 RUN . /venv/bin/activate
 COPY requirements.full.txt .
