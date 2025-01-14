@@ -29,14 +29,8 @@ def graphviz(elem, doc):
         filetype = {'html': 'png', 'latex': 'pdf'}.get(doc.format, 'png')
         src = imagedir + '/dot.' + filename + '.' + filetype
         if not os.path.isfile(src):
-            try:
-                #os.mkdir(imagedir)
-                sys.stderr.write('Created directory ' + imagedir + '\n')
-            except OSError:
-                pass
-            #G.draw(src)
             sys.stderr.write('Created image ' + src + '\n')
-        return Para(Image(Str(""), url="dot." + filename + ".png", title=''))
+        return Para(Image(Str(""), url=filename + ".png", title=''))
 
 
 if __name__ == "__main__":
