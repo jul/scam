@@ -211,7 +211,9 @@ def simple_app(environ, start_response):
     potential_file = os.path.join(__DIR__, "assets", route )
     log(route, ln=line())
     if not os.path.isfile(potential_file ):
-        if m:=re.compile(r'assets/' + DB + r'''\.annexe\.(\d+)$''').match(route):
+        log(DB, ln=line())
+        if m:=re.compile(r'' + DB + r'''\.annexe\.(\d+)$''').match(route):
+            log("bing", ln=line())
             with engine.connect() as cnx:
                 from sqlalchemy import text
                 _id=m.group(1)

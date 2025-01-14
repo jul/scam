@@ -12,9 +12,8 @@ RUN apt-get update && apt-get -y --no-install-recommends install \
 RUN useradd scam -d /app --uid 1000 -m -s /bin/bash
 COPY --chown=scam . /app
 WORKDIR /scam
-RUN chown -R scam:scam .
 RUN mkdir /scam/assets /venv
-RUN chown -R scam:scam /venv /scam/assets
+RUN chown -R scam:scam .
 
 COPY  . .
 
@@ -25,4 +24,5 @@ ENV PYTHONPATH=/venv/bin
 RUN /venv/bin/python -m pip install --no-cache-dir \
     --disable-pip-version-check -r requirements.full.txt
 EXPOSE 5000
+USER scam
 CMD . /venv/bin/activate && cd /scam && DB=${db:-scam} /venv/bin/python /app/scam.py
