@@ -1,0 +1,13 @@
+archery
+pandoc-include
+dateutils
+multipart
+filelock
+Mako
+pandocfilters
+panflute
+passlib
+python-dateutil
+SQLAlchemy>=2
+SQLAlchemy-Utils
+time-uuid

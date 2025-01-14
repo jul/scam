@@ -13,7 +13,7 @@ DIGRAPH = """digraph structs {
     ]
     
     node [ 
-        fontsize=12 
+        fontsize=10
         shape=record 
     ]
     
