@@ -59,9 +59,8 @@ RUN apt-get update && apt-get -y --no-install-recommends install \
 RUN useradd scam -d /app --uid 1000 -m -s /bin/bash
 COPY --chown=scam . /app
 WORKDIR /scam
-RUN chown -R scam:scam .
 RUN mkdir /scam/assets /venv
-RUN chown -R scam:scam /venv /scam/assets
+RUN chown -R scam:scam .
 
 COPY  . .
 
@@ -72,6 +71,7 @@ ENV PYTHONPATH=/venv/bin
 RUN /venv/bin/python -m pip install --no-cache-dir \
     --disable-pip-version-check -r requirements.full.txt
 EXPOSE 5000
+USER scam
 CMD . /venv/bin/activate && cd /scam && DB=${db:-scam} /venv/bin/python /app/scam.py
 ```
 
@@ -217,5 +217,6 @@ This book is available in the repository as a sqlite database.
 
 To try it :
 
-     docker run -i -t -e db=aide --mount type=bind,src=.,dst=/scam -p5000:5000  scam
+     docker run -i -t -e db=aide --mount type=bind,src=.,dst=/scam \
+         -p5000:5000 --user  1000:1000  scam
      firefox http://127.0.0.1:5000
