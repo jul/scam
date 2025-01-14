@@ -1,4 +1,4 @@
-# Scope Creep Amusing Technology
+# Scope Creep Amusing Methodology
 
 At the beginning it was a proof of concept of HTML as a declarative model
 (instead of SQL).
