@@ -27,7 +27,7 @@ structuring the toughts with a real time rendering of the markdown.
 Markdown that includes pandoc-include and my own one to integrate
 graphviz like this :
 
-![](dot.6d9ab102426642bf07cc1ea68d2e1770fca90d0f.png)
+![](6d9ab102426642bf07cc1ea68d2e1770fca90d0f.png)
 
 ![screenshot of the markdown editing page](aide.annexe.2){width="16cm"}
 
@@ -61,9 +61,7 @@ COPY --chown=scam . /app
 WORKDIR /scam
 RUN mkdir /scam/assets /venv
 RUN chown -R scam:scam .
-
 COPY  . .
-
 RUN virtualenv --system-site-packages /venv
 RUN . /venv/bin/activate
 COPY requirements.full.txt .

@@ -135,7 +135,7 @@ it</p>
 structuring the toughts with a real time rendering of the markdown.</p>
 <p>Markdown that includes pandoc-include and my own one to integrate
 graphviz like this :</p>
-<p><img src="dot.6d9ab102426642bf07cc1ea68d2e1770fca90d0f.png" /></p>
+<p><img src="6d9ab102426642bf07cc1ea68d2e1770fca90d0f.png" /></p>
 <figure>
 <img src="aide.annexe.2" style="width:16cm"
 alt="screenshot of the markdown editing page" />
@@ -166,18 +166,16 @@ class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb1-
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">WORKDIR</span> /scam</span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> /scam/assets /venv</span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">chown</span> <span class="at">-R</span> scam:scam .</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span>  . .</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">virtualenv</span> <span class="at">--system-site-packages</span> /venv</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="bu">.</span> /venv/bin/activate</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> requirements.full.txt .</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="kw">ENV</span> PYTHONPATH=/venv/bin</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">/venv/bin/python</span> <span class="at">-m</span> pip install <span class="at">--no-cache-dir</span> <span class="dt">\</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">--disable-pip-version-check</span> <span class="at">-r</span> requirements.full.txt</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="kw">EXPOSE</span> 5000</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="kw">USER</span> scam</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="kw">CMD</span> <span class="bu">.</span> /venv/bin/activate <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> /scam <span class="kw">&amp;&amp;</span> <span class="va">DB</span><span class="op">=</span><span class="va">${db</span><span class="op">:-</span>scam<span class="va">}</span> <span class="ex">/venv/bin/python</span> /app/scam.py</span></code></pre></div>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span>  . .</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">virtualenv</span> <span class="at">--system-site-packages</span> /venv</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="bu">.</span> /venv/bin/activate</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> requirements.full.txt .</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="kw">ENV</span> PYTHONPATH=/venv/bin</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">/venv/bin/python</span> <span class="at">-m</span> pip install <span class="at">--no-cache-dir</span> <span class="dt">\</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">--disable-pip-version-check</span> <span class="at">-r</span> requirements.full.txt</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="kw">EXPOSE</span> 5000</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="kw">USER</span> scam</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="kw">CMD</span> <span class="bu">.</span> /venv/bin/activate <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> /scam <span class="kw">&amp;&amp;</span> <span class="va">DB</span><span class="op">=</span><span class="va">${db</span><span class="op">:-</span>scam<span class="va">}</span> <span class="ex">/venv/bin/python</span> /app/scam.py</span></code></pre></div>
 <p>with the following requirements :</p>
 <pre><code>archery
 pandoc-include
