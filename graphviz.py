@@ -25,12 +25,8 @@ def graphviz(elem, doc):
         with open(sha1_code, "wt") as f:
             f.write(code)
         os.system(f"dot {sha1_code} -T png > '{sha1_code}.png' ")
-        filename = sha1(code)
         filetype = {'html': 'png', 'latex': 'pdf'}.get(doc.format, 'png')
-        src = imagedir + '/dot.' + filename + '.' + filetype
-        if not os.path.isfile(src):
-            sys.stderr.write('Created image ' + src + '\n')
-        return Para(Image(Str(""), url=filename + ".png", title=''))
+        return Para(Image(Str(""), url=sha1_code + ".png", title=''))
 
 
 if __name__ == "__main__":

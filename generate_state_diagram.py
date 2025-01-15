@@ -17,7 +17,8 @@ print( """digraph structs {
     overlapse=false
     
     node [ 
-        fontsize=12
+        fontsize=11
+        margin=".6,.1"
         style="rounded,filled"
         shape=record 
     ]
@@ -68,7 +69,7 @@ with db.connect() as sql:
                ) SELECT id FROM comment where id in is_fin ) ;""")):
         id, user_id,message, factoid, category= s
         new_message = message.split("\n")
-        new_message = list(map(lambda s:wrap(escape(s).replace("\n", "\\l"), width=67), new_message))
+        new_message = list(map(lambda s:wrap(escape(s).replace("\n", "\\l"), width=50), new_message))
         new_message = "\\l".join(list(map("\\l".join, new_message)))
         if factoid != None:
             new_message += "\\l" + f"""{factoid}"""
