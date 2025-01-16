@@ -18,7 +18,7 @@ $(document).ready(() => {
             })
     })
     keyup = () => { 
-        $("#iframe").attr("src", "doc?id=" + $("[name=id]").val() + "&text=" + encodeURI($("textarea").val().replace(/#/g, "%23").replace(/%0D%0A/g,'<br>').replace(/%0A/g,'<br>').replace(/%0D/g,'<br>') ))
+        $("#iframe").attr("src", "doc?id=" + comment_id + "&text=" + encodeURI($("textarea").val().replace(/#/g, "%23").replace(/%0D%0A/g,'<br>').replace(/%0A/g,'<br>').replace(/%0D/g,'<br>') ))
         $("textarea").on("keyup", function() {
             if(already) {
                 clearTimeout(already)
@@ -28,6 +28,7 @@ $(document).ready(() => {
     }
     $("[value=load]").on("click",function(e) {
         $("textarea").val("")
+        $("#comment_ref").attr("href", "comment?id=" + comment_id)
         $("input:not([type=submit],[name=id],[name=user_id],[name=_redirect])").each((i, el) => { $(el).val("") }) 
         $.ajax({
             url: "comment",
@@ -43,9 +44,9 @@ $(document).ready(() => {
             $("input:not([type=submit],[type=file],[type=password],[name=_redirect]),select,textarea", $($(this).parent())).each((i,el) => {
                 $(el).val(msg.result[0][0][$(el).attr("name")]);
             }) 
-            $("[name=_redirect]").val("/text?id=" + $("[name=id]").val())
+            $("[name=_redirect]").val("/text?id=" + comment_id)
         })
-        name="${fo["_DB"][0]}.annexe." + $("[name=id]").val();
+        name="${fo["_DB"][0]}.annexe." + comment_id;
         $("#annexe_name").html(name)
         $("embed").attr("src", name)
          if(already) {
@@ -83,8 +84,9 @@ $(document).ready(() => {
 </style>
 </%block>
 
-
+    <a id=comment_ref href=comment >comment</a>
    <div id=comment >
+   
    </div>
    <div>
    annexe : <span id=annexe_name > ${fo["_DB"][0]}.annexe.${fo.get("id", [1])[0]} </span> <br>
