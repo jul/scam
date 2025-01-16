@@ -3,6 +3,7 @@
 <script>
 $(document).ready(() => {
     already=false;
+    comment_id = ${fo.get("id",[0])[0]} ?  ${fo.get("id",[0])[0]} : $("[name=id]").val()
     $("form").each((i,el) => {
         $(el).append("<input name=_action type=submit value=create action=" + el.action +" >")
         $(el).append("<input name=_action type=submit value=search >")
@@ -30,14 +31,14 @@ $(document).ready(() => {
         $("input:not([type=submit],[name=id],[name=user_id],[name=_redirect])").each((i, el) => { $(el).val("") }) 
         $.ajax({
             url: "comment",
-            data : { "id" : $("[name=id]").val(), _action : "search" }
+            data : { "id" : comment_id, _action : "search" }
         }).done((msg) => {
             $("#comment").html(msg.result[0][0]["message"].replace(/\n/g,"<br>"))
         })
 
         $.ajax({
             url: $(this).attr("action"),
-            data : { "id" : $("[name=id]").val(), _action : "search" }
+            data : { "id" : comment_id, _action : "search" }
         }).done((msg) => {
             $("input:not([type=submit],[type=file],[type=password],[name=_redirect]),select,textarea", $($(this).parent())).each((i,el) => {
                 $(el).val(msg.result[0][0][$(el).attr("name")]);
@@ -55,7 +56,15 @@ $(document).ready(() => {
         e.preventDefault();
     })
     $("[name=id]").on("input", () => { 
-        $("[value=load]").click()
+        $.ajax(url="order").done((msg) => {
+            order=msg["_text_order"][0]
+            actual=comment_id
+            _new=$("[name=id]").val()
+            indexof=order.indexOf(comment_id * 1)
+            diff = _new > comment_id ? 1 : -1;
+            comment_id=order[indexof+diff]
+            $("[value=load]").click()
+        })
 
         setTimeout(keyup, 150)
     })
@@ -75,6 +84,7 @@ $(document).ready(() => {
 
    <div id=comment >
    </div>
+   ${{ x:v for x,v in  fo.items() if "pic" not in x } }
    <div>
    annexe : <span id=annexe_name > ${fo["_DB"][0]}.annexe.${fo.get("id", [1])[0]} </span> <br>
    <embed src='${fo["_DB"][0]}.annexe.${fo.get("id", [1])[0]}' height=10em >

@@ -232,20 +232,20 @@ def simple_app(environ, start_response):
 
 
     form_to_db = lambda attrs : {  k: (
-                    # handling of input having date/time in the name
-                    "date" in k or "time" in k and v and type(k) == str )
-                        and parser.parse(v) or
-                    # handling of input type = form havin "file" in the name of the inpur
-                    "file" in k \
-                        and open(f"""./assets/{DB}.{table}.{fo["id"]}""", "wb").write(b64decode(fo[k]["content"])) \
-                        and f"""data:{fo[k]["content_type"]}; base64, {fo[k]["content"].decode()}""" or
+        # handling of input having date/time in the name
+        "date" in k or "time" in k and v and type(k) == str )
+            and parser.parse(v) or
+        # handling of input type = form havin "file" in the name of the inpur
+        "file" in k \
+            and open(f"""./assets/{DB}.{table}.{fo["id"]}""", "wb").write(b64decode(fo[k]["content"])) \
+            and f"""data:{fo[k]["content_type"]}; base64, {fo[k]["content"].decode()}""" or
 
-                    # handling of boolean mapping which input begins with "is_"
-                    k.startswith("is_") and [False, True][v == "on"] or
-                    # password ?
-                    "password" in k and crypto_hash.hash(v) or
-                    v
-                    for k,v in attrs.items() if v != "" and not k.startswith("_")
+        # handling of boolean mapping which input begins with "is_"
+        k.startswith("is_") and [False, True][v == "on"] or
+        # password ?
+        "password" in k and crypto_hash.hash(v) or
+        v
+        for k,v in attrs.items() if v != "" and not k.startswith("_")
     }
     action = fo.get("_action", "")
 
@@ -359,9 +359,22 @@ def simple_app(environ, start_response):
         start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
         return [ open(f"""./assets/{DB}.{fo["id"]}.html""", "rt").read().encode() ]
     
+    if route == "order":
+        res = []
+        with engine.connect() as cnx:
+            from sqlalchemy import text
+            for s in cnx.execute(text("""select id from text where text is NOT NULL order by book_order ASC NULLS LAST, id ASC""")):
+                res += s
+        fo["_text_order"] = res
+
+
+
     if route == "text":
         if fail := validate(fo):
             return fail
+        # return in fo["_next"] next text by book order else actual_one+1
+# https://stackoverflow.com/questions/2184043/sqlite-select-next-and-previous-row-based-on-a-where-clause
+
 
     if route == "book":
         if fail := validate(fo):
