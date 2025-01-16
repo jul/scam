@@ -3,8 +3,9 @@
 <script>
 $(document).ready(() => {
     already=false;
-    comment_id = ${fo.get("id",[0])[0]} ?  ${fo.get("id",[0])[0]} : $("[name=id]").val()
-    $("form").each((i,el) => {
+    comment_id = ${fo.get("id",[0])[0]} ?  ${fo.get("id",[0])[0]} : $($("[name=id]", $($("form")[0]))).val()
+    $($("[name=id]", $($("form")[1]))).val(comment_id)
+    $($("form")[0]).each((i,el) => {
         $(el).append("<input name=_action type=submit value=create action=" + el.action +" >")
         $(el).append("<input name=_action type=submit value=search >")
         $(el).append("<input name=_action type=submit action=" + el.action +" value=update > <input name=_action type=submit value=delete >")
@@ -56,16 +57,19 @@ $(document).ready(() => {
 
         e.preventDefault();
     })
-    $("[name=id]").on("input", () => { 
+    $($("[name=id]", $($("form")[0]))).on("input", () => { 
         $.ajax(url="order").done((msg) => {
             order=msg["_text_order"][0]
             actual=comment_id
-            _new=$("[name=id]").val()
+            _new=$($("[name=id]"), $($("form")[0])).val()
             indexof=order.indexOf(comment_id * 1)
             diff = _new > comment_id ? 1 : -1;
             size=order.length
             cursor = indexof + diff
             comment_id=order[cursor < 0 ? (size-1) : ( cursor > size ? 0 : cursor)  ]
+            console.log(comment_id)
+
+            $($("[name=id]", $($("form")[1]))).val(comment_id)
             $("[value=load]").click()
         })
 
@@ -79,7 +83,7 @@ $(document).ready(() => {
 <style>
     .text { background:#117; color:white ! important; border-radius:.5em; }
     #comment { min-height:10em;overflow:auto }
-    fieldset { position:absolute; left:3%; width:45% }
+    .left { position:absolute;display:block;left:3%; width:40% }
     iframe { position:absolute; margin-right:3em; width:45%;  }
 </style>
 </%block>
@@ -93,7 +97,8 @@ $(document).ready(() => {
    <embed src='${fo["_DB"][0]}.annexe.${fo.get("id", [1])[0]}' height=10em >
 
    </div>
-    <form action="/text" >
+   <div class=left>
+    <form action=/text >
 
         <input type=hidden name="_redirect" value="" >
 
@@ -103,5 +108,14 @@ $(document).ready(() => {
         <input type=hidden name=comment_id value="" >
         <textarea name=text rows=20 cols=80 nullable=false ></textarea>
    </form>
+   <br>
+    <form action=/annexe >
+        <input type=hidden name=id  >
+        <input type=file name=annexe_file nullable=false />
+    <input type=hidden name=_redirect value=comment />
+        <input name=_action type=submit value=create >
+        <input name=_action type=submit value=delete >
+    </form>
+   </div>
    <iframe id=iframe width=50% height=100% style=right:0 src="/${fo["_DB"][0]}.${fo.get("id", [1])[0]}.html" >
    </iframe>
