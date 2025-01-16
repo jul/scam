@@ -84,7 +84,6 @@ $(document).ready(() => {
 
    <div id=comment >
    </div>
-   ${{ x:v for x,v in  fo.items() if "pic" not in x } }
    <div>
    annexe : <span id=annexe_name > ${fo["_DB"][0]}.annexe.${fo.get("id", [1])[0]} </span> <br>
    <embed src='${fo["_DB"][0]}.annexe.${fo.get("id", [1])[0]}' height=10em >
