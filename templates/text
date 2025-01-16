@@ -62,7 +62,9 @@ $(document).ready(() => {
             _new=$("[name=id]").val()
             indexof=order.indexOf(comment_id * 1)
             diff = _new > comment_id ? 1 : -1;
-            comment_id=order[indexof+diff]
+            size=order.length
+            cursor = indexof + diff
+            comment_id=order[cursor < 0 ? (size-1) : ( cursor > size ? 0 : cursor)  ]
             $("[value=load]").click()
         })
 
