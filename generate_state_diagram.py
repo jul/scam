@@ -19,6 +19,7 @@ print( """digraph structs {
     node [ 
         fontsize=11
         margin=".6,.1"
+        pad=.6
         style="rounded,filled"
         shape=record 
     ]

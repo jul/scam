@@ -380,6 +380,7 @@ def simple_app(environ, start_response):
         if fail := validate(fo):
             return fail
         os.system(f"""DB={DB} PDF= ./mkdoc.sh""")
+        os.system(f"""cd assets && ../filter.py "{DB}.book.html" > "{DB}.book.shtml" """)
 
     if route == "pdf":
         if fail := validate(fo):
