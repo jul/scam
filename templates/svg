@@ -5,7 +5,6 @@
 $("svg").ready(() => {
     $(".node").hover(
         function(e) { 
-            annexe = ${dumps(fo["annexe"])}
             $(".modal2").show()
             if( e.screenX > window.innerWidth / 2 ) { 
                 $(".modal2").removeClass("right")
@@ -15,7 +14,8 @@ $("svg").ready(() => {
                 $(".modal2").addClass("right")
             }
             $("iframe").attr("src","${fo["_DB"][0]}." + $("title",this).html()+".html")},
-        function() { $("embed").hide() }) 
+        function() { $("embed").hide() }
+    ) 
     $("[value=close]").click( () => { event.preventDefault(); $(".modal").fadeOut() } )
     $("[value=X]").click( () => { event.preventDefault(); $(".modal2").fadeOut() } )
     $("[value=post]").on("click",(e) => {

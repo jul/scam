@@ -21,6 +21,7 @@ import os
 # lightweight
 import magic
 from archery import mdict
+from filelock import FileLock
 from dateutil import parser
 from time_uuid import TimeUUID
 # NEEDS A BINARY INSTALL (scrypt)
@@ -219,7 +220,7 @@ def simple_app(environ, start_response):
                 _id=m.group(1)
                 for s in cnx.execute(text(f"""select annexe_file from annexe where id= :id"""), dict(id=_id)):
                     with open(f"assets/{DB}.annexe.{_id}", "bw") as f:
-                        f.write(b64decode(re.match(".*; base64, (.*)$", s[0]).group(1)))
+                        f.write(b64decode(re.match(".*;base64,(.*)$", s[0]).group(1)))
                 log("annexe est tu là?", ln=line())
 
     if os.path.isfile(potential_file ):
@@ -238,7 +239,7 @@ def simple_app(environ, start_response):
         # handling of input type = form havin "file" in the name of the inpur
         "file" in k \
             and open(f"""./assets/{DB}.{table}.{fo["id"]}""", "wb").write(b64decode(fo[k]["content"])) \
-            and f"""data:{fo[k]["content_type"]}; base64, {fo[k]["content"].decode()}""" or
+            and f"""data:{fo[k]["content_type"]};base64,{fo[k]["content"].decode()}""" or
 
         # handling of boolean mapping which input begins with "is_"
         k.startswith("is_") and [False, True][v == "on"] or
@@ -391,7 +392,6 @@ def simple_app(environ, start_response):
         if fail := validate(fo):
             return fail
             
-        from filelock import FileLock
         with FileLock('out.dot.lock'):
             os.system(f"python ./generate_state_diagram.py {DSN} > out.dot ;dot -Tsvg out.dot > diag2.svg; ")
     
@@ -457,7 +457,7 @@ def simple_app(environ, start_response):
         for id, comment in stack.items():
             if id not in to_remove:
                 fo["result"] += [ comment, ]
-    if route in { "comment", "svg"}:
+    if route in { "comment", }:
         fo["annexe"]= mdict()
 
         with engine.connect() as cnx:
