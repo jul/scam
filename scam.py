@@ -9,7 +9,7 @@ from base64 import b64encode, b64decode
 from urllib.parse import parse_qsl, urlparse
 from os import chdir
 from subprocess import run, PIPE
-from urllib.parse import unquote
+from urllib.parse import unquote, quote
 import traceback
 from  http.cookies import SimpleCookie as Cookie
 from uuid import UUID as  UUIDM # conflict with sqlachemy
@@ -350,7 +350,16 @@ def simple_app(environ, start_response):
     if route =="":
         route="index"
     to_write=""
-    if route == "doc":
+    if m:=re.match(f"""{DB}\\.(\\d+)\\.html""", route) :
+        if not os.path.isfile(os.path.join("assets", route)):
+            route="doc"
+            fo["id"] = m.group(1)
+            log(fo["id"], ln=line())
+            with engine.connect() as cnx:
+                from sqlalchemy import text
+                for s in cnx.execute(text("""select text from text where id = :id"""), dict(id=fo["id"])):
+                    fo["text"] = quote(s[0])
+    if route == "doc" :
         if fail := validate(fo):
             return fail
 
