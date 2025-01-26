@@ -227,7 +227,7 @@ def simple_app(environ, start_response):
 ## python-magic
         start_response('200 OK', [('content-type',
             potential_file.endswith(".css") and "text/css"
-            or magic.from_file(potential_file, mime=True)), ])
+            or magic.from_file(potential_file, mime=True) + ' ;charset=utf-8'), ])
         log(magic.from_file(potential_file, mime=True), ln=line())
         return [ open(potential_file, "rb").read() ]
 
