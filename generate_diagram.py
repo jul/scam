@@ -13,7 +13,8 @@ DIGRAPH = """digraph structs {
     ]
     
     node [ 
-        fontsize=10
+        fontsize=12
+        fontname="Courier New"
         shape=record 
     ]
     
@@ -43,10 +44,10 @@ while to_scan:
         table = metadata.tables[table_name]
         node_str += """
     %s [ 
-        label="%s""" % (table_name, table_name)
+        label="Table: %s\\l""" % (table_name, table_name,)
         has_fk=False
         for c in table.c:
-            node_str += "|<%s>%s" % (c.name, c.name)
+            node_str += "|<%s>- %s\\l" % (c.name, c.name)
             field_count += 1
             #print "adding %s" % c.name
             if c.foreign_keys:

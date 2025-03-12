@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from panflute import *
+from sys import stderr
 
 toc = None
 def prepare(doc):

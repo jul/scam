@@ -1,16 +1,18 @@
-<%inherit file="base.mako"/>
+<%inherit file="base.bandeauless.mako"/>
 <%block name="include_head">
+<style>
+[value=load] { visibility:hidden }
+</style>
 <script>
 $(document).ready(() => {
     already=false;
     comment_id = ${fo.get("id",[0])[0]} ?  ${fo.get("id",[0])[0]} : $($("[name=id]", $($("form")[0]))).val()
     $($("[name=id]", $($("form")[1]))).val(comment_id)
     $($("form")[0]).each((i,el) => {
-        $(el).append("<input name=_action type=submit value=create action=" + el.action +" >")
-        $(el).append("<input name=_action type=submit value=search >")
+        console.log("adding button")
         $(el).append("<input name=_action type=submit action=" + el.action +" value=update > <input name=_action type=submit value=delete >")
         $(el).append("<input name=_action type=submit action=" + el.action +" value=load >")
-        $(el).append("<input name=_action type=submit value=clear >")
+
     });
     $("[value=clear]").on("click",function(e) {
         e.preventDefault();
@@ -82,19 +84,16 @@ $(document).ready(() => {
 </script>
 <style>
     .text { background:#117; color:white ! important; border-radius:.5em; }
-    #comment { min-height:10em;overflow:auto }
     .left { position:absolute;display:block;left:3%; width:40% }
     iframe { position:absolute; margin-right:3em; width:45%;  }
 </style>
 </%block>
 
-    <a id=comment_ref href=comment >comment</a>
    <div id=comment >
-   
    </div>
    <div>
    annexe : <span id=annexe_name > ${fo["_DB"][0]}.annexe.${fo.get("id", [1])[0]} </span> <br>
-   <embed src='${fo["_DB"][0]}.annexe.${fo.get("id", [1])[0]}' height=10em >
+   <embed ${fo.get("id") and f"""src='{fo["_DB"][0]}.annexe.{fo["id"][0]}'"""}  >
 
    </div>
    <div class=left>
@@ -112,7 +111,7 @@ $(document).ready(() => {
     <form action=/annexe >
         <input type=hidden name=id  >
         <input type=file name=annexe_file nullable=false />
-    <input type=hidden name=_redirect value=comment />
+    <input type=hidden name=_redirect value=text />
         <input name=_action type=submit value=create >
         <input name=_action type=submit value=delete >
     </form>

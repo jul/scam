@@ -13,33 +13,40 @@ $("svg").ready(() => {
                 $(".modal2").removeClass("left")
                 $(".modal2").addClass("right")
             }
-            $("iframe").attr("src","${fo["_DB"][0]}." + $("title",this).html()+".html")},
+            $("iframe", ".modal2").attr("src","${fo["_DB"][0]}." + $("title",this).html()+".html")},
+
         function() { $("embed").hide() }
     ) 
+    $("[value=text]").click( () => {
+        event.preventDefault()
+        $(".modal3").fadeIn();
+        $("iframe", ".modal3").attr("src","text?id=" + $("[name=id]","[name=_ed]").val())})
+
     $("[value=close]").click( () => { event.preventDefault(); $(".modal").fadeOut() } )
-    $("[value=X]").click( () => { event.preventDefault(); $(".modal2").fadeOut() } )
+    $("[value=X]", ".modal2").click( () => { event.preventDefault(); $(".modal2").fadeOut() } )
+    $("[value=X]", ".modal3").click( () => { event.preventDefault(); $(".modal3").fadeOut() } )
     $("[value=post]").on("click",(e) => {
         $(".modal").fadeIn()
         $(".sel").hide()
         $("[name=_rep]").css("display","block")
         e.preventDefault();
         })
-    $("[value=edit]").on("click",function(e) {
+    function click_edit(e) {
+        console.log("cc" + comment_id)
         $(".sel").hide()
         $("[name=_ed]").css("display","block")
         $.ajax({
             url: "/comment",
-            data : { "id" : $("[name=clicked]").val(), _action : "search" }
+            //data : { "id" : $("[name=clicked]").val(), _action : "search" }
+            data : { "id" : comment_id, _action : "search" }
         }).done((msg) => {
             $("input:not([type=submit],[type=file],[name=_redirect],[type=password]),select,textarea", $($("form")[3])).each((i,el) => {
                 $(el).val(msg.result[0][0][$(el).attr("name")]);
             })
         })
-
-        console.log($("[name=id]", $($("form")[3])).val())
-        setTimeout( function() { $('#a').attr("href","text?id=" + $("[name=id]", $($("form")[3])).val()) }, 150)
         e.preventDefault();
-    })
+    }
+    $("[value=edit]").on("click",click_edit)
     $("[value=share]").click( function() {
         comment_id=$("[name=clicked]").val()
 
@@ -67,6 +74,7 @@ $("svg").ready(() => {
     $(".node").click( function() {
         event.preventDefault()
         comment_id=$($("title",$(this))[0]).html()
+        console.log("node click" + comment_id)
         $("[name=clicked]").val(comment_id)
         $("[name=comment_id]",$($("form")[0])).val(comment_id)
         $("[name=id]",$($("form")[1])).val(comment_id)
@@ -74,8 +82,11 @@ $("svg").ready(() => {
         $("[name=previous_comment_id]",$($("form")[3])).val(comment_id)
         $(".modal").toggleClass("focus").fadeIn()
         $(".sel").hide()
-        $("[value=reply]").click() 
-
+        $(".modal2").fadeOut()
+        $("[name=_ed]").css("display","block")
+        click_edit()
+        console.log("eo node click" + comment_id)
+        
     })
     $("[value=del]").click( function() {
         event.preventDefault()
@@ -87,17 +98,20 @@ $("svg").ready(() => {
 })
 </script>
 <style>
+[name=factoid], label { display:none }
 .graph { background:#117; color:white !important; border-radius:.5em; }
 .focus { background:#f5f5FF;border-radius:.5em; }
 .node {cursor: pointer; }
 g.a { text-decoration: underline; }
 [value=post] { position:fixed; left:3em;top:4em }
+[name=create] { display:none }
 fieldset { margin-left:0 }
 .modal {display:none;position:fixed; background:transparent;left:0;  top:0em; width:30em;z-index:2 }
 .sel { background:transparent; margin-left:0 }
 .node:hover { filter: drop-shadow( 1px 1px 1px rgba(0, 0, 0, .5)); }
 embed { display:none; position:fixed;box-shadow:2px 2px 4px #666; width:33%;border-radius:.5em;top:10em; min-height:0 ; }
 .modal2 { display:none; position:fixed; width:33%;top:4em; height:85% ;z-index:4 }
+.modal3 { display:none; position:fixed; width:95%;top:0em;left:0; height:95% ;z-index:5 }
 iframe { box-shadow:2px 2px 4px #666;width:100%;height:100% }
 .left { left:3em !important; }
 .right { right:3em !important; }
@@ -120,12 +134,6 @@ svg { rgba(255,255,255,.9) }
     <input type=hidden name=clicked value="">
 <div class=modal>
     <input type=submit value=close />
-    <input type=submit value=reply />
-    <input type=submit value=edit />
-    <input type=submit value=del />
-    <input type=submit value=transition />
-    <input type=submit value=share />
-    &nbsp;<a id=a>text</a>
     <div name=_rep class=sel >
     <form action=/comment >
     <input type=hidden name=id />
@@ -163,6 +171,11 @@ svg { rgba(255,255,255,.9) }
     <input name=_redirect type=hidden value="/svg" >
     <%include file="category.mako" args='category="category"'  />
     <input name=_action type=submit value=update >
+    <input type=submit value=reply />
+    <input type=hidden value=edit />
+    <input type=submit value=del />
+    <input type=submit value=transition />
+    <input type=submit value=text />
     </form>
     </div>
     <div name=_share class=sel >
@@ -171,7 +184,11 @@ svg { rgba(255,255,255,.9) }
     </div>
 </div>
 <div class=modal2>
-<input type=submit value=X id=modal >
+<input type=submit value=X  >
+<iframe  ></iframe>
+</div>
+<div class=modal3 >
+<input type=submit value=X  >
 <iframe  ></iframe>
 </div>
 <%include file="../diag2.svg" />

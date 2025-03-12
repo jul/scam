@@ -1,6 +1,7 @@
 <%inherit file="base.mako"/>
 <%block name="include_head">
 <script>
+
 $(document).ready(() => {
     $("form").each((i,el) => {
         $(el).append("<input name=_action type=submit value=create action=" + el.action +" >")

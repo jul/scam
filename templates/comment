@@ -19,7 +19,7 @@ $("[value=reply]").ready(() => {
         console.log($("[name=id]",$(this).parent("p")).val())
         $("[name=comment]").show()
         $("[name=comment_id]",$($("form")[0])).val($("[name=id]",$(this).parent("p")).val())
-        $("[name=user_id]").val("${fo["_user_id"][0]}")
+        $("[name=user_id]").val(1)
         $(".focus").toggleClass("focus")
         $(this).parent("p").toggleClass("focus")
         $(".modal").toggleClass("focus").fadeOut().fadeIn()
@@ -29,7 +29,7 @@ $("[value=reply]").ready(() => {
         $("[name=comment]").show()
         $("[name=annexe]").hide()
         $("[name=comment_id]",$($("form")[0])).val("")
-        $("[name=user_id]").val("${fo["_user_id"][0]}")
+        $("[name=user_id]").val(1)
         $(".focus").toggleClass("focus")
         $(this).parent("p").toggleClass("focus")
         $(".modal").toggleClass("focus").fadeOut().fadeIn()
@@ -68,11 +68,10 @@ svg { rgba(255,255,255,.9) }
 <div class=top>
 
 <div class=lefty >
-<img style=border-radius:24px width=48px height=48px src="${fo["_pics"][0][comment["user_id"]]}" >
 </div>
     <p class="${comment["category"]}" >
     <input type=hidden class=hidden name=id value=${comment["id"]} >
-    ${comment["id"]} : @${fo["_name"][0][comment["user_id"]]|h} :
+    ${comment["id"]} : 
     ${comment["category"]|h}<br/>
     <code>
     ${escape(comment["message"]).replace("\n","<br/>")}
@@ -98,12 +97,11 @@ svg { rgba(255,255,255,.9) }
         % else:
             <div>
 <div class=lefty >
-<img style=border-radius:24px width=48px height=48px src="${fo["_pics"][0][item["user_id"]]}" >
 </div>
                 <p class=${item["category"]} >
                 <input type=hidden class=hidden name=id value=${item["id"]} >
                 <input type=hidden name=user_id value=@${item["user_id"]} >
-                ${item["id"]} : @${fo["_name"][0][item["user_id"]]|h} :
+                ${item["id"]} : 
                 ${item["category"]|h}<br/>
                 ${escape(item["message"]).replace("\n","<br>")}
                 <br/>

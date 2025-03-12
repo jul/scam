@@ -2,9 +2,7 @@
 % jul 
 % Jan 2025 \
   \ 
-  ![](aide.user.1){width=5cm} 
-  \ 
-  \ ![](aide.annexe.1){width=15cm}
+  \ ![](aide.annexe.1){width=7cm}
 
 ---
 fontsize: 10pts

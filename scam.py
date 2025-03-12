@@ -26,7 +26,7 @@ from dateutil import parser
 from time_uuid import TimeUUID
 # NEEDS A BINARY INSTALL (scrypt)
 from passlib.hash import scrypt as crypto_hash # we can change the hash easily
-# heaviweight
+# heavyweight
 from sqlalchemy import *
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
@@ -37,7 +37,7 @@ from mako.lookup import TemplateLookup
 
 
 __DIR__= os.path.dirname(os.path.abspath(__file__))
-DB=os.environ.get('DB','scam.db')
+DB=os.environ.get('DB','scam')
 DB_DRIVER=os.environ.get('DB_DRIVER','sqlite')
 DSN=f"{DB_DRIVER}://{DB_DRIVER == 'sqlite' and not DB.startswith('/') and '/' or ''}{DB}"
 
@@ -108,7 +108,6 @@ class HTMLtoData(HTMLParser):
                             attrs["name"], Integer,
                             **additional_col)
                     )
-
                 return
             if attrs.get("name").endswith("_id"):
                 table=attrs.get("name").split("_")
@@ -187,15 +186,12 @@ def simple_app(environ, start_response):
     here = environ["PATH_INFO"][0]
 
     fo.update(**dict(parse_qsl(environ["QUERY_STRING"])))
-    try:
-        fo["_secret_token"] = Cookie(environ["HTTP_COOKIE"])["Token"].value
-    except:
-        log("no cookie found", ln=line())
         
     env = TemplateLookup(directories=['./'])
     model = Template(filename="templates/model.mako",lookup=env).render(
         fo= { k:v for k,v in fo.dict.items() if "secret" not in k}
     )
+
     HTMLtoData().feed(model)
     metadata = MetaData()
     metadata.reflect(bind=engine)
@@ -211,6 +207,8 @@ def simple_app(environ, start_response):
 
     potential_file = os.path.join(__DIR__, "assets", route )
     log(route, ln=line())
+    if m:=re.compile(r'' + DB + r'''\.odd\.pdf$''').match(route):
+        os.system('cd assets; ../mkbooklet.sh ./${DB}.book.pdf ')
     if not os.path.isfile(potential_file ):
         log(DB, ln=line())
         if m:=re.compile(r'' + DB + r'''\.annexe\.(\d+)$''').match(route):
@@ -221,6 +219,11 @@ def simple_app(environ, start_response):
                 for s in cnx.execute(text(f"""select annexe_file from annexe where id= :id"""), dict(id=_id)):
                     with open(f"assets/{DB}.annexe.{_id}", "bw") as f:
                         f.write(b64decode(re.match(".*;base64,(.*)$", s[0]).group(1)))
+                else:
+                    log("vodfe")
+                    start_response('200 OK', [('content-type', 'text/html; charset=utf-8')])
+                    return [ b"" ]
+
                 log("annexe est tu là?", ln=line())
 
     if os.path.isfile(potential_file ):
@@ -250,62 +253,27 @@ def simple_app(environ, start_response):
     }
     action = fo.get("_action", "")
 
-    def validate(fo):
-        with Session(engine) as session:
-            User = Base.classes.user
-            try:
-                user = session.scalars(select(User).where(User.secret_token==fo["_secret_token"])).one()
-                log("token emitted since " + str( dt.now(UTC) - dt.fromtimestamp(TimeUUID(bytes=UUIDM("{%s}" % fo["_secret_token"]).bytes).get_timestamp(), UTC)), ln=line(),)
-                fo["_user_id"]=user.id
-                fo["_DB"] = DB
-                fo["_user_pic"]=user.pic_file
-                all_user = session.execute(select(User)).scalars().all()
-                fo["_pics"] = dict(map(lambda user:(user.id,user.pic_file),all_user))
-                fo["_name"] = dict(map(lambda user:(user.id,user.name),all_user))
-
-                return False
-            except Exception as e:
-                log(traceback.format_exc(), ln=line())
-                start_response('302 Found', [('Location',f"""/login?_redirect={fo.get("_redirect",here)}""")], )
-
-
-                return [ f"""<html><head><meta http-equiv="refresh" content="0; url="/login?_redirect=/</head></html>""".encode() ]
-
-    if route=="grant":
-        try:
-            with Session(engine) as session:
-                User = Base.classes.user
-                user = session.scalars(select(User).where(User.email==fo["email"])).one()
-                user.secret_token = str(TimeUUID.with_utcnow())
-                fo["validate"] = crypto_hash.verify(fo["secret_password"], user.secret_password)
-                session.flush()
-                session.commit()
-                if fo["validate"]:
-                    # /!\ CRSF HERE /!\ unsecure 
-                    start_response('302 Found', [('Location',f"""{fo.get("_redirect","/")}"""),('Set-Cookie', "Token=%s" % user.secret_token)], )
-                    return [ f"""<html><head><meta http-equiv="refresh" content="0; url="{fo.get("_redirect","/")}")</head></html>""".encode() ]
-                else:
-                    raise Exception("Invalid token")
-        except Exception as e:
-            log("Auth failed for email " + fo["email"] , ln=line())
-            start_response('403 wrong auth', [('Location',"/"), ])
-            return [ "page denied".encode() ]
-
-
+    fo["_user_id"]=1
+    fo["_DB"] = DB
+    fo["_pics"] = []
+    fo["_name"] =  'jul'
 
     if "_action" in fo and route in tables.keys():
         with Session(engine) as session:
             try:
                 Item = getattr(Base.classes, table)
                 if action == "delete":
-                    #from pdb import set_trace; set_trace()
-                    if fail := validate(fo):
-                        return fail
-                    
-                    session.delete(session.get(Item, fo["id"]))
-
-                    session.commit()
-                    fo["result"] = "deleted"
+                    try:
+                        session.delete(session.get(Item, fo["id"]))
+                        session.commit()
+                        log("panpan")
+                        fo["result"] = "deleted"
+                        if table == "annexe":
+                            log("femme de ménage")
+                            os.system(f"""rm "assets/{DB}.annexe.{fo["id"]}" """)
+                    except Exception as e:
+                        log(e)
+                        fo["result"] = e
                 if action == "create":
                     new_item = Item(**form_to_db(fo))
                     ret=0
@@ -319,19 +287,25 @@ def simple_app(environ, start_response):
                         session.merge(new_item)
                         session.commit()
                     fo["result"] = ret
-                    if table == "user":
-                        return redirect("/user_view?id=%s" % new_item.id)
 
                 if action == "update":
-                    if fail:= validate(fo):
-                        return fail
-                    item = session.scalars(select(Item).where(Item.id==fo["id"])).one()
-                    for k,v in form_to_db(fo).items():
-                        setattr(item,k,v)
-                    session.commit()
-                    fo["result"] = item.id
-                    if table == "user":
-                        return redirect("/user_view?id=%s" % item.id)
+                    try:
+                        item = session.scalars(select(Item).where(Item.id==fo["id"])).one()
+                        log(item)
+                        log(fo)
+                        for k,v in form_to_db(fo).items():
+                            setattr(item,k,v)
+                        session.commit()
+                        fo["result"] = item.id
+                    except Exception as e:
+                        log("upsert")
+                        log("n" * 80)
+                        session.rollback()
+                        new_item = Item(**form_to_db(fo))
+                        session.add(new_item)
+                        ret=session.commit()
+
+
                 if action in { "search" }:
                     result = []
                     for elt in session.execute(
@@ -348,6 +322,8 @@ def simple_app(environ, start_response):
             start_response('200 OK', [('Content-type', 'application/json; charset=utf-8')])
             return [ dumps({k:v for k,v in fo.dict.items() if "secret" not in k}, indent=4, default=str).encode() ]
     if route =="":
+        route="svg"
+    if route == "model":
         route="index"
     to_write=""
     if m:=re.match(f"""{DB}\\.(\\d+)\\.html""", route) :
@@ -360,9 +336,6 @@ def simple_app(environ, start_response):
                 for s in cnx.execute(text("""select text from text where id = :id"""), dict(id=fo["id"])):
                     fo["text"] = quote(s[0])
     if route == "doc" :
-        if fail := validate(fo):
-            return fail
-
         os.chdir("assets")
         run([ "pandoc", "-" , "--standalone", "-s", "-F", os.path.join(__DIR__,"graphviz.py"), "-F", "pandoc-include", "-c" ,"pandoc.css","--metadata", "title=",  "-o" ,f"""./{DB}.{fo["id"]}.html""" ], input=unquote(fo.get("text","")).encode(), stdout=PIPE)
         os.chdir("..")
@@ -377,36 +350,22 @@ def simple_app(environ, start_response):
                 res += s
         fo["_text_order"] = res
 
-
-
-    if route == "text":
-        if fail := validate(fo):
-            return fail
         # return in fo["_next"] next text by book order else actual_one+1
 # https://stackoverflow.com/questions/2184043/sqlite-select-next-and-previous-row-based-on-a-where-clause
 
 
     if route == "book":
-        if fail := validate(fo):
-            return fail
         os.system(f"""DB={DB} PDF= ./mkdoc.sh""")
         os.system(f"""cd assets && ../filter.py "{DB}.book.html" > "{DB}.book.shtml" """)
 
     if route == "pdf":
-        if fail := validate(fo):
-            return fail
         os.system(f"""DB={DB} PDF=1 ./mkdoc.sh""")
 
     if route == "svg":
-        if fail := validate(fo):
-            return fail
-            
         with FileLock('out.dot.lock'):
             os.system(f"python ./generate_state_diagram.py {DSN} > out.dot ;dot -Tsvg out.dot > diag2.svg; ")
     
     if route == "comment":
-        if fail := validate(fo):
-            return fail
         stack=dict()
         transition=[]
         seen = set([])
