@@ -7,9 +7,8 @@ But most of us ain't smart enough to use LaTeX, at most we can use markdown an e
 So here is my solution to be a professional scamer : this is a front end to a pandoc toolchain based on mind mapping for structuring the thoughts with a real time rendering of the markdown and quite a few tricks.
 
 
-![screenshot of the markdown editing ot this page](https://raw.githubusercontent.com/jul/scam/refs/heads/main/assets/aide.annexe.2)
+![screenshot of the markdown editing ot this page](./assets/aide.annexe.2)
 
-[The home page of SCAM is on github](http://github.com/jul/scam)
 
 
 [Manual is here](https://raw.githubusercontent.com/jul/scam/refs/heads/main/assets/aide.book.pdf)
