@@ -38,6 +38,7 @@ from mako.lookup import TemplateLookup
 
 __DIR__= os.path.dirname(os.path.abspath(__file__))
 DB=os.environ.get('DB','scam')
+PORT=int(os.environ.get('PORT','5000'))
 DB_DRIVER=os.environ.get('DB_DRIVER','sqlite')
 DSN=f"{DB_DRIVER}://{DB_DRIVER == 'sqlite' and not DB.startswith('/') and '/' or ''}{DB}"
 
@@ -337,7 +338,7 @@ def simple_app(environ, start_response):
                     fo["text"] = quote(s[0])
     if route == "doc" :
         os.chdir("assets")
-        run([ "pandoc", "-" , "--standalone", "-s", "-F", os.path.join(__DIR__,"graphviz.py"), "-F", "pandoc-include", "-c" ,"pandoc.css","--metadata", "title=",  "-o" ,f"""./{DB}.{fo["id"]}.html""" ], input=unquote(fo.get("text","")).encode(), stdout=PIPE)
+        run([ "pandoc", "-" , "--standalone", "--mathml", "-s", "-F", os.path.join(__DIR__,"graphviz.py"), "-F", "pandoc-include", "-c" ,"pandoc.css","--metadata", "title=",  "-o" ,f"""./{DB}.{fo["id"]}.html""" ], input=unquote(fo.get("text","")).encode(), stdout=PIPE)
         os.chdir("..")
         start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
         return [ open(f"""./assets/{DB}.{fo["id"]}.html""", "rt").read().encode() ]
@@ -451,4 +452,4 @@ def simple_app(environ, start_response):
 
 
 print("Crudest CRUD of them all on port 5000...")
-make_server('', 5000, simple_app).serve_forever()
+make_server('', PORT, simple_app).serve_forever()

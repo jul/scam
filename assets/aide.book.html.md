@@ -2,12 +2,11 @@
 % jul 
 % Jan 2025 \
   \ 
-  \ ![](aide.annexe.1){width=7cm}
-
+  \ ![](aide.annexe.1){width=7cm} \ Made with *scam*
 ---
 fontsize: 10pts
 documentclass: extreport
-mainfont: DejaVuSerif.ttf 
+mainfont: Georgia.ttf 
 papersize: a4 
 header-includes:
  - \usepackage{hyperref}
@@ -19,15 +18,20 @@ WTFPL 2.0 Do any thing you want with this book except claim you wrote it
 
 # Synopsis
 
-This is a front end to a pandoc toolchain based on mind mapping for
-structuring the toughts with a real time rendering of the markdown.
+> To look smart you either say it in latin or write in LaTeX and add the
+> Naviers Stocke equation
+> $$\frac{\partial \rho}{\partial t} + \vec{\nabla} \cdot \vec{j} = 0$$
+> to look smarter
 
-Markdown that includes pandoc-include and my own one to integrate
-graphviz like this :
+But most of us ain't smart enough to use LaTeX, at most we can use
+markdown an easy to learn text renderer.
 
-![](6d9ab102426642bf07cc1ea68d2e1770fca90d0f.png)
+So here is my solution to be a professional scamer : this is a front end
+to a pandoc toolchain based on mind mapping for structuring the thoughts
+with a real time rendering of the markdown and quite a few tricks.
 
-![screenshot of the markdown editing page](aide.annexe.2){width="16cm"}
+![screenshot of the markdown editing ot this
+page](aide.annexe.2){width="16cm"}
 
 [The home page of SCAM is on github](http://github.com/jul/scam)
 
@@ -101,50 +105,46 @@ so that you can access the assets dir which contain the book :
 ```
 # Walkthrough: writing the aide
 
-## Creating a login
+## Creating your first post
 
-[The landing page](http://127.0.0.1:5000/) is a Create Retrieve Update
-Delete skeleton generated from the data model (which is the HTML of the
-page by design).
+[The landing page](http://127.0.0.1:5000/) give you one option : POST :D
 
-It is recommended to create a user first because all other interesting
-page are accessible only when connected.
-
-![CRUD landing page : time to create your user](aide.annexe.4)
+![Graph interface : time to create your first post](aide.annexe.4)
 
 ```{=tex}
 \newpage
 ```
-On successful login you should see this :
+On click you should see this and be able to fill the value:
 
-![succesfull login](aide.annexe.6)
+![First post](aide.annexe.6)
 
-```{=tex}
-\newpage
-```
-## your first postit entry
-
-Time to create your first « idea » ; a small entry of less than 500
-characters, like a microblogging entry to know what topic you are gonna
-talk of
-
-![begin with the **thread** interface](aide.annexe.7)
+and then click *create*
 
 ```{=tex}
 \newpage
 ```
-![when you correctly add your first entry you have the following
-output](aide.annexe.8)
-
 ## Attaching a content to an entry.
 
 I chose the policy that one micro item is related to one and only one
 attachment of the embedable kind you want.
 
-These items will be available in the markdown editor
+The **annexe** widget below is used to load and delete annexes (attached
+files) that will be stored in the database.
+
+These items will be available as pictures in the markdown editor by the
+given name on the top.
 
 ![by clicking on the « attach » button you can attach a content to the
 post it entry](aide.annexe.9)
+
+## Accessing the text
+
+To access the post entry you click on the node/post and it will open a
+modal window in which the **text** button is accessible for editing your
+book text
+
+![Once you click on a node in the graph the post editing interface
+appear](aide.annexe.13)
 
 ## Developping your first comment and setting your book title
 
@@ -154,13 +154,12 @@ With pandoc you can add metada used for LaTeX.
 The [*markdown* extension useds here is the pandoc
 one](https://pandoc.org/MANUAL.html#pandocs-markdown)
 
-Here is the one that I put in the capture
+Here is a typical Pandoc flavoured Markdown entry to setup the LaTeX
+settings here with the french settings :
 
     % TITLE
     % AUTHOR
     % DATE \
-     \ 
-      ![](aide.user.1){width=5cm} 
       \ 
       \ ![](aide.annexe.1){width=15cm}
 
@@ -176,25 +175,42 @@ Here is the one that I put in the capture
       - \reversemarginpar
      ---
 
-Your real time markdown input is defintily confused, it is time to add
-more postists dans develop them.
+Your real time markdown input is definitely confused but that's fine. It
+is a quirk :D
 
-![screenshot of the development UI](aide.annexe.10)
+![screenshot of the rendered PDF with the title](aide.annexe.10)
 
-As you can see text input always have a reminder of the available for
-inclusion attachment and make it easy to insert it as a picture.
+# Visualizing your document
 
-# Checking on your book
+Now that you have rinced and repeated a few time the post entry/text
+process you may want to check the output.
 
-[it's now time to visit the book rendering
+There are 2 main output : HTML and PDF.
+
+## HTML output
+
+To see the result
+
+[it's now time to visit the HTML rendering
 URL](http://127.0.0.1:5000/book). You should have a side by side view of
 the generated standalone HTML and the generated PDF.
 
 ![book rendering](aide.annexe.11)
 
+You notice that there is a nice self embedded HTML link. This includes
+CSS and pictures inside the document for serving the document as a
+single file.
+
 ```{=tex}
 \newpage
 ```
+## PDF
+
+The [PDF renderer](http://127.0.0.1:500/pdf) accessible from the menu
+will give you the PDF rendering.
+
+![PDF view of the document](aide.annexe.14)
+
 # Rinse and repeat
 
 Ather a few more entries that are boring because very repitive if [you

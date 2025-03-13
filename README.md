@@ -1,14 +1,13 @@
 # Synopsis
 
-> To look smart you either say it in latin or write in LaTeX and add the Naviers Stocke equation $$\frac{\partial \rho}{\partial t} + \vec{\nabla} \cdot \vec{j} = 0$$
- to look smarter
+> To look smart you either say it in latin or write in LaTeX 
 
 But most of us ain't smart enough to use LaTeX, at most we can use markdown an easy to learn text renderer.
 
 So here is my solution to be a professional scamer : this is a front end to a pandoc toolchain based on mind mapping for structuring the thoughts with a real time rendering of the markdown and quite a few tricks.
 
 
-![screenshot of the markdown editing ot this page](assets/aide.annexe.2){width=16cm}
+![screenshot of the markdown editing ot this page](https://raw.githubusercontent.com/jul/scam/refs/heads/main/assets/aide.annexe.2)
 
 [The home page of SCAM is on github](http://github.com/jul/scam)
 

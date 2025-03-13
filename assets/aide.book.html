@@ -21,7 +21,6 @@
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
     }
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
     /* CSS for syntax highlighting */
     pre > code.sourceCode { white-space: pre; position: relative; }
     pre > code.sourceCode > span { line-height: 1.25; }
@@ -97,7 +96,8 @@
 <h1 class="title">SCAM Manual</h1>
 <p class="author">jul</p>
 <p class="date">Jan 2025<br />
-   <img src="aide.annexe.1" style="width:7cm" /></p>
+   <img src="aide.annexe.1" style="width:7cm" />  Made with
+<em>scam</em></p>
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
@@ -106,20 +106,24 @@
 <li><a href="#walkthrough-writing-the-aide"
 id="toc-walkthrough-writing-the-aide">Walkthrough: writing the aide</a>
 <ul>
-<li><a href="#creating-a-login" id="toc-creating-a-login">Creating a
-login</a></li>
-<li><a href="#your-first-postit-entry"
-id="toc-your-first-postit-entry">your first postit entry</a></li>
+<li><a href="#creating-your-first-post"
+id="toc-creating-your-first-post">Creating your first post</a></li>
 <li><a href="#attaching-a-content-to-an-entry."
 id="toc-attaching-a-content-to-an-entry.">Attaching a content to an
 entry.</a></li>
+<li><a href="#accessing-the-text" id="toc-accessing-the-text">Accessing
+the text</a></li>
 <li><a
 href="#developping-your-first-comment-and-setting-your-book-title"
 id="toc-developping-your-first-comment-and-setting-your-book-title">Developping
 your first comment and setting your book title</a></li>
 </ul></li>
-<li><a href="#checking-on-your-book"
-id="toc-checking-on-your-book">Checking on your book</a></li>
+<li><a href="#visualizing-your-document"
+id="toc-visualizing-your-document">Visualizing your document</a>
+<ul>
+<li><a href="#html-output" id="toc-html-output">HTML output</a></li>
+<li><a href="#pdf" id="toc-pdf">PDF</a></li>
+</ul></li>
 <li><a href="#rinse-and-repeat" id="toc-rinse-and-repeat">Rinse and
 repeat</a></li>
 <li><a href="#playing-with-the-help-example"
@@ -130,16 +134,23 @@ example</a></li>
 <p>WTFPL 2.0 Do any thing you want with this book except claim you wrote
 it</p>
 <h1 id="synopsis">Synopsis</h1>
-<p>This is a front end to a pandoc toolchain based on mind mapping for
-structuring the toughts with a real time rendering of the markdown.</p>
-<p>Markdown that includes pandoc-include and my own one to integrate
-graphviz like this :</p>
-<p><img src="6d9ab102426642bf07cc1ea68d2e1770fca90d0f.png" /></p>
+<blockquote>
+<p>To look smart you either say it in latin or write in LaTeX and add
+the Naviers Stocke equation
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>∂</mi><mi>ρ</mi></mrow><mrow><mi>∂</mi><mi>t</mi></mrow></mfrac><mo>+</mo><mover><mi>∇</mi><mo accent="true">→</mo></mover><mo>⋅</mo><mover><mi>j</mi><mo accent="true">→</mo></mover><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\frac{\partial \rho}{\partial t} + \vec{\nabla} \cdot \vec{j} = 0</annotation></semantics></math>
+to look smarter</p>
+</blockquote>
+<p>But most of us ain’t smart enough to use LaTeX, at most we can use
+markdown an easy to learn text renderer.</p>
+<p>So here is my solution to be a professional scamer : this is a front
+end to a pandoc toolchain based on mind mapping for structuring the
+thoughts with a real time rendering of the markdown and quite a few
+tricks.</p>
 <figure>
 <img src="aide.annexe.2" style="width:16cm"
-alt="screenshot of the markdown editing page" />
-<figcaption aria-hidden="true">screenshot of the markdown editing
-page</figcaption>
+alt="screenshot of the markdown editing ot this page" />
+<figcaption aria-hidden="true">screenshot of the markdown editing ot
+this page</figcaption>
 </figure>
 <p><a href="http://github.com/jul/scam">The home page of SCAM is on
 github</a></p>
@@ -197,48 +208,44 @@ docker run -i -t -e db=bookname \
     -p5000:5000  scam 
 firefox http://127.0.0.1:5000</code></pre>
 <h1 id="walkthrough-writing-the-aide">Walkthrough: writing the aide</h1>
-<h2 id="creating-a-login">Creating a login</h2>
-<p><a href="http://127.0.0.1:5000/">The landing page</a> is a Create
-Retrieve Update Delete skeleton generated from the data model (which is
-the HTML of the page by design).</p>
-<p>It is recommended to create a user first because all other
-interesting page are accessible only when connected.</p>
+<h2 id="creating-your-first-post">Creating your first post</h2>
+<p><a href="http://127.0.0.1:5000/">The landing page</a> give you one
+option : POST :D</p>
 <figure>
 <img src="aide.annexe.4"
-alt="CRUD landing page : time to create your user" />
-<figcaption aria-hidden="true">CRUD landing page : time to create your
-user</figcaption>
+alt="Graph interface : time to create your first post" />
+<figcaption aria-hidden="true">Graph interface : time to create your
+first post</figcaption>
 </figure>
-<p>On successful login you should see this :</p>
+<p>On click you should see this and be able to fill the value:</p>
 <figure>
-<img src="aide.annexe.6" alt="succesfull login" />
-<figcaption aria-hidden="true">succesfull login</figcaption>
+<img src="aide.annexe.6" alt="First post" />
+<figcaption aria-hidden="true">First post</figcaption>
 </figure>
-<h2 id="your-first-postit-entry">your first postit entry</h2>
-<p>Time to create your first « idea » ; a small entry of less than 500
-characters, like a microblogging entry to know what topic you are gonna
-talk of</p>
-<figure>
-<img src="aide.annexe.7" alt="begin with the thread interface" />
-<figcaption aria-hidden="true">begin with the <strong>thread</strong>
-interface</figcaption>
-</figure>
-<figure>
-<img src="aide.annexe.8"
-alt="when you correctly add your first entry you have the following output" />
-<figcaption aria-hidden="true">when you correctly add your first entry
-you have the following output</figcaption>
-</figure>
+<p>and then click <em>create</em></p>
 <h2 id="attaching-a-content-to-an-entry.">Attaching a content to an
 entry.</h2>
 <p>I chose the policy that one micro item is related to one and only one
 attachment of the embedable kind you want.</p>
-<p>These items will be available in the markdown editor</p>
+<p>The <strong>annexe</strong> widget below is used to load and delete
+annexes (attached files) that will be stored in the database.</p>
+<p>These items will be available as pictures in the markdown editor by
+the given name on the top.</p>
 <figure>
 <img src="aide.annexe.9"
 alt="by clicking on the « attach » button you can attach a content to the post it entry" />
 <figcaption aria-hidden="true">by clicking on the « attach » button you
 can attach a content to the post it entry</figcaption>
+</figure>
+<h2 id="accessing-the-text">Accessing the text</h2>
+<p>To access the post entry you click on the node/post and it will open
+a modal window in which the <strong>text</strong> button is accessible
+for editing your book text</p>
+<figure>
+<img src="aide.annexe.13"
+alt="Once you click on a node in the graph the post editing interface appear" />
+<figcaption aria-hidden="true">Once you click on a node in the graph the
+post editing interface appear</figcaption>
 </figure>
 <h2
 id="developping-your-first-comment-and-setting-your-book-title">Developping
@@ -248,12 +255,11 @@ With pandoc you can add metada used for LaTeX.</p>
 <p>The <a
 href="https://pandoc.org/MANUAL.html#pandocs-markdown"><em>markdown</em>
 extension useds here is the pandoc one</a></p>
-<p>Here is the one that I put in the capture</p>
+<p>Here is a typical Pandoc flavoured Markdown entry to setup the LaTeX
+settings here with the french settings :</p>
 <pre><code>% TITLE
 % AUTHOR
 % DATE \
- \ 
-  ![](aide.user.1){width=5cm} 
   \ 
   \ ![](aide.annexe.1){width=15cm}
 
@@ -268,22 +274,36 @@ header-includes:
  - \let\evensidemargin\tmp
   - \reversemarginpar
  ---</code></pre>
-<p>Your real time markdown input is defintily confused, it is time to
-add more postists dans develop them.</p>
+<p>Your real time markdown input is definitely confused but that’s fine.
+It is a quirk :D</p>
 <figure>
-<img src="aide.annexe.10" alt="screenshot of the development UI" />
-<figcaption aria-hidden="true">screenshot of the development
-UI</figcaption>
+<img src="aide.annexe.10"
+alt="screenshot of the rendered PDF with the title" />
+<figcaption aria-hidden="true">screenshot of the rendered PDF with the
+title</figcaption>
 </figure>
-<p>As you can see text input always have a reminder of the available for
-inclusion attachment and make it easy to insert it as a picture.</p>
-<h1 id="checking-on-your-book">Checking on your book</h1>
-<p><a href="http://127.0.0.1:5000/book">it’s now time to visit the book
+<h1 id="visualizing-your-document">Visualizing your document</h1>
+<p>Now that you have rinced and repeated a few time the post entry/text
+process you may want to check the output.</p>
+<p>There are 2 main output : HTML and PDF.</p>
+<h2 id="html-output">HTML output</h2>
+<p>To see the result</p>
+<p><a href="http://127.0.0.1:5000/book">it’s now time to visit the HTML
 rendering URL</a>. You should have a side by side view of the generated
 standalone HTML and the generated PDF.</p>
 <figure>
 <img src="aide.annexe.11" alt="book rendering" />
 <figcaption aria-hidden="true">book rendering</figcaption>
+</figure>
+<p>You notice that there is a nice self embedded HTML link. This
+includes CSS and pictures inside the document for serving the document
+as a single file.</p>
+<h2 id="pdf">PDF</h2>
+<p>The <a href="http://127.0.0.1:500/pdf">PDF renderer</a> accessible
+from the menu will give you the PDF rendering.</p>
+<figure>
+<img src="aide.annexe.14" alt="PDF view of the document" />
+<figcaption aria-hidden="true">PDF view of the document</figcaption>
 </figure>
 <h1 id="rinse-and-repeat">Rinse and repeat</h1>
 <p>Ather a few more entries that are boring because very repitive if <a
