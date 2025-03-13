@@ -1,31 +1,18 @@
-# Scope Creep Amusing Methodology
+# Synopsis
 
-At the beginning it was a proof of concept of HTML as a declarative model
-(instead of SQL).
+> To look smart you either say it in latin or write in LaTeX and add the Naviers Stocke equation $$\frac{\partial \rho}{\partial t} + \vec{\nabla} \cdot \vec{j} = 0$$
+ to look smarter
 
-Then I decided I needed a practical example and I quickly set up a microblogging
-example.
+But most of us ain't smart enough to use LaTeX, at most we can use markdown an easy to learn text renderer.
 
-But, I was like, let's try to scam people in stopping to use scum meeting and
-instead use a microblogging platform because it is fun. And the scope creeped
-again.
+So here is my solution to be a professional scamer : this is a front end to a pandoc toolchain based on mind mapping for structuring the thoughts with a real time rendering of the markdown and quite a few tricks.
 
-And, then I was like a « mind mapper should be fun » I almost already have it.
-And another scope creep happened.
+
+![screenshot of the markdown editing ot this page](assets/aide.annexe.2){width=16cm}
+
+[The home page of SCAM is on github](http://github.com/jul/scam)
+
 
 [Manual is here](https://raw.githubusercontent.com/jul/scam/refs/heads/main/assets/aide.book.pdf)
-
-
-And why not make the small post-it developpable in full text came into mind ...
-![postit](img/dev)
-
-And then I remembered I had a toolchain to make books from pandoc and it would
-be nice to have a real time rendering in close to final result. And yet another
-scope creep.
-![markdown rendering](img/markdown)
-
-And finally, here I am, with a sotfware to build a book latex rendered from
-markdown based on a mind mapper ...
-![book view](img/book)
 
   <video width=800px src="https://github.com/jul/scam/raw/refs/heads/main/kazam.mp4" />
