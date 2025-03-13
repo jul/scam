@@ -1,8 +1,8 @@
 % SCAM Manual
 % jul 
-% Jan 2025 \
+% $Version: 202503$ \
   \ 
-  \ ![](aide.annexe.1){width=7cm} \ Made with *scam*
+  \ ![](aide.annexe.1){width=7cm}
 ---
 fontsize: 10pts
 documentclass: extreport
