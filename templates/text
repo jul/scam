@@ -10,13 +10,14 @@ $(document).ready(() => {
             e.preventDefault()
             console.log("saving...")
             $("[value=update]").click()
+            $(".modal2").fadeIn()
+            $(".modal2").fadeOut()
         }
     })
     already=false;
     comment_id = ${fo.get("id",[0])[0]} ?  ${fo.get("id",[0])[0]} : $($("[name=id]", $($("form")[0]))).val()
     $($("[name=id]", $($("form")[1]))).val(comment_id)
     $($("form")[0]).each((i,el) => {
-        console.log("adding button")
         $(el).append("<input name=_action type=submit action=" + el.action +" value=update > <input name=_action type=submit value=delete >")
         $(el).append("<input name=_action type=submit action=" + el.action +" value=load >")
 
@@ -76,7 +77,6 @@ $(document).ready(() => {
             size=order.length
             cursor = indexof + diff
             comment_id=order[cursor < 0 ? (size-1) : ( cursor > size ? 0 : cursor)  ]
-            console.log(comment_id)
 
             $($("[name=id]", $($("form")[1]))).val(comment_id)
             $("[value=load]").click()

@@ -32,7 +32,6 @@ $("svg").ready(() => {
         e.preventDefault();
         })
     function click_edit(e) {
-        console.log("cc" + comment_id)
         $(".sel").hide()
         $("[name=_ed]").css("display","block")
         $.ajax({
@@ -74,7 +73,6 @@ $("svg").ready(() => {
     $(".node").click( function() {
         event.preventDefault()
         comment_id=$($("title",$(this))[0]).html()
-        console.log("node click" + comment_id)
         $("[name=clicked]").val(comment_id)
         $("[name=comment_id]",$($("form")[0])).val(comment_id)
         $("[name=id]",$($("form")[1])).val(comment_id)
@@ -85,8 +83,6 @@ $("svg").ready(() => {
         $(".modal2").fadeOut()
         $("[name=_ed]").css("display","block")
         click_edit()
-        console.log("eo node click" + comment_id)
-        
     })
     $("[value=del]").click( function() {
         event.preventDefault()

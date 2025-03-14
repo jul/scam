@@ -13,7 +13,7 @@ header-includes:
  - \hypersetup{colorlinks=true, allcolors=myblue} 
 ---
 
-WTFPL 2.0 Do any thing you want with this book except claim you wrote it
+WTFPL 2.0 Do any thing you want with this book except claim you wrote it. 
 
 # Synopsis
 
@@ -263,9 +263,9 @@ here fore mentioned situations in real life during the writing of this
 manual, that I am reluctant to put an « autosave » feature.
 
 But, nice to have would be a « CTRL+S » binding that does the save with
-a nice modal message.
+a nice modal message. [^1]
 
-**CAVEAT** : hit update often or you shall lose work.
+**CAVEAT** : hit update or CTRL+S often or you shall lose work.
 
 ## Model
 
@@ -312,24 +312,24 @@ Pretty much these limitations are due to some of my lack of skills.
 You have the following important limitations :
 
 -   there is a one to one association between *annexe* (joint picture)
-    and a *comment*[^1] ;
+    and a *comment*[^2] ;
 
 ```{=html}
 <!-- -->
 ```
 -   there is a one to one association between *annexe* (joint picture)
     and a (markdown) *text* and the joint is on .... *comment_id* or
-    *id*[^2] ;
+    *id*[^3] ;
 
 -   the table **transition** adds an edge between comments on the
-    graph[^3]
+    graph[^4]
 
 ```{=html}
 <!-- -->
 ```
 -   the *factoid* column of the **comment** table is not used anymore
-    [^4];
--   the **user** table is not used anymore [^5];
+    [^5];
+-   the **user** table is not used anymore [^6];
 
 # Serendipity
 
@@ -348,7 +348,7 @@ processing](https://github.com/jul/scam/blob/main/mkdoc.sh) with pandoc
 lua filters applied and a tad of pandoc magic.
 
 So you will need this file to make your own builder, and also the images
-that are automatically generated upon calling the HTML view[^6]. The
+that are automatically generated upon calling the HTML view[^7]. The
 picture needed to complete the markdown export will be located in the
 assets directory with the name `assets/$DB.annexe.*` where DB is the
 name of the DB you use (default is **scam**).
@@ -385,23 +385,27 @@ smart for your present self with more brain.
 
 Since I don't like pain, it is an experience I don't recommend.
 
-[^1]: because I did not wanted to code a file explorer of the potential
+[^1]: [The save by hitting CTRL +S is actually in the base
+    code](https://github.com/jul/scam/commit/1957c08d958d8a8b8e67324d19e6602fa7a1612c)
+    but I don't know how to show it to the user. Lol.
+
+[^2]: because I did not wanted to code a file explorer of the potential
     attachment (I hate front end development as much as back end one);
 
-[^2]: I did messed up thing if I remember well, and I'm pretty sure that
+[^3]: I did messed up thing if I remember well, and I'm pretty sure that
     instead of a joint on *comment_id* I do it in one tiny **vicious**
     place of the interface on *id*.
 
-[^3]: I am beginning to find this feature useless. Less is more, hence
+[^4]: I am beginning to find this feature useless. Less is more, hence
     I'm thinking of removing it.
 
-[^4]: I changed the interface by removing features, but I had the
+[^5]: I changed the interface by removing features, but I had the
     lazyness to write the migration script and change the custom SQL I
     wrote. Planning for migration scripts and version handling is quite
     a lot of work you know, that I will not priorize because, I have the
     skills, but not the will.
 
-[^5]: same thing as above
+[^6]: same thing as above
 
-[^6]: I think I forgot to check if images were present before generating
+[^7]: I think I forgot to check if images were present before generating
     the PDF assuming people would check the HTML first. Stupid me.
