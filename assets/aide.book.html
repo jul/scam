@@ -128,6 +128,21 @@ repeat</a></li>
 <li><a href="#playing-with-the-help-example"
 id="toc-playing-with-the-help-example">Playing with the help
 example</a></li>
+<li><a href="#dev-corner" id="toc-dev-corner">Dev corner</a>
+<ul>
+<li><a href="#design" id="toc-design">« Design »</a></li>
+<li><a href="#synchronous" id="toc-synchronous">Synchronous</a></li>
+<li><a href="#model" id="toc-model">Model</a></li>
+<li><a href="#creativity-boosters-limitations"
+id="toc-creativity-boosters-limitations">Creativity boosters
+(limitations)</a></li>
+</ul></li>
+<li><a href="#serendipity" id="toc-serendipity">Serendipity</a>
+<ul>
+<li><a href="#vanilla-markdown-export-with-assets-gruik-inside"
+id="toc-vanilla-markdown-export-with-assets-gruik-inside">Vanilla
+Markdown export with assets (gruik inside)</a></li>
+</ul></li>
 </ul>
 </nav>
 <p>WTFPL 2.0 Do any thing you want with this book except claim you wrote
@@ -324,5 +339,103 @@ example</h1>
 <pre><code> docker run -i -t -e db=aide --mount type=bind,src=.,dst=/scam \
      -p5000:5000 --user  1000:1000  scam
  firefox http://127.0.0.1:5000</code></pre>
+<h1 id="dev-corner">Dev corner</h1>
+<h2 id="design">« Design »</h2>
+<p>Well, there was no design.</p>
+<p>All I know is that web services came first and that all User
+Interface is based on calling them in ajax.</p>
+<p><a href="http://127.0.0.1:5000/model">Web services</a> are presented
+as a serie of form, one for each table, and the actions required to be
+filled in the request are the <em>input type=submit</em> button.</p>
+<figure>
+<img src="aide.annexe.15"
+alt="Exemple of a REST access to the table comment" />
+<figcaption aria-hidden="true">Exemple of a REST access to the table
+comment</figcaption>
+</figure>
+<p>You can check how it is done in <a
+href="https://github.com/jul/scam/blob/main/test/load.py">the lite suite
+I use to test part of the design</a>.</p>
+<h2 id="synchronous">Synchronous</h2>
+<p>Since all my <em>events</em> meaningful (saving) are plugged on
+<em>onclick</em> events in javascript, it is a synchronous application
+ensuring that when my wife and kid interrupt me, the document is always
+in a sane state. So far, I love it so much because it actually acted as
+a safeguard in the here fore mentioned situations in real life during
+the writing of this manual, that I am reluctant to put an « autosave »
+feature.</p>
+<p>But, nice to have would be a « CTRL+S » binding that does the save
+with a nice modal message.</p>
+<p><strong>CAVEAT</strong> : hit update often or you shall lose
+work.</p>
+<h2 id="model">Model</h2>
+<p>A careful examination of the entity relationship diagram will point
+at <strong>dead</strong> data such as the user table, or the factoid
+column that is not used anymore.</p>
+<figure>
+<img src="aide.annexe.16" alt="Entity Relationship Diagram" />
+<figcaption aria-hidden="true">Entity Relationship Diagram</figcaption>
+</figure>
+<p>As you can notice the <strong>comment</strong> table is the center of
+the model.</p>
+<h2 id="creativity-boosters-limitations">Creativity boosters
+(limitations)</h2>
+<p>Pretty much these limitations are due to some of my lack of
+skills.</p>
+<p>You have the following important limitations :</p>
+<ul>
+<li>there is a one to one association between <em>annexe</em> (joint
+picture) and a <em>comment</em><a href="#fn1" class="footnote-ref"
+id="fnref1" role="doc-noteref"><sup>1</sup></a> ;</li>
+</ul>
+<!-- -->
+<ul>
+<li><p>there is a one to one association between <em>annexe</em> (joint
+picture) and a (markdown) <em>text</em> and the joint is on ….
+<em>comment_id</em> or <em>id</em><a href="#fn2" class="footnote-ref"
+id="fnref2" role="doc-noteref"><sup>2</sup></a> ;</p></li>
+<li><p>the table <strong>transition</strong> adds an edge between
+comments on the graph<a href="#fn3" class="footnote-ref" id="fnref3"
+role="doc-noteref"><sup>3</sup></a></p></li>
+</ul>
+<!-- -->
+<ul>
+<li>the <em>factoid</em> column of the <strong>comment</strong> table is
+not used anymore <a href="#fn4" class="footnote-ref" id="fnref4"
+role="doc-noteref"><sup>4</sup></a>;</li>
+<li>the <strong>user</strong> table is not used anymore <a href="#fn5"
+class="footnote-ref" id="fnref5"
+role="doc-noteref"><sup>5</sup></a>;</li>
+</ul>
+<h1 id="serendipity">Serendipity</h1>
+<p>Also called « un planned features ».</p>
+<h2 id="vanilla-markdown-export-with-assets-gruik-inside">Vanilla
+Markdown export with assets (gruik inside)</h2>
+<p>You noticed there is a link</p>
+<aside id="footnotes" class="footnotes footnotes-end-of-document"
+role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1"><p>because I did not wanted to code a file explorer of the
+potential attachment (I hate front end development as much as back end
+one);<a href="#fnref1" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>I did messed up thing if I remember well, and I’m pretty
+sure that instead of a joint on <em>comment_id</em> I do it in one tiny
+<strong>vicious</strong> place of the interface on <em>id</em>.<a
+href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>I am beginning to find this feature useless. Less is
+more, hence I’m thinking of removing it.<a href="#fnref3"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>I changed the interface by removing features, but I had
+the lazyness to write the migration script and change the custom SQL I
+wrote. Planning for migration scripts and version handling is quite a
+lot of work you know, that I will not priorize because, I have the
+skills, but not the will.<a href="#fnref4" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>same thing as above<a href="#fnref5"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</aside>
 </body>
 </html>

@@ -232,3 +232,97 @@ To try it :
      docker run -i -t -e db=aide --mount type=bind,src=.,dst=/scam \
          -p5000:5000 --user  1000:1000  scam
      firefox http://127.0.0.1:5000
+
+# Dev corner
+
+## « Design »
+
+Well, there was no design.
+
+All I know is that web services came first and that all User Interface
+is based on calling them in ajax.
+
+[Web services](http://127.0.0.1:5000/model) are presented as a serie of
+form, one for each table, and the actions required to be filled in the
+request are the *input type=submit* button.
+
+![Exemple of a REST access to the table comment](aide.annexe.15)
+
+You can check how it is done in [the lite suite I use to test part of
+the design](https://github.com/jul/scam/blob/main/test/load.py).
+
+## Synchronous
+
+Since all my *events* meaningful (saving) are plugged on *onclick*
+events in javascript, it is a synchronous application ensuring that when
+my wife and kid interrupt me, the document is always in a sane state. So
+far, I love it so much because it actually acted as a safeguard in the
+here fore mentioned situations in real life during the writing of this
+manual, that I am reluctant to put an « autosave » feature.
+
+But, nice to have would be a « CTRL+S » binding that does the save with
+a nice modal message.
+
+**CAVEAT** : hit update often or you shall lose work.
+
+## Model
+
+A careful examination of the entity relationship diagram will point at
+**dead** data such as the user table, or the factoid column that is not
+used anymore.
+
+![Entity Relationship Diagram](aide.annexe.16)
+
+As you can notice the **comment** table is the center of the model.
+
+## Creativity boosters (limitations)
+
+Pretty much these limitations are due to some of my lack of skills.
+
+You have the following important limitations :
+
+-   there is a one to one association between *annexe* (joint picture)
+    and a *comment*[^1] ;
+
+```{=html}
+<!-- -->
+```
+-   there is a one to one association between *annexe* (joint picture)
+    and a (markdown) *text* and the joint is on .... *comment_id* or
+    *id*[^2] ;
+
+-   the table **transition** adds an edge between comments on the
+    graph[^3]
+
+```{=html}
+<!-- -->
+```
+-   the *factoid* column of the **comment** table is not used anymore
+    [^4];
+-   the **user** table is not used anymore [^5];
+
+# Serendipity
+
+Also called « un planned features ».
+
+## Vanilla Markdown export with assets (gruik inside)
+
+You noticed there is a link
+
+[^1]: because I did not wanted to code a file explorer of the potential
+    attachment (I hate front end development as much as back end one);
+
+[^2]: I did messed up thing if I remember well, and I'm pretty sure that
+    instead of a joint on *comment_id* I do it in one tiny **vicious**
+    place of the interface on *id*.
+
+[^3]: I am beginning to find this feature useless. Less is more, hence
+    I'm thinking of removing it.
+
+[^4]: I changed the interface by removing features, but I had the
+    lazyness to write the migration script and change the custom SQL I
+    wrote. Planning for migration scripts and version handling is quite
+    a lot of work you know, that I will not priorize because, I have the
+    skills, but not the will.
+
+[^5]: same thing as above
