@@ -7,6 +7,7 @@
 fontsize: 10pts
 documentclass: extreport
 papersize: a4 
+mainfont: Georgia
 header-includes:
  - \usepackage{hyperref}
  - \definecolor{myblue}{rgb}{0.28, 0.24, 0.48}
@@ -55,7 +56,13 @@ RUN apt-get update && apt-get -y --no-install-recommends install \
 	python3 python3-pip python3-venv python3-setuptools \
     python3-sqlalchemy texlive pandoc graphviz virtualenv \
     python3-magic sqlite3 texlive-xetex texlive-latex-extra \
-    texlive-fonts-recommended texlive-lang-french lmodern
+    texlive-fonts-recommended texlive-lang-french lmodern 
+
+RUN sed -i 's/^Components: main$/& contrib/' \
+        /etc/apt/sources.list.d/debian.sources
+RUN apt-get update
+RUN apt-get install -y ttf-mscorefonts-installer fontconfig
+RUN fc-cache -f -v
 
 RUN useradd scam -d /app --uid 1000 -m -s /bin/bash
 COPY --chown=scam . /app
@@ -71,7 +78,8 @@ RUN /venv/bin/python -m pip install --no-cache-dir \
     --disable-pip-version-check -r requirements.full.txt
 EXPOSE 5000
 USER scam
-CMD . /venv/bin/activate && cd /scam && DB=${db:-scam} /venv/bin/python /app/scam.py
+CMD . /venv/bin/activate && cd /scam \
+    && DB=${db:-scam} /venv/bin/python /app/scam.py
 ```
 
 with the following requirements :
@@ -150,10 +158,10 @@ appear](aide.annexe.13)
 First comment is specific in the sense it is also used for the title.
 With pandoc you can add metada used for LaTeX.
 
-The [*markdown* extension useds here is the pandoc
+The [*markdown* extension used here is the pandoc
 one](https://pandoc.org/MANUAL.html#pandocs-markdown)
 
-Here is a typical Pandoc flavoured Markdown entry to setup the LaTeX
+Here is a typical Pandoc flavored Markdown entry to setup the LaTeX
 settings here with the french settings :
 
     % TITLE
@@ -163,6 +171,7 @@ settings here with the french settings :
       \ ![](aide.annexe.1){width=15cm}
 
     ---
+    mainfont: Georgia
     header-includes:
      - \usepackage[french]{babel}
      - \usepackage{hyperref}
