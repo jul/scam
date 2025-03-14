@@ -142,7 +142,11 @@ id="toc-creativity-boosters-limitations">Creativity boosters
 <li><a href="#vanilla-markdown-export-with-assets-gruik-inside"
 id="toc-vanilla-markdown-export-with-assets-gruik-inside">Vanilla
 Markdown export with assets (gruik inside)</a></li>
+<li><a href="#self-embedded-html" id="toc-self-embedded-html">Self
+embedded HTML</a></li>
 </ul></li>
+<li><a href="#psycodelic-experience"
+id="toc-psycodelic-experience">Psycodelic experience</a></li>
 </ul>
 </nav>
 <p>WTFPL 2.0 Do any thing you want with this book except claim you wrote
@@ -411,7 +415,41 @@ role="doc-noteref"><sup>5</sup></a>;</li>
 <p>Also called « un planned features ».</p>
 <h2 id="vanilla-markdown-export-with-assets-gruik-inside">Vanilla
 Markdown export with assets (gruik inside)</h2>
-<p>You noticed there is a link</p>
+<p>You noticed there on the <a href="http://127.0.0.1:5000/book">page
+for the html export</a> that there is a link for the full markdown
+export.</p>
+<p>Actually, it is a modified markdown with with some <a
+href="https://github.com/jul/scam/blob/main/mkdoc.sh">custom pandoc
+processing</a> with pandoc lua filters applied and a tad of pandoc
+magic.</p>
+<p>So you will need this file to make your own builder, and also the
+images that are automatically generated upon calling the HTML view<a
+href="#fn6" class="footnote-ref" id="fnref6"
+role="doc-noteref"><sup>6</sup></a>. The picture needed to complete the
+markdown export will be located in the assets directory with the name
+<code>assets/$DB.annexe.*</code> where DB is the name of the DB you use
+(default is <strong>scam</strong>).</p>
+<h2 id="self-embedded-html">Self embedded HTML</h2>
+<p>I am testing single HTML self containing page with the pictures
+embedded inside.</p>
+<p>Test it for me, and if it works it will become the default and only
+HTML view.</p>
+<h1 id="psycodelic-experience">Psycodelic experience</h1>
+<p>Most the making of this software <em>-due to an intense real life
+pain-</em> have been made under drugs such as ketoprofen, opium and
+more.</p>
+<p>Pain and drugs totally change the way you code, if you want to go on
+foreward, you have to sharpen your mind through the pain to stay
+focused, ensuring a maximal brutality to hack your way.</p>
+<p>As the maintainer of the source code I have been pleasantly surprised
+by how easy it was for me to understand what I did, even though it
+totally goes against the currently admitted best practices of full stack
+development (such as using fucking frameworks for every layers of the
+stack).</p>
+<p>It is like discovering your true self in coding because you had to
+code so diminished intellectually that it prevented your past self to be
+too smart for your present self with more brain.</p>
+<p>Since I don’t like pain, it is an experience I don’t recommend.</p>
 <aside id="footnotes" class="footnotes footnotes-end-of-document"
 role="doc-endnotes">
 <hr />
@@ -435,6 +473,10 @@ skills, but not the will.<a href="#fnref4" class="footnote-back"
 role="doc-backlink">↩︎</a></p></li>
 <li id="fn5"><p>same thing as above<a href="#fnref5"
 class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>I think I forgot to check if images were present before
+generating the PDF assuming people would check the HTML first. Stupid
+me.<a href="#fnref6" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
 </ol>
 </aside>
 </body>

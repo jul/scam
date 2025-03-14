@@ -6,7 +6,6 @@
 ---
 fontsize: 10pts
 documentclass: extreport
-mainfont: Georgia.ttf 
 papersize: a4 
 header-includes:
  - \usepackage{hyperref}
@@ -307,7 +306,48 @@ Also called « un planned features ».
 
 ## Vanilla Markdown export with assets (gruik inside)
 
-You noticed there is a link
+You noticed there on the [page for the html
+export](http://127.0.0.1:5000/book) that there is a link for the full
+markdown export.
+
+Actually, it is a modified markdown with with some [custom pandoc
+processing](https://github.com/jul/scam/blob/main/mkdoc.sh) with pandoc
+lua filters applied and a tad of pandoc magic.
+
+So you will need this file to make your own builder, and also the images
+that are automatically generated upon calling the HTML view[^6]. The
+picture needed to complete the markdown export will be located in the
+assets directory with the name `assets/$DB.annexe.*` where DB is the
+name of the DB you use (default is **scam**).
+
+## Self embedded HTML
+
+I am testing single HTML self containing page with the pictures embedded
+inside.
+
+Test it for me, and if it works it will become the default and only HTML
+view.
+
+# Psycodelic experience
+
+Most the making of this software *-due to an intense real life pain-*
+have been made under drugs such as ketoprofen, opium and more.
+
+Pain and drugs totally change the way you code, if you want to go on
+foreward, you have to sharpen your mind through the pain to stay
+focused, ensuring a maximal brutality to hack your way.
+
+As the maintainer of the source code I have been pleasantly surprised by
+how easy it was for me to understand what I did, even though it totally
+goes against the currently admitted best practices of full stack
+development (such as using fucking frameworks for every layers of the
+stack).
+
+It is like discovering your true self in coding because you had to code
+so diminished intellectually that it prevented your past self to be too
+smart for your present self with more brain.
+
+Since I don't like pain, it is an experience I don't recommend.
 
 [^1]: because I did not wanted to code a file explorer of the potential
     attachment (I hate front end development as much as back end one);
@@ -326,3 +366,6 @@ You noticed there is a link
     skills, but not the will.
 
 [^5]: same thing as above
+
+[^6]: I think I forgot to check if images were present before generating
+    the PDF assuming people would check the HTML first. Stupid me.
