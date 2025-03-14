@@ -7,7 +7,13 @@ RUN apt-get update && apt-get -y --no-install-recommends install \
 	python3 python3-pip python3-venv python3-setuptools \
     python3-sqlalchemy texlive pandoc graphviz virtualenv \
     python3-magic sqlite3 texlive-xetex texlive-latex-extra \
-    texlive-fonts-recommended texlive-lang-french lmodern
+    texlive-fonts-recommended texlive-lang-french lmodern 
+
+RUN sed -i 's/^Components: main$/& contrib/' \
+        /etc/apt/sources.list.d/debian.sources
+RUN apt-get update
+RUN apt-get install -y ttf-mscorefonts-installer fontconfig
+RUN fc-cache -f -v
 
 RUN useradd scam -d /app --uid 1000 -m -s /bin/bash
 COPY --chown=scam . /app
@@ -23,4 +29,5 @@ RUN /venv/bin/python -m pip install --no-cache-dir \
     --disable-pip-version-check -r requirements.full.txt
 EXPOSE 5000
 USER scam
-CMD . /venv/bin/activate && cd /scam && DB=${db:-scam} /venv/bin/python /app/scam.py
+CMD . /venv/bin/activate && cd /scam \
+    && DB=${db:-scam} /venv/bin/python /app/scam.py
