@@ -5,6 +5,13 @@
 </style>
 <script>
 $(document).ready(() => {
+    $(document).bind("keydown", function(e){
+        if(e.ctrlKey && e.which == 83){
+            e.preventDefault()
+            console.log("saving...")
+            $("[value=update]").click()
+        }
+    })
     already=false;
     comment_id = ${fo.get("id",[0])[0]} ?  ${fo.get("id",[0])[0]} : $($("[name=id]", $($("form")[0]))).val()
     $($("[name=id]", $($("form")[1]))).val(comment_id)

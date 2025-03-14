@@ -250,6 +250,9 @@ request are the *input type=submit* button.
 You can check how it is done in [the lite suite I use to test part of
 the design](https://github.com/jul/scam/blob/main/test/load.py).
 
+```{=tex}
+\newpage
+```
 ## Synchronous
 
 Since all my *events* meaningful (saving) are plugged on *onclick*
@@ -273,6 +276,34 @@ used anymore.
 ![Entity Relationship Diagram](aide.annexe.16)
 
 As you can notice the **comment** table is the center of the model.
+
+```{=tex}
+\newpage
+```
+## HTML As A Model (HaaM)
+
+Well, I made sure the [web services serving the REST
+API](http://127.0.0.1:5000/model) would be in sync, by .... creating the
+model from the HTML forms served there.
+
+The rule being one form, one table. One input, one column. And by adding
+some attributes to enhance the HTML I have an HTML dialect called
+**HaaML** as *HTML as a model Markup Language* to add sql related
+attributes and map them into the right SGBDR type.
+
+Making me thus the *"piped piper of HaaML-in"* from which your mother
+guarded you from.
+
+The only documentation of this language is of course the source code of
+[scam.py](https://github.com/jul/scam/blob/main/scam.py#L63) itself.
+
+Hence, to change the model, you have to change the HTML served to
+describe the model.
+
+I still am not sure whether it's genius or stupid. But facts are : the
+web service always reflect with a 100% certainty the database model
+served by the application. Which as far as I am concerned is the right
+way to do it.
 
 ## Creativity boosters (limitations)
 
@@ -310,6 +341,8 @@ You noticed there on the [page for the html
 export](http://127.0.0.1:5000/book) that there is a link for the full
 markdown export.
 
+![yep on this page](aide.annexe.17)
+
 Actually, it is a modified markdown with with some [custom pandoc
 processing](https://github.com/jul/scam/blob/main/mkdoc.sh) with pandoc
 lua filters applied and a tad of pandoc magic.
@@ -320,6 +353,9 @@ picture needed to complete the markdown export will be located in the
 assets directory with the name `assets/$DB.annexe.*` where DB is the
 name of the DB you use (default is **scam**).
 
+```{=tex}
+\newpage
+```
 ## Self embedded HTML
 
 I am testing single HTML self containing page with the pictures embedded

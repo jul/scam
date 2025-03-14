@@ -44,7 +44,7 @@ $("svg").ready(() => {
                 $(el).val(msg.result[0][0][$(el).attr("name")]);
             })
         })
-        e.preventDefault();
+        e && e.preventDefault();
     }
     $("[value=edit]").on("click",click_edit)
     $("[value=share]").click( function() {

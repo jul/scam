@@ -133,6 +133,8 @@ example</a></li>
 <li><a href="#design" id="toc-design">« Design »</a></li>
 <li><a href="#synchronous" id="toc-synchronous">Synchronous</a></li>
 <li><a href="#model" id="toc-model">Model</a></li>
+<li><a href="#html-as-a-model-haam" id="toc-html-as-a-model-haam">HTML
+As A Model (HaaM)</a></li>
 <li><a href="#creativity-boosters-limitations"
 id="toc-creativity-boosters-limitations">Creativity boosters
 (limitations)</a></li>
@@ -382,6 +384,26 @@ column that is not used anymore.</p>
 </figure>
 <p>As you can notice the <strong>comment</strong> table is the center of
 the model.</p>
+<h2 id="html-as-a-model-haam">HTML As A Model (HaaM)</h2>
+<p>Well, I made sure the <a href="http://127.0.0.1:5000/model">web
+services serving the REST API</a> would be in sync, by …. creating the
+model from the HTML forms served there.</p>
+<p>The rule being one form, one table. One input, one column. And by
+adding some attributes to enhance the HTML I have an HTML dialect called
+<strong>HaaML</strong> as <em>HTML as a model Markup Language</em> to
+add sql related attributes and map them into the right SGBDR type.</p>
+<p>Making me thus the <em>“piped piper of HaaML-in”</em> from which your
+mother guarded you from.</p>
+<p>The only documentation of this language is of course the source code
+of <a
+href="https://github.com/jul/scam/blob/main/scam.py#L63">scam.py</a>
+itself.</p>
+<p>Hence, to change the model, you have to change the HTML served to
+describe the model.</p>
+<p>I still am not sure whether it’s genius or stupid. But facts are :
+the web service always reflect with a 100% certainty the database model
+served by the application. Which as far as I am concerned is the right
+way to do it.</p>
 <h2 id="creativity-boosters-limitations">Creativity boosters
 (limitations)</h2>
 <p>Pretty much these limitations are due to some of my lack of
@@ -418,6 +440,10 @@ Markdown export with assets (gruik inside)</h2>
 <p>You noticed there on the <a href="http://127.0.0.1:5000/book">page
 for the html export</a> that there is a link for the full markdown
 export.</p>
+<figure>
+<img src="aide.annexe.17" alt="yep on this page" />
+<figcaption aria-hidden="true">yep on this page</figcaption>
+</figure>
 <p>Actually, it is a modified markdown with with some <a
 href="https://github.com/jul/scam/blob/main/mkdoc.sh">custom pandoc
 processing</a> with pandoc lua filters applied and a tad of pandoc
