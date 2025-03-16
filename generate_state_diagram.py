@@ -12,9 +12,10 @@ print( """digraph structs {
     graph [
        rankdir= "TB"
        bgcolor = "#f5f5ff"
+    overlapse=false
+
     ]
 
-    overlapse=false
     
     node [ 
         fontsize=11
