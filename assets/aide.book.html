@@ -9,21 +9,12 @@
   <style>
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
-    div.columns{display: flex; gap: min(4vw, 1.5em);}
-    div.column{flex: auto; overflow-x: auto;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    /* The extra [class] is a hack that increases specificity enough to
-       override a similar rule in reveal.js */
-    ul.task-list[class]{list-style: none;}
-    ul.task-list li input[type="checkbox"] {
-      font-size: inherit;
-      width: 0.8em;
-      margin: 0 0.8em 0.2em -1.6em;
-      vertical-align: middle;
-    }
-    /* CSS for syntax highlighting */
+    ul.task-list{list-style: none;}
     pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
     .sourceCode { overflow: visible; }
     code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -100,55 +91,44 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#synopsis" id="toc-synopsis">Synopsis</a></li>
-<li><a href="#installation" id="toc-installation">Installation</a></li>
-<li><a href="#walkthrough-writing-the-aide"
-id="toc-walkthrough-writing-the-aide">Walkthrough: writing the aide</a>
+<li><a href="#synopsis">Synopsis</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#walkthrough-writing-the-aide">Walkthrough: writing the
+aide</a>
 <ul>
-<li><a href="#creating-your-first-post"
-id="toc-creating-your-first-post">Creating your first post</a></li>
-<li><a href="#attaching-a-content-to-an-entry."
-id="toc-attaching-a-content-to-an-entry.">Attaching a content to an
-entry.</a></li>
-<li><a href="#accessing-the-text" id="toc-accessing-the-text">Accessing
-the text</a></li>
+<li><a href="#creating-your-first-post">Creating your first
+post</a></li>
+<li><a href="#attaching-a-content-to-an-entry.">Attaching a content to
+an entry.</a></li>
+<li><a href="#accessing-the-text">Accessing the text</a></li>
 <li><a
-href="#developping-your-first-comment-and-setting-your-book-title"
-id="toc-developping-your-first-comment-and-setting-your-book-title">Developping
+href="#developping-your-first-comment-and-setting-your-book-title">Developping
 your first comment and setting your book title</a></li>
 </ul></li>
-<li><a href="#visualizing-your-document"
-id="toc-visualizing-your-document">Visualizing your document</a>
+<li><a href="#visualizing-your-document">Visualizing your document</a>
 <ul>
-<li><a href="#html-output" id="toc-html-output">HTML output</a></li>
-<li><a href="#pdf" id="toc-pdf">PDF</a></li>
+<li><a href="#html-output">HTML output</a></li>
+<li><a href="#pdf">PDF</a></li>
 </ul></li>
-<li><a href="#rinse-and-repeat" id="toc-rinse-and-repeat">Rinse and
-repeat</a></li>
-<li><a href="#playing-with-the-help-example"
-id="toc-playing-with-the-help-example">Playing with the help
+<li><a href="#rinse-and-repeat">Rinse and repeat</a></li>
+<li><a href="#playing-with-the-help-example">Playing with the help
 example</a></li>
-<li><a href="#dev-corner" id="toc-dev-corner">Dev corner</a>
+<li><a href="#dev-corner">Dev corner</a>
 <ul>
-<li><a href="#design" id="toc-design">« Design »</a></li>
-<li><a href="#synchronous" id="toc-synchronous">Synchronous</a></li>
-<li><a href="#model" id="toc-model">Model</a></li>
-<li><a href="#html-as-a-model-haam" id="toc-html-as-a-model-haam">HTML
-As A Model (HaaM)</a></li>
-<li><a href="#creativity-boosters-limitations"
-id="toc-creativity-boosters-limitations">Creativity boosters
+<li><a href="#design">« Design »</a></li>
+<li><a href="#synchronous">Synchronous</a></li>
+<li><a href="#model">Model</a></li>
+<li><a href="#html-as-a-model-haam">HTML As A Model (HaaM)</a></li>
+<li><a href="#creativity-boosters-limitations">Creativity boosters
 (limitations)</a></li>
 </ul></li>
-<li><a href="#serendipity" id="toc-serendipity">Serendipity</a>
+<li><a href="#serendipity">Serendipity</a>
 <ul>
-<li><a href="#vanilla-markdown-export-with-assets-gruik-inside"
-id="toc-vanilla-markdown-export-with-assets-gruik-inside">Vanilla
+<li><a href="#vanilla-markdown-export-with-assets-gruik-inside">Vanilla
 Markdown export with assets (gruik inside)</a></li>
-<li><a href="#self-embedded-html" id="toc-self-embedded-html">Self
-embedded HTML</a></li>
+<li><a href="#self-embedded-html">Self embedded HTML</a></li>
 </ul></li>
-<li><a href="#psycodelic-experience"
-id="toc-psycodelic-experience">Psycodelic experience</a></li>
+<li><a href="#psycodelic-experience">Psycodelic experience</a></li>
 </ul>
 </nav>
 <p>WTFPL 2.0 Do any thing you want with this book except claim you wrote
@@ -157,7 +137,7 @@ it.</p>
 <blockquote>
 <p>To look smart you either say it in latin or write in LaTeX and add
 the Naviers Stocke equation
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>∂</mi><mi>ρ</mi></mrow><mrow><mi>∂</mi><mi>t</mi></mrow></mfrac><mo>+</mo><mover><mi>∇</mi><mo accent="true">→</mo></mover><mo>⋅</mo><mover><mi>j</mi><mo accent="true">→</mo></mover><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\frac{\partial \rho}{\partial t} + \vec{\nabla} \cdot \vec{j} = 0</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>∂</mi><mi>ρ</mi></mrow><mrow><mi>∂</mi><mi>t</mi></mrow></mfrac><mo>+</mo><mover><mi>∇</mi><mo accent="true">⃗</mo></mover><mo>⋅</mo><mover><mi>j</mi><mo accent="true">⃗</mo></mover><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\frac{\partial \rho}{\partial t} + \vec{\nabla} \cdot \vec{j} = 0</annotation></semantics></math>
 to look smarter</p>
 </blockquote>
 <p>But most of us ain’t smart enough to use LaTeX, at most we can use
@@ -181,38 +161,38 @@ full pip requirements solution because I need binary installs.</p>
 tells you all you need : making it a docker file.</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> debian</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">ENV</span> LANG C.UTF-8</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> <span class="at">-p</span> /usr/share/man/man1 <span class="kw">&amp;&amp;</span> <span class="fu">mkdir</span> <span class="at">-p</span> /usr/share/man/man7</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">apt-get</span> update <span class="kw">&amp;&amp;</span> <span class="ex">apt-get</span> <span class="at">-y</span> dist-upgrade <span class="dt">\</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&amp;&amp;</span> <span class="fu">rm</span> <span class="at">-rf</span> /var/lib/apt/lists/<span class="pp">*</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">apt-get</span> update <span class="kw">&amp;&amp;</span> <span class="ex">apt-get</span> <span class="at">-y</span> <span class="at">--no-install-recommends</span> install <span class="dt">\</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    python3 python3-pip python3-venv python3-setuptools <span class="dt">\</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    python3-sqlalchemy texlive pandoc graphviz virtualenv <span class="dt">\</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    python3-magic sqlite3 texlive-xetex texlive-latex-extra <span class="dt">\</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    texlive-fonts-recommended texlive-lang-french lmodern </span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">sed</span> <span class="at">-i</span> <span class="st">&#39;s/^Components: main$/&amp; contrib/&#39;</span> <span class="dt">\</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        /etc/apt/sources.list.d/debian.sources</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">apt-get</span> update</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">apt-get</span> install <span class="at">-y</span> ttf-mscorefonts-installer fontconfig</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">fc-cache</span> <span class="at">-f</span> <span class="at">-v</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">useradd</span> scam <span class="at">-d</span> /app <span class="at">--uid</span> 1000 <span class="at">-m</span> <span class="at">-s</span> /bin/bash</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> <span class="op">--chown=scam</span> . /app</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="kw">WORKDIR</span> /scam</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> /scam/assets /venv</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">chown</span> <span class="at">-R</span> scam:scam .</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span>  . .</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">virtualenv</span> <span class="at">--system-site-packages</span> /venv</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="bu">.</span> /venv/bin/activate</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> requirements.full.txt .</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">ARG</span> DB</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">ENV</span> DB $DB</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">ENV</span> LANG C.UTF-8</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> <span class="at">-p</span> /scam/assets</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> <span class="at">-p</span> /usr/share/man/man1 <span class="kw">&amp;&amp;</span> <span class="fu">mkdir</span> <span class="at">-p</span> /usr/share/man/man7</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">apt-get</span> update <span class="kw">&amp;&amp;</span> <span class="ex">apt-get</span> <span class="at">-y</span> dist-upgrade <span class="dt">\</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&amp;&amp;</span> <span class="fu">rm</span> <span class="at">-rf</span> /var/lib/apt/lists/<span class="pp">*</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">apt-get</span> update <span class="kw">&amp;&amp;</span> <span class="ex">apt-get</span> <span class="at">-y</span> <span class="at">--no-install-recommends</span> install <span class="dt">\</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    python3 python3-pip python3-venv python3-setuptools <span class="dt">\</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    python3-sqlalchemy texlive pandoc graphviz virtualenv <span class="dt">\</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    python3-magic sqlite3 texlive-xetex texlive-latex-extra <span class="dt">\</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    texlive-fonts-recommended texlive-lang-french graphviz lmodern </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">sed</span> <span class="at">-i</span> <span class="st">&#39;s/^Components: main$/&amp; contrib/&#39;</span> <span class="dt">\</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        /etc/apt/sources.list.d/debian.sources</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">apt-get</span> update</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">apt-get</span> install <span class="at">-y</span> ttf-mscorefonts-installer fontconfig</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">fc-cache</span> <span class="at">-f</span> <span class="at">-v</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">useradd</span> scam <span class="at">-d</span> /scam <span class="at">--uid</span> 1000 <span class="at">-m</span> <span class="at">-s</span> /bin/bash</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> /venv</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">virtualenv</span> <span class="at">--system-site-packages</span> /venv</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> <span class="op">--chown=scam</span> . /scam</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="kw">WORKDIR</span> /scam</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="bu">.</span> /venv/bin/activate</span>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="kw">ENV</span> PYTHONPATH=/venv/bin</span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">/venv/bin/python</span> <span class="at">-m</span> pip install <span class="at">--no-cache-dir</span> <span class="dt">\</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">--disable-pip-version-check</span> <span class="at">-r</span> requirements.full.txt</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="kw">EXPOSE</span> 5000</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="kw">USER</span> scam</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">--disable-pip-version-check</span> <span class="at">-r</span> /scam/requirements.full.txt</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="kw">USER</span> scam</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="kw">EXPOSE</span> 5000</span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="kw">CMD</span> <span class="bu">.</span> /venv/bin/activate <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> /scam <span class="dt">\</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&amp;&amp;</span> <span class="va">DB</span><span class="op">=</span><span class="va">${db</span><span class="op">:-</span>scam<span class="va">}</span> <span class="ex">/venv/bin/python</span> /app/scam.py</span></code></pre></div>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&amp;&amp;</span> <span class="va">DB</span><span class="op">=</span><span class="va">${DB</span><span class="op">:-</span>scam<span class="va">}</span> <span class="ex">/venv/bin/python</span> /scam/scam.py</span></code></pre></div>
 <p>with the following requirements :</p>
 <pre><code>archery
 pandoc-include
@@ -348,9 +328,11 @@ order but can be overriden with the book_order rank available in the
 <strong>text</strong> view.</p>
 <h1 id="playing-with-the-help-example">Playing with the help
 example</h1>
-<p>This book is available in the repository as a sqlite database.</p>
+<p>This book is available in the repository as a sqlite database<a
+href="#fn1" class="footnote-ref" id="fnref1"
+role="doc-noteref"><sup>1</sup></a>.</p>
 <p>To try it :</p>
-<pre><code> docker run -i -t -e db=aide --mount type=bind,src=.,dst=/scam \
+<pre><code> docker run -i -t -e DB=aide --mount type=bind,src=.,dst=/scam \
      -p5000:5000 --user  1000:1000  scam
  firefox http://127.0.0.1:5000</code></pre>
 <h1 id="dev-corner">Dev corner</h1>
@@ -379,8 +361,8 @@ a safeguard in the here fore mentioned situations in real life during
 the writing of this manual, that I am reluctant to put an « autosave »
 feature.</p>
 <p>But, nice to have would be a « CTRL+S » binding that does the save
-with a nice modal message. <a href="#fn1" class="footnote-ref"
-id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+with a nice modal message. <a href="#fn2" class="footnote-ref"
+id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
 <p><strong>CAVEAT</strong> : hit update or CTRL+S often or you shall
 lose work.</p>
 <h2 id="model">Model</h2>
@@ -420,27 +402,27 @@ skills.</p>
 <p>You have the following important limitations :</p>
 <ul>
 <li>there is a one to one association between <em>annexe</em> (joint
-picture) and a <em>comment</em><a href="#fn2" class="footnote-ref"
-id="fnref2" role="doc-noteref"><sup>2</sup></a> ;</li>
+picture) and a <em>comment</em><a href="#fn3" class="footnote-ref"
+id="fnref3" role="doc-noteref"><sup>3</sup></a> ;</li>
 </ul>
 <!-- -->
 <ul>
 <li><p>there is a one to one association between <em>annexe</em> (joint
 picture) and a (markdown) <em>text</em> and the joint is on ….
-<em>comment_id</em> or <em>id</em><a href="#fn3" class="footnote-ref"
-id="fnref3" role="doc-noteref"><sup>3</sup></a> ;</p></li>
+<em>comment_id</em> or <em>id</em><a href="#fn4" class="footnote-ref"
+id="fnref4" role="doc-noteref"><sup>4</sup></a> ;</p></li>
 <li><p>the table <strong>transition</strong> adds an edge between
-comments on the graph<a href="#fn4" class="footnote-ref" id="fnref4"
-role="doc-noteref"><sup>4</sup></a></p></li>
+comments on the graph<a href="#fn5" class="footnote-ref" id="fnref5"
+role="doc-noteref"><sup>5</sup></a></p></li>
 </ul>
 <!-- -->
 <ul>
 <li>the <em>factoid</em> column of the <strong>comment</strong> table is
-not used anymore <a href="#fn5" class="footnote-ref" id="fnref5"
-role="doc-noteref"><sup>5</sup></a>;</li>
-<li>the <strong>user</strong> table is not used anymore <a href="#fn6"
-class="footnote-ref" id="fnref6"
+not used anymore <a href="#fn6" class="footnote-ref" id="fnref6"
 role="doc-noteref"><sup>6</sup></a>;</li>
+<li>the <strong>user</strong> table is not used anymore <a href="#fn7"
+class="footnote-ref" id="fnref7"
+role="doc-noteref"><sup>7</sup></a>;</li>
 </ul>
 <h1 id="serendipity">Serendipity</h1>
 <p>Also called « un planned features ».</p>
@@ -459,8 +441,8 @@ processing</a> with pandoc lua filters applied and a tad of pandoc
 magic.</p>
 <p>So you will need this file to make your own builder, and also the
 images that are automatically generated upon calling the HTML view<a
-href="#fn7" class="footnote-ref" id="fnref7"
-role="doc-noteref"><sup>7</sup></a>. The picture needed to complete the
+href="#fn8" class="footnote-ref" id="fnref8"
+role="doc-noteref"><sup>8</sup></a>. The picture needed to complete the
 markdown export will be located in the assets directory with the name
 <code>assets/$DB.annexe.*</code> where DB is the name of the DB you use
 (default is <strong>scam</strong>).</p>
@@ -485,39 +467,43 @@ stack).</p>
 code so diminished intellectually that it prevented your past self to be
 too smart for your present self with more brain.</p>
 <p>Since I don’t like pain, it is an experience I don’t recommend.</p>
-<aside id="footnotes" class="footnotes footnotes-end-of-document"
+<section class="footnotes footnotes-end-of-document"
 role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1"><p><a
+<li id="fn1" role="doc-endnote"><p>I am beginning to find this feature
+useless. Less is more, hence I’m thinking of removing it.<a
+href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p><a
 href="https://github.com/jul/scam/commit/1957c08d958d8a8b8e67324d19e6602fa7a1612c">The
 save by hitting CTRL +S is actually in the base code</a> but I don’t
-know how to show it to the user. Lol.<a href="#fnref1"
+know how to show it to the user. Lol.<a href="#fnref2"
 class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2"><p>because I did not wanted to code a file explorer of the
-potential attachment (I hate front end development as much as back end
-one);<a href="#fnref2" class="footnote-back"
+<li id="fn3" role="doc-endnote"><p>because I did not wanted to code a
+file explorer of the potential attachment (I hate front end development
+as much as back end one);<a href="#fnref3" class="footnote-back"
 role="doc-backlink">↩︎</a></p></li>
-<li id="fn3"><p>I did messed up thing if I remember well, and I’m pretty
-sure that instead of a joint on <em>comment_id</em> I do it in one tiny
-<strong>vicious</strong> place of the interface on <em>id</em>.<a
-href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn4"><p>I am beginning to find this feature useless. Less is
-more, hence I’m thinking of removing it.<a href="#fnref4"
-class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn5"><p>I changed the interface by removing features, but I had
-the lazyness to write the migration script and change the custom SQL I
-wrote. Planning for migration scripts and version handling is quite a
-lot of work you know, that I will not priorize because, I have the
-skills, but not the will.<a href="#fnref5" class="footnote-back"
+<li id="fn4" role="doc-endnote"><p>I did messed up thing if I remember
+well, and I’m pretty sure that instead of a joint on <em>comment_id</em>
+I do it in one tiny <strong>vicious</strong> place of the interface on
+<em>id</em>.<a href="#fnref4" class="footnote-back"
 role="doc-backlink">↩︎</a></p></li>
-<li id="fn6"><p>same thing as above<a href="#fnref6"
+<li id="fn5" role="doc-endnote"><p>I am beginning to find this feature
+useless. Less is more, hence I’m thinking of removing it.<a
+href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6" role="doc-endnote"><p>I changed the interface by removing
+features, but I had the lazyness to write the migration script and
+change the custom SQL I wrote. Planning for migration scripts and
+version handling is quite a lot of work you know, that I will not
+priorize because, I have the skills, but not the will.<a href="#fnref6"
 class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn7"><p>I think I forgot to check if images were present before
-generating the PDF assuming people would check the HTML first. Stupid
-me.<a href="#fnref7" class="footnote-back"
+<li id="fn7" role="doc-endnote"><p>same thing as above<a href="#fnref7"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn8" role="doc-endnote"><p>I think I forgot to check if images
+were present before generating the PDF assuming people would check the
+HTML first. Stupid me.<a href="#fnref8" class="footnote-back"
 role="doc-backlink">↩︎</a></p></li>
 </ol>
-</aside>
+</section>
 </body>
 </html>

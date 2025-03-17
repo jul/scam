@@ -48,7 +48,10 @@ tells you all you need : making it a docker file.
 
 ``` dockerfile
 FROM debian
+ARG DB
+ENV DB $DB
 ENV LANG C.UTF-8
+RUN mkdir -p /scam/assets
 RUN mkdir -p /usr/share/man/man1 && mkdir -p /usr/share/man/man7
 RUN apt-get update && apt-get -y dist-upgrade \
     && rm -rf /var/lib/apt/lists/*
@@ -56,7 +59,7 @@ RUN apt-get update && apt-get -y --no-install-recommends install \
 	python3 python3-pip python3-venv python3-setuptools \
     python3-sqlalchemy texlive pandoc graphviz virtualenv \
     python3-magic sqlite3 texlive-xetex texlive-latex-extra \
-    texlive-fonts-recommended texlive-lang-french lmodern 
+    texlive-fonts-recommended texlive-lang-french graphviz lmodern 
 
 RUN sed -i 's/^Components: main$/& contrib/' \
         /etc/apt/sources.list.d/debian.sources
@@ -64,22 +67,19 @@ RUN apt-get update
 RUN apt-get install -y ttf-mscorefonts-installer fontconfig
 RUN fc-cache -f -v
 
-RUN useradd scam -d /app --uid 1000 -m -s /bin/bash
-COPY --chown=scam . /app
-WORKDIR /scam
-RUN mkdir /scam/assets /venv
-RUN chown -R scam:scam .
-COPY  . .
+RUN useradd scam -d /scam --uid 1000 -m -s /bin/bash
+RUN mkdir /venv
 RUN virtualenv --system-site-packages /venv
+COPY --chown=scam . /scam
+WORKDIR /scam
 RUN . /venv/bin/activate
-COPY requirements.full.txt .
 ENV PYTHONPATH=/venv/bin
 RUN /venv/bin/python -m pip install --no-cache-dir \
-    --disable-pip-version-check -r requirements.full.txt
-EXPOSE 5000
+    --disable-pip-version-check -r /scam/requirements.full.txt
 USER scam
+EXPOSE 5000
 CMD . /venv/bin/activate && cd /scam \
-    && DB=${db:-scam} /venv/bin/python /app/scam.py
+    && DB=${DB:-scam} /venv/bin/python /scam/scam.py
 ```
 
 with the following requirements :
@@ -233,11 +233,11 @@ view.
 
 # Playing with the help example
 
-This book is available in the repository as a sqlite database.
+This book is available in the repository as a sqlite database[^1].
 
 To try it :
 
-     docker run -i -t -e db=aide --mount type=bind,src=.,dst=/scam \
+     docker run -i -t -e DB=aide --mount type=bind,src=.,dst=/scam \
          -p5000:5000 --user  1000:1000  scam
      firefox http://127.0.0.1:5000
 
@@ -272,7 +272,7 @@ here fore mentioned situations in real life during the writing of this
 manual, that I am reluctant to put an « autosave » feature.
 
 But, nice to have would be a « CTRL+S » binding that does the save with
-a nice modal message. [^1]
+a nice modal message. [^2]
 
 **CAVEAT** : hit update or CTRL+S often or you shall lose work.
 
@@ -321,24 +321,24 @@ Pretty much these limitations are due to some of my lack of skills.
 You have the following important limitations :
 
 -   there is a one to one association between *annexe* (joint picture)
-    and a *comment*[^2] ;
+    and a *comment*[^3] ;
 
 ```{=html}
 <!-- -->
 ```
 -   there is a one to one association between *annexe* (joint picture)
     and a (markdown) *text* and the joint is on .... *comment_id* or
-    *id*[^3] ;
+    *id*[^4] ;
 
 -   the table **transition** adds an edge between comments on the
-    graph[^4]
+    graph[^5]
 
 ```{=html}
 <!-- -->
 ```
 -   the *factoid* column of the **comment** table is not used anymore
-    [^5];
--   the **user** table is not used anymore [^6];
+    [^6];
+-   the **user** table is not used anymore [^7];
 
 # Serendipity
 
@@ -357,7 +357,7 @@ processing](https://github.com/jul/scam/blob/main/mkdoc.sh) with pandoc
 lua filters applied and a tad of pandoc magic.
 
 So you will need this file to make your own builder, and also the images
-that are automatically generated upon calling the HTML view[^7]. The
+that are automatically generated upon calling the HTML view[^8]. The
 picture needed to complete the markdown export will be located in the
 assets directory with the name `assets/$DB.annexe.*` where DB is the
 name of the DB you use (default is **scam**).
@@ -394,27 +394,30 @@ smart for your present self with more brain.
 
 Since I don't like pain, it is an experience I don't recommend.
 
-[^1]: [The save by hitting CTRL +S is actually in the base
+[^1]: I am beginning to find this feature useless. Less is more, hence
+    I'm thinking of removing it.
+
+[^2]: [The save by hitting CTRL +S is actually in the base
     code](https://github.com/jul/scam/commit/1957c08d958d8a8b8e67324d19e6602fa7a1612c)
     but I don't know how to show it to the user. Lol.
 
-[^2]: because I did not wanted to code a file explorer of the potential
+[^3]: because I did not wanted to code a file explorer of the potential
     attachment (I hate front end development as much as back end one);
 
-[^3]: I did messed up thing if I remember well, and I'm pretty sure that
+[^4]: I did messed up thing if I remember well, and I'm pretty sure that
     instead of a joint on *comment_id* I do it in one tiny **vicious**
     place of the interface on *id*.
 
-[^4]: I am beginning to find this feature useless. Less is more, hence
+[^5]: I am beginning to find this feature useless. Less is more, hence
     I'm thinking of removing it.
 
-[^5]: I changed the interface by removing features, but I had the
+[^6]: I changed the interface by removing features, but I had the
     lazyness to write the migration script and change the custom SQL I
     wrote. Planning for migration scripts and version handling is quite
     a lot of work you know, that I will not priorize because, I have the
     skills, but not the will.
 
-[^6]: same thing as above
+[^7]: same thing as above
 
-[^7]: I think I forgot to check if images were present before generating
+[^8]: I think I forgot to check if images were present before generating
     the PDF assuming people would check the HTML first. Stupid me.
