@@ -98,18 +98,15 @@ with the following requirements :
     SQLAlchemy-Utils
     time-uuid
 
-to use it I recommend the side car technique wich can be used this way
-so that you can access the assets dir which contain the book :
+to use it I recommend the side car technique[^1] wich can be used this
+way so that you can access the assets dir which contain the book :
 
     docker build -t scam . 
-    docker run -i -t -e db=bookname \
+    docker run -i -t -e DB=bookname \
         --mount type=bind,src=.,dst=/scam \
         -p5000:5000  scam 
     firefox http://127.0.0.1:5000
 
-```{=tex}
-\newpage
-```
 # Walkthrough: writing the aide
 
 ## Creating your first post
@@ -233,7 +230,7 @@ view.
 
 # Playing with the help example
 
-This book is available in the repository as a sqlite database[^1].
+This book is available in the repository as a sqlite database[^2].
 
 To try it :
 
@@ -272,7 +269,7 @@ here fore mentioned situations in real life during the writing of this
 manual, that I am reluctant to put an « autosave » feature.
 
 But, nice to have would be a « CTRL+S » binding that does the save with
-a nice modal message. [^2]
+a nice modal message. [^3]
 
 **CAVEAT** : hit update or CTRL+S often or you shall lose work.
 
@@ -321,24 +318,24 @@ Pretty much these limitations are due to some of my lack of skills.
 You have the following important limitations :
 
 -   there is a one to one association between *annexe* (joint picture)
-    and a *comment*[^3] ;
+    and a *comment*[^4] ;
 
 ```{=html}
 <!-- -->
 ```
 -   there is a one to one association between *annexe* (joint picture)
     and a (markdown) *text* and the joint is on .... *comment_id* or
-    *id*[^4] ;
+    *id*[^5] ;
 
 -   the table **transition** adds an edge between comments on the
-    graph[^5]
+    graph[^6]
 
 ```{=html}
 <!-- -->
 ```
 -   the *factoid* column of the **comment** table is not used anymore
-    [^6];
--   the **user** table is not used anymore [^7];
+    [^7];
+-   the **user** table is not used anymore [^8];
 
 # Serendipity
 
@@ -357,7 +354,7 @@ processing](https://github.com/jul/scam/blob/main/mkdoc.sh) with pandoc
 lua filters applied and a tad of pandoc magic.
 
 So you will need this file to make your own builder, and also the images
-that are automatically generated upon calling the HTML view[^8]. The
+that are automatically generated upon calling the HTML view[^9]. The
 picture needed to complete the markdown export will be located in the
 assets directory with the name `assets/$DB.annexe.*` where DB is the
 name of the DB you use (default is **scam**).
@@ -394,30 +391,33 @@ smart for your present self with more brain.
 
 Since I don't like pain, it is an experience I don't recommend.
 
-[^1]: I am beginning to find this feature useless. Less is more, hence
+[^1]: I think I forgot to check if images were present before generating
+    the PDF assuming people would check the HTML first. Stupid me.
+
+[^2]: I am beginning to find this feature useless. Less is more, hence
     I'm thinking of removing it.
 
-[^2]: [The save by hitting CTRL +S is actually in the base
+[^3]: [The save by hitting CTRL +S is actually in the base
     code](https://github.com/jul/scam/commit/1957c08d958d8a8b8e67324d19e6602fa7a1612c)
     but I don't know how to show it to the user. Lol.
 
-[^3]: because I did not wanted to code a file explorer of the potential
+[^4]: because I did not wanted to code a file explorer of the potential
     attachment (I hate front end development as much as back end one);
 
-[^4]: I did messed up thing if I remember well, and I'm pretty sure that
+[^5]: I did messed up thing if I remember well, and I'm pretty sure that
     instead of a joint on *comment_id* I do it in one tiny **vicious**
     place of the interface on *id*.
 
-[^5]: I am beginning to find this feature useless. Less is more, hence
+[^6]: I am beginning to find this feature useless. Less is more, hence
     I'm thinking of removing it.
 
-[^6]: I changed the interface by removing features, but I had the
+[^7]: I changed the interface by removing features, but I had the
     lazyness to write the migration script and change the custom SQL I
     wrote. Planning for migration scripts and version handling is quite
     a lot of work you know, that I will not priorize because, I have the
     skills, but not the will.
 
-[^7]: same thing as above
+[^8]: same thing as above
 
-[^8]: I think I forgot to check if images were present before generating
+[^9]: I think I forgot to check if images were present before generating
     the PDF assuming people would check the HTML first. Stupid me.

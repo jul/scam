@@ -227,10 +227,12 @@ python-dateutil
 SQLAlchemy&gt;=2
 SQLAlchemy-Utils
 time-uuid</code></pre>
-<p>to use it I recommend the side car technique wich can be used this
-way so that you can access the assets dir which contain the book :</p>
+<p>to use it I recommend the side car technique<a href="#fn1"
+class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>
+wich can be used this way so that you can access the assets dir which
+contain the book :</p>
 <pre><code>docker build -t scam . 
-docker run -i -t -e db=bookname \
+docker run -i -t -e DB=bookname \
     --mount type=bind,src=.,dst=/scam \
     -p5000:5000  scam 
 firefox http://127.0.0.1:5000</code></pre>
@@ -349,8 +351,8 @@ order but can be overriden with the book_order rank available in the
 <h1 id="playing-with-the-help-example">Playing with the help
 example</h1>
 <p>This book is available in the repository as a sqlite database<a
-href="#fn1" class="footnote-ref" id="fnref1"
-role="doc-noteref"><sup>1</sup></a>.</p>
+href="#fn2" class="footnote-ref" id="fnref2"
+role="doc-noteref"><sup>2</sup></a>.</p>
 <p>To try it :</p>
 <pre><code> docker run -i -t -e DB=aide --mount type=bind,src=.,dst=/scam \
      -p5000:5000 --user  1000:1000  scam
@@ -381,8 +383,8 @@ a safeguard in the here fore mentioned situations in real life during
 the writing of this manual, that I am reluctant to put an « autosave »
 feature.</p>
 <p>But, nice to have would be a « CTRL+S » binding that does the save
-with a nice modal message. <a href="#fn2" class="footnote-ref"
-id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+with a nice modal message. <a href="#fn3" class="footnote-ref"
+id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
 <p><strong>CAVEAT</strong> : hit update or CTRL+S often or you shall
 lose work.</p>
 <h2 id="model">Model</h2>
@@ -422,27 +424,27 @@ skills.</p>
 <p>You have the following important limitations :</p>
 <ul>
 <li>there is a one to one association between <em>annexe</em> (joint
-picture) and a <em>comment</em><a href="#fn3" class="footnote-ref"
-id="fnref3" role="doc-noteref"><sup>3</sup></a> ;</li>
+picture) and a <em>comment</em><a href="#fn4" class="footnote-ref"
+id="fnref4" role="doc-noteref"><sup>4</sup></a> ;</li>
 </ul>
 <!-- -->
 <ul>
 <li><p>there is a one to one association between <em>annexe</em> (joint
 picture) and a (markdown) <em>text</em> and the joint is on ….
-<em>comment_id</em> or <em>id</em><a href="#fn4" class="footnote-ref"
-id="fnref4" role="doc-noteref"><sup>4</sup></a> ;</p></li>
+<em>comment_id</em> or <em>id</em><a href="#fn5" class="footnote-ref"
+id="fnref5" role="doc-noteref"><sup>5</sup></a> ;</p></li>
 <li><p>the table <strong>transition</strong> adds an edge between
-comments on the graph<a href="#fn5" class="footnote-ref" id="fnref5"
-role="doc-noteref"><sup>5</sup></a></p></li>
+comments on the graph<a href="#fn6" class="footnote-ref" id="fnref6"
+role="doc-noteref"><sup>6</sup></a></p></li>
 </ul>
 <!-- -->
 <ul>
 <li>the <em>factoid</em> column of the <strong>comment</strong> table is
-not used anymore <a href="#fn6" class="footnote-ref" id="fnref6"
-role="doc-noteref"><sup>6</sup></a>;</li>
-<li>the <strong>user</strong> table is not used anymore <a href="#fn7"
-class="footnote-ref" id="fnref7"
+not used anymore <a href="#fn7" class="footnote-ref" id="fnref7"
 role="doc-noteref"><sup>7</sup></a>;</li>
+<li>the <strong>user</strong> table is not used anymore <a href="#fn8"
+class="footnote-ref" id="fnref8"
+role="doc-noteref"><sup>8</sup></a>;</li>
 </ul>
 <h1 id="serendipity">Serendipity</h1>
 <p>Also called « un planned features ».</p>
@@ -461,8 +463,8 @@ processing</a> with pandoc lua filters applied and a tad of pandoc
 magic.</p>
 <p>So you will need this file to make your own builder, and also the
 images that are automatically generated upon calling the HTML view<a
-href="#fn8" class="footnote-ref" id="fnref8"
-role="doc-noteref"><sup>8</sup></a>. The picture needed to complete the
+href="#fn9" class="footnote-ref" id="fnref9"
+role="doc-noteref"><sup>9</sup></a>. The picture needed to complete the
 markdown export will be located in the assets directory with the name
 <code>assets/$DB.annexe.*</code> where DB is the name of the DB you use
 (default is <strong>scam</strong>).</p>
@@ -491,36 +493,40 @@ too smart for your present self with more brain.</p>
 role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1"><p>I am beginning to find this feature useless. Less is
-more, hence I’m thinking of removing it.<a href="#fnref1"
+<li id="fn1"><p>I think I forgot to check if images were present before
+generating the PDF assuming people would check the HTML first. Stupid
+me.<a href="#fnref1" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>I am beginning to find this feature useless. Less is
+more, hence I’m thinking of removing it.<a href="#fnref2"
 class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2"><p><a
+<li id="fn3"><p><a
 href="https://github.com/jul/scam/commit/1957c08d958d8a8b8e67324d19e6602fa7a1612c">The
 save by hitting CTRL +S is actually in the base code</a> but I don’t
-know how to show it to the user. Lol.<a href="#fnref2"
+know how to show it to the user. Lol.<a href="#fnref3"
 class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3"><p>because I did not wanted to code a file explorer of the
+<li id="fn4"><p>because I did not wanted to code a file explorer of the
 potential attachment (I hate front end development as much as back end
-one);<a href="#fnref3" class="footnote-back"
+one);<a href="#fnref4" class="footnote-back"
 role="doc-backlink">↩︎</a></p></li>
-<li id="fn4"><p>I did messed up thing if I remember well, and I’m pretty
+<li id="fn5"><p>I did messed up thing if I remember well, and I’m pretty
 sure that instead of a joint on <em>comment_id</em> I do it in one tiny
 <strong>vicious</strong> place of the interface on <em>id</em>.<a
-href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn5"><p>I am beginning to find this feature useless. Less is
-more, hence I’m thinking of removing it.<a href="#fnref5"
+href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>I am beginning to find this feature useless. Less is
+more, hence I’m thinking of removing it.<a href="#fnref6"
 class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn6"><p>I changed the interface by removing features, but I had
+<li id="fn7"><p>I changed the interface by removing features, but I had
 the lazyness to write the migration script and change the custom SQL I
 wrote. Planning for migration scripts and version handling is quite a
 lot of work you know, that I will not priorize because, I have the
-skills, but not the will.<a href="#fnref6" class="footnote-back"
+skills, but not the will.<a href="#fnref7" class="footnote-back"
 role="doc-backlink">↩︎</a></p></li>
-<li id="fn7"><p>same thing as above<a href="#fnref7"
+<li id="fn8"><p>same thing as above<a href="#fnref8"
 class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn8"><p>I think I forgot to check if images were present before
+<li id="fn9"><p>I think I forgot to check if images were present before
 generating the PDF assuming people would check the HTML first. Stupid
-me.<a href="#fnref8" class="footnote-back"
+me.<a href="#fnref9" class="footnote-back"
 role="doc-backlink">↩︎</a></p></li>
 </ol>
 </aside>
