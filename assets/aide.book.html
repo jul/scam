@@ -9,12 +9,21 @@
   <style>
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
-    span.underline{text-decoration: underline;}
-    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    ul.task-list{list-style: none;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
     pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span { line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
     .sourceCode { overflow: visible; }
     code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -91,44 +100,55 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#synopsis">Synopsis</a></li>
-<li><a href="#installation">Installation</a></li>
-<li><a href="#walkthrough-writing-the-aide">Walkthrough: writing the
-aide</a>
+<li><a href="#synopsis" id="toc-synopsis">Synopsis</a></li>
+<li><a href="#installation" id="toc-installation">Installation</a></li>
+<li><a href="#walkthrough-writing-the-aide"
+id="toc-walkthrough-writing-the-aide">Walkthrough: writing the aide</a>
 <ul>
-<li><a href="#creating-your-first-post">Creating your first
-post</a></li>
-<li><a href="#attaching-a-content-to-an-entry.">Attaching a content to
-an entry.</a></li>
-<li><a href="#accessing-the-text">Accessing the text</a></li>
+<li><a href="#creating-your-first-post"
+id="toc-creating-your-first-post">Creating your first post</a></li>
+<li><a href="#attaching-a-content-to-an-entry."
+id="toc-attaching-a-content-to-an-entry.">Attaching a content to an
+entry.</a></li>
+<li><a href="#accessing-the-text" id="toc-accessing-the-text">Accessing
+the text</a></li>
 <li><a
-href="#developping-your-first-comment-and-setting-your-book-title">Developping
+href="#developping-your-first-comment-and-setting-your-book-title"
+id="toc-developping-your-first-comment-and-setting-your-book-title">Developping
 your first comment and setting your book title</a></li>
 </ul></li>
-<li><a href="#visualizing-your-document">Visualizing your document</a>
+<li><a href="#visualizing-your-document"
+id="toc-visualizing-your-document">Visualizing your document</a>
 <ul>
-<li><a href="#html-output">HTML output</a></li>
-<li><a href="#pdf">PDF</a></li>
+<li><a href="#html-output" id="toc-html-output">HTML output</a></li>
+<li><a href="#pdf" id="toc-pdf">PDF</a></li>
 </ul></li>
-<li><a href="#rinse-and-repeat">Rinse and repeat</a></li>
-<li><a href="#playing-with-the-help-example">Playing with the help
+<li><a href="#rinse-and-repeat" id="toc-rinse-and-repeat">Rinse and
+repeat</a></li>
+<li><a href="#playing-with-the-help-example"
+id="toc-playing-with-the-help-example">Playing with the help
 example</a></li>
-<li><a href="#dev-corner">Dev corner</a>
+<li><a href="#dev-corner" id="toc-dev-corner">Dev corner</a>
 <ul>
-<li><a href="#design">« Design »</a></li>
-<li><a href="#synchronous">Synchronous</a></li>
-<li><a href="#model">Model</a></li>
-<li><a href="#html-as-a-model-haam">HTML As A Model (HaaM)</a></li>
-<li><a href="#creativity-boosters-limitations">Creativity boosters
+<li><a href="#design" id="toc-design">« Design »</a></li>
+<li><a href="#synchronous" id="toc-synchronous">Synchronous</a></li>
+<li><a href="#model" id="toc-model">Model</a></li>
+<li><a href="#html-as-a-model-haam" id="toc-html-as-a-model-haam">HTML
+As A Model (HaaM)</a></li>
+<li><a href="#creativity-boosters-limitations"
+id="toc-creativity-boosters-limitations">Creativity boosters
 (limitations)</a></li>
 </ul></li>
-<li><a href="#serendipity">Serendipity</a>
+<li><a href="#serendipity" id="toc-serendipity">Serendipity</a>
 <ul>
-<li><a href="#vanilla-markdown-export-with-assets-gruik-inside">Vanilla
+<li><a href="#vanilla-markdown-export-with-assets-gruik-inside"
+id="toc-vanilla-markdown-export-with-assets-gruik-inside">Vanilla
 Markdown export with assets (gruik inside)</a></li>
-<li><a href="#self-embedded-html">Self embedded HTML</a></li>
+<li><a href="#self-embedded-html" id="toc-self-embedded-html">Self
+embedded HTML</a></li>
 </ul></li>
-<li><a href="#psycodelic-experience">Psycodelic experience</a></li>
+<li><a href="#psycodelic-experience"
+id="toc-psycodelic-experience">Psycodelic experience</a></li>
 </ul>
 </nav>
 <p>WTFPL 2.0 Do any thing you want with this book except claim you wrote
@@ -137,7 +157,7 @@ it.</p>
 <blockquote>
 <p>To look smart you either say it in latin or write in LaTeX and add
 the Naviers Stocke equation
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>∂</mi><mi>ρ</mi></mrow><mrow><mi>∂</mi><mi>t</mi></mrow></mfrac><mo>+</mo><mover><mi>∇</mi><mo accent="true">⃗</mo></mover><mo>⋅</mo><mover><mi>j</mi><mo accent="true">⃗</mo></mover><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\frac{\partial \rho}{\partial t} + \vec{\nabla} \cdot \vec{j} = 0</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>∂</mi><mi>ρ</mi></mrow><mrow><mi>∂</mi><mi>t</mi></mrow></mfrac><mo>+</mo><mover><mi>∇</mi><mo accent="true">→</mo></mover><mo>⋅</mo><mover><mi>j</mi><mo accent="true">→</mo></mover><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\frac{\partial \rho}{\partial t} + \vec{\nabla} \cdot \vec{j} = 0</annotation></semantics></math>
 to look smarter</p>
 </blockquote>
 <p>But most of us ain’t smart enough to use LaTeX, at most we can use
@@ -467,43 +487,42 @@ stack).</p>
 code so diminished intellectually that it prevented your past self to be
 too smart for your present self with more brain.</p>
 <p>Since I don’t like pain, it is an experience I don’t recommend.</p>
-<section class="footnotes footnotes-end-of-document"
+<aside id="footnotes" class="footnotes footnotes-end-of-document"
 role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1" role="doc-endnote"><p>I am beginning to find this feature
-useless. Less is more, hence I’m thinking of removing it.<a
-href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2" role="doc-endnote"><p><a
+<li id="fn1"><p>I am beginning to find this feature useless. Less is
+more, hence I’m thinking of removing it.<a href="#fnref1"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p><a
 href="https://github.com/jul/scam/commit/1957c08d958d8a8b8e67324d19e6602fa7a1612c">The
 save by hitting CTRL +S is actually in the base code</a> but I don’t
 know how to show it to the user. Lol.<a href="#fnref2"
 class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3" role="doc-endnote"><p>because I did not wanted to code a
-file explorer of the potential attachment (I hate front end development
-as much as back end one);<a href="#fnref3" class="footnote-back"
+<li id="fn3"><p>because I did not wanted to code a file explorer of the
+potential attachment (I hate front end development as much as back end
+one);<a href="#fnref3" class="footnote-back"
 role="doc-backlink">↩︎</a></p></li>
-<li id="fn4" role="doc-endnote"><p>I did messed up thing if I remember
-well, and I’m pretty sure that instead of a joint on <em>comment_id</em>
-I do it in one tiny <strong>vicious</strong> place of the interface on
-<em>id</em>.<a href="#fnref4" class="footnote-back"
+<li id="fn4"><p>I did messed up thing if I remember well, and I’m pretty
+sure that instead of a joint on <em>comment_id</em> I do it in one tiny
+<strong>vicious</strong> place of the interface on <em>id</em>.<a
+href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>I am beginning to find this feature useless. Less is
+more, hence I’m thinking of removing it.<a href="#fnref5"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>I changed the interface by removing features, but I had
+the lazyness to write the migration script and change the custom SQL I
+wrote. Planning for migration scripts and version handling is quite a
+lot of work you know, that I will not priorize because, I have the
+skills, but not the will.<a href="#fnref6" class="footnote-back"
 role="doc-backlink">↩︎</a></p></li>
-<li id="fn5" role="doc-endnote"><p>I am beginning to find this feature
-useless. Less is more, hence I’m thinking of removing it.<a
-href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn6" role="doc-endnote"><p>I changed the interface by removing
-features, but I had the lazyness to write the migration script and
-change the custom SQL I wrote. Planning for migration scripts and
-version handling is quite a lot of work you know, that I will not
-priorize because, I have the skills, but not the will.<a href="#fnref6"
+<li id="fn7"><p>same thing as above<a href="#fnref7"
 class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn7" role="doc-endnote"><p>same thing as above<a href="#fnref7"
-class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn8" role="doc-endnote"><p>I think I forgot to check if images
-were present before generating the PDF assuming people would check the
-HTML first. Stupid me.<a href="#fnref8" class="footnote-back"
+<li id="fn8"><p>I think I forgot to check if images were present before
+generating the PDF assuming people would check the HTML first. Stupid
+me.<a href="#fnref8" class="footnote-back"
 role="doc-backlink">↩︎</a></p></li>
 </ol>
-</section>
+</aside>
 </body>
 </html>
