@@ -38,6 +38,7 @@ from mako.lookup import TemplateLookup
 
 __DIR__= os.path.dirname(os.path.abspath(__file__))
 DB=os.environ.get('DB','scam')
+DB_SHORT=os.path.basename(DB)
 PORT=int(os.environ.get('PORT','5000'))
 DB_DRIVER=os.environ.get('DB_DRIVER','sqlite')
 DSN=f"{DB_DRIVER}://{DB_DRIVER == 'sqlite' and not DB.startswith('/') and '/' or ''}{DB}"
@@ -208,24 +209,20 @@ def simple_app(environ, start_response):
 
     potential_file = os.path.join(__DIR__, "assets", route )
     log(route, ln=line())
-    if m:=re.compile(r'' + DB + r'''\.odd\.pdf$''').match(route):
-        os.system('cd assets; ../mkbooklet.sh ./${DB}.book.pdf ')
     if not os.path.isfile(potential_file ):
         log(DB, ln=line())
-        if m:=re.compile(r'' + DB + r'''\.annexe\.(\d+)$''').match(route):
+        if m:=re.compile(r'' + DB_SHORT + r'''\.annexe\.(\d+)$''').match(route):
             log("bing", ln=line())
             with engine.connect() as cnx:
                 from sqlalchemy import text
                 _id=m.group(1)
                 for s in cnx.execute(text(f"""select annexe_file from annexe where id= :id"""), dict(id=_id)):
-                    with open(f"assets/{DB}.annexe.{_id}", "bw") as f:
+                    with open(f"assets/{DB_SHORT}.annexe.{_id}", "bw") as f:
                         f.write(b64decode(re.match(".*;base64,(.*)$", s[0]).group(1)))
                 else:
-                    log("vodfe")
                     start_response('200 OK', [('content-type', 'text/html; charset=utf-8')])
                     return [ b"" ]
 
-                log("annexe est tu là?", ln=line())
 
     if os.path.isfile(potential_file ):
 ## python-magic
@@ -242,7 +239,7 @@ def simple_app(environ, start_response):
             and parser.parse(v) or
         # handling of input type = form havin "file" in the name of the inpur
         "file" in k \
-            and open(f"""./assets/{DB}.{table}.{fo["id"]}""", "wb").write(b64decode(fo[k]["content"])) \
+            and open(f"""./assets/{DB_SHORT}.{table}.{fo["id"]}""", "wb").write(b64decode(fo[k]["content"])) \
             and f"""data:{fo[k]["content_type"]};base64,{fo[k]["content"].decode()}""" or
 
         # handling of boolean mapping which input begins with "is_"
@@ -255,7 +252,7 @@ def simple_app(environ, start_response):
     action = fo.get("_action", "")
 
     fo["_user_id"]=1
-    fo["_DB"] = DB
+    fo["_DB"] = DB_SHORT
     fo["_pics"] = []
     fo["_name"] =  'jul'
 
@@ -271,7 +268,7 @@ def simple_app(environ, start_response):
                         fo["result"] = "deleted"
                         if table == "annexe":
                             log("femme de ménage")
-                            os.system(f"""rm "assets/{DB}.annexe.{fo["id"]}" """)
+                            os.system(f"""rm "assets/{DB_SHORT}.annexe.{fo["id"]}" """)
                     except Exception as e:
                         log(e)
                         fo["result"] = e
@@ -327,7 +324,7 @@ def simple_app(environ, start_response):
     if route == "model":
         route="index"
     to_write=""
-    if m:=re.match(f"""{DB}\\.(\\d+)\\.html""", route) :
+    if m:=re.match(f"""{DB_SHORT}\\.(\\d+)\\.html""", route) :
         if not os.path.isfile(os.path.join("assets", route)):
             route="doc"
             fo["id"] = m.group(1)
@@ -338,10 +335,10 @@ def simple_app(environ, start_response):
                     fo["text"] = quote(s[0])
     if route == "doc" :
         os.chdir("assets")
-        run([ "pandoc", "-" , "--standalone", "--mathml", "-s", "-F", os.path.join(__DIR__,"graphviz.py"), "-F", "pandoc-include", "-c" ,"pandoc.css","--metadata", "title=",  "-o" ,f"""./{DB}.{fo["id"]}.html""" ], input=unquote(fo.get("text","")).encode(), stdout=PIPE)
+        run([ "pandoc", "-" , "--standalone", "--mathml", "-s", "-F", os.path.join(__DIR__,"graphviz.py"), "-F", "pandoc-include", "-c" ,"pandoc.css","--metadata", "title=",  "-o" ,f"""./{DB_SHORT}.{fo["id"]}.html""" ], input=unquote(fo.get("text","")).encode(), stdout=PIPE)
         os.chdir("..")
         start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
-        return [ open(f"""./assets/{DB}.{fo["id"]}.html""", "rt").read().encode() ]
+        return [ open(f"""./assets/{DB_SHORT}.{fo["id"]}.html""", "rt").read().encode() ]
     
     if route == "order":
         res = []
@@ -354,10 +351,11 @@ def simple_app(environ, start_response):
         # return in fo["_next"] next text by book order else actual_one+1
 # https://stackoverflow.com/questions/2184043/sqlite-select-next-and-previous-row-based-on-a-where-clause
 
-
+    log("srs?")
     if route == "book":
+        log(f"DB={DB}", ln = line())
         os.system(f"""DB={DB} PDF= ./mkdoc.sh""")
-        os.system(f"""cd assets && ../filter.py "{DB}.book.html" > "{DB}.book.shtml" """)
+        os.system(f"""cd assets && ../filter.py "{DB_SHORT}.book.html" > "{DB_SHORT}.book.shtml" """)
 
     if route == "pdf":
         os.system(f"""DB={DB} PDF=1 ./mkdoc.sh""")
