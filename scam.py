@@ -335,7 +335,7 @@ def simple_app(environ, start_response):
                     fo["text"] = quote(s[0])
     if route == "doc" :
         os.chdir("assets")
-        run([ "pandoc", "-" , "--standalone", "--mathml", "-s", "-F", os.path.join(__DIR__,"graphviz.py"), "-F", "pandoc-include", "-c" ,"pandoc.css","--metadata", "title=",  "-o" ,f"""./{DB_SHORT}.{fo["id"]}.html""" ], input=unquote(fo.get("text","")).encode(), stdout=PIPE)
+        run([ "pandoc", "-" , "--standalone", "--mathml", "-s", "-F", os.path.join(__DIR__,"graphviz.py"), "-F", "pandoc-include", "-c" ,"../pandoc.css","--metadata", "title=",  "-o" ,f"""./{DB_SHORT}.{fo["id"]}.html""" ], input=unquote(fo.get("text","")).encode(), stdout=PIPE)
         os.chdir("..")
         start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
         return [ open(f"""./assets/{DB_SHORT}.{fo["id"]}.html""", "rt").read().encode() ]
