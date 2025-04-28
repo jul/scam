@@ -4,6 +4,7 @@ ENV DB $DB
 ENV LANG C.UTF-8
 RUN mkdir -p /scam/assets
 RUN mkdir -p /usr/share/man/man1 && mkdir -p /usr/share/man/man7
+RUN echo 'APT::Cache-Start 100000000;' > /etc/apt/apt.conf.d/00podman
 RUN apt-get update && apt-get -y dist-upgrade \
     && rm -rf /var/lib/apt/lists/*
 RUN apt-get update && apt-get -y --no-install-recommends install \
@@ -19,15 +20,15 @@ RUN apt-get install -y ttf-mscorefonts-installer fontconfig
 RUN fc-cache -f -v
 
 RUN useradd scam -d /scam --uid 1000 -m -s /bin/bash
-RUN mkdir /venv
+RUN mkdir /venv && chown scam:scam /venv
+USER scam
 RUN virtualenv --system-site-packages /venv
-COPY --chown=scam . /scam
-WORKDIR /scam
 RUN . /venv/bin/activate
+WORKDIR /scam
+COPY --chown=scam . /scam
 ENV PYTHONPATH=/venv/bin
 RUN /venv/bin/python -m pip install --no-cache-dir \
     --disable-pip-version-check -r /scam/requirements.full.txt
-USER scam
 EXPOSE 5000
 CMD . /venv/bin/activate && cd /scam \
     && DB=${DB:-scam} /venv/bin/python /scam/scam.py
