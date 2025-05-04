@@ -1,0 +1,10 @@
+## 0.9.0
+
+- fixing a bug in relative addressing of database
+- separating the venv python and the scam directory in Dockerfile
+- improving the manuel/begin to tag the releases
+
+
+## nameless
+
+All that was before before this revision

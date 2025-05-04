@@ -13,4 +13,12 @@ So here is my solution to be a professional scamer : this is a front end to a pa
 
 [Manual is here](https://raw.githubusercontent.com/jul/scam/refs/heads/main/assets/aide.book.pdf)
 
-  <video width=800px src="https://github.com/jul/scam/raw/refs/heads/main/kazam.mp4" />
+# Changelog
+
+0.1.0
+*****
+
+- begining proper versioning
+- resolve a bug when database was not directly in the directory
+
+

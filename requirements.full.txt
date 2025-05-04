@@ -1,10 +1,10 @@
 archery
-pandoc-include
 dateutils
 multipart
 filelock
 Mako
 pandocfilters
+pandoc-include
 panflute
 passlib
 python-dateutil

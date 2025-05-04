@@ -7,8 +7,10 @@ from json import dumps, loads
 from html.parser import HTMLParser
 from base64 import b64encode, b64decode
 from urllib.parse import parse_qsl, urlparse
-from os import chdir
-from subprocess import run, PIPE
+import os
+from time import sleep
+from shutil import copy
+from subprocess import run, PIPE, Popen
 from urllib.parse import unquote, quote
 import traceback
 from  http.cookies import SimpleCookie as Cookie
@@ -16,7 +18,6 @@ from uuid import UUID as  UUIDM # conflict with sqlachemy
 from datetime import datetime as dt, UTC, timezone
 import sys
 from zlib import adler32
-import os
 # external dependencies
 # lightweight
 import magic
@@ -46,6 +47,11 @@ DSN=f"{DB_DRIVER}://{DB_DRIVER == 'sqlite' and not DB.startswith('/') and '/' or
 engine = create_engine(DSN)
 if not database_exists(engine.url):
     create_database(engine.url)
+
+# pandoc.css needs to be in assets to be served, but assets may be erased
+
+if not os.path.isfile(os.path.join("assets","pandoc.css")):
+    copy("pandoc.css", "assets")
 
 
 tables = dict()
@@ -267,7 +273,6 @@ def simple_app(environ, start_response):
                         log("panpan")
                         fo["result"] = "deleted"
                         if table == "annexe":
-                            log("femme de ménage")
                             os.system(f"""rm "assets/{DB_SHORT}.annexe.{fo["id"]}" """)
                     except Exception as e:
                         log(e)
@@ -325,6 +330,7 @@ def simple_app(environ, start_response):
         route="index"
     to_write=""
     if m:=re.match(f"""{DB_SHORT}\\.(\\d+)\\.html""", route) :
+        log("cme")
         if not os.path.isfile(os.path.join("assets", route)):
             route="doc"
             fo["id"] = m.group(1)
@@ -335,7 +341,8 @@ def simple_app(environ, start_response):
                     fo["text"] = quote(s[0])
     if route == "doc" :
         os.chdir("assets")
-        run([ "pandoc", "-" , "--standalone", "--mathml", "-s", "-F", os.path.join(__DIR__,"graphviz.py"), "-F", "pandoc-include", "-c" ,"../pandoc.css","--metadata", "title=",  "-o" ,f"""./{DB_SHORT}.{fo["id"]}.html""" ], input=unquote(fo.get("text","")).encode(), stdout=PIPE)
+        log("tu vois pas")
+        run([ "pandoc", "-" , "--standalone", "--mathml", "-s", "-F", os.path.join(__DIR__,"graphviz.py"), "-F", "pandoc-include", "-c" ,"./pandoc.css","--metadata", "title=",  "-o" ,f"""./{DB_SHORT}.{fo["id"]}.html""" ], input=unquote(fo.get("text","")).encode(), stdout=PIPE)
         os.chdir("..")
         start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
         return [ open(f"""./assets/{DB_SHORT}.{fo["id"]}.html""", "rt").read().encode() ]
@@ -351,14 +358,28 @@ def simple_app(environ, start_response):
         # return in fo["_next"] next text by book order else actual_one+1
 # https://stackoverflow.com/questions/2184043/sqlite-select-next-and-previous-row-based-on-a-where-clause
 
-    log("srs?")
+
+    if route in { "book", "pdf" }:
+        # regenerate image
+        with engine.connect() as cnx:
+
+            from sqlalchemy import text
+            for s in cnx.execute(text(f"""select id, annexe_file from annexe """)):
+                _id, annexe_file = s 
+                log("writing annexe %s" % _id)
+                if content := re.match(".*;base64,(.*)$", annexe_file):
+                    with open(f"assets/{DB_SHORT}.annexe.{_id}", "bw") as f:
+                        f.write(b64decode(content.group(1)))
+
     if route == "book":
         log(f"DB={DB}", ln = line())
         os.system(f"""DB={DB} PDF= ./mkdoc.sh""")
         os.system(f"""cd assets && ../filter.py "{DB_SHORT}.book.html" > "{DB_SHORT}.book.shtml" """)
 
     if route == "pdf":
+        log("tu vois?")
         os.system(f"""DB={DB} PDF=1 ./mkdoc.sh""")
+
 
     if route == "svg":
         with FileLock('out.dot.lock'):
