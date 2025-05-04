@@ -1,4 +1,4 @@
-FROM debian:sid
+FROM debian
 ARG DB
 ENV DB $DB
 ENV LANG C.UTF-8
