@@ -367,8 +367,10 @@ def simple_app(environ, start_response):
             for s in cnx.execute(text(f"""select id, annexe_file from annexe """)):
                 _id, annexe_file = s 
                 log("writing annexe %s" % _id)
-                if content := re.match(".*;base64,(.*)$", annexe_file):
+                if content := re.match(".*;[ ]?base64,(.*)$", annexe_file):
                     with open(f"assets/{DB_SHORT}.annexe.{_id}", "bw") as f:
+                        if not b64decode(content.group(1)):
+                            log("b64decoding went bad")
                         f.write(b64decode(content.group(1)))
 
     if route == "book":
