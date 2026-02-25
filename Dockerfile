@@ -1,7 +1,7 @@
 FROM debian
 ARG DB
-ENV DB $DB
-ENV LANG C.UTF-8
+ENV DB=$DB
+ENV LANG=C.UTF-8
 RUN mkdir -p /scam/assets
 RUN mkdir -p /usr/share/man/man1 && mkdir -p /usr/share/man/man7
 RUN echo 'APT::Cache-Start 100000000;' > /etc/apt/apt.conf.d/00podman
@@ -30,5 +30,6 @@ ENV PYTHONPATH=/venv/bin
 RUN /venv/bin/python -m pip install --no-cache-dir \
     --disable-pip-version-check -r /scam/requirements.full.txt
 EXPOSE 5000
+SHELL ["/bin/bash", "-c"]
 CMD . /venv/bin/activate && cd /scam \
     && DB=${DB:-scam} /venv/bin/python /scam/scam.py
