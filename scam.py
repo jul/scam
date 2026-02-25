@@ -342,7 +342,7 @@ def simple_app(environ, start_response):
     if route == "doc" :
         os.chdir("assets")
         log("tu vois pas")
-        run([ "pandoc", "-" , "--standalone", "--mathml", "-s", "-F", os.path.join(__DIR__,"graphviz.py"), "-F", "pandoc-include", "-c" ,"./pandoc.css","--metadata", "title=",  "-o" ,f"""./{DB_SHORT}.{fo["id"]}.html""" ], input=unquote(fo.get("text","")).encode(), stdout=PIPE)
+        run([ "pandoc", "-" , "--embed-resource", "--mathml", "-s", "-F", os.path.join(__DIR__,"graphviz.py"), "-F", "pandoc-include",'--toc', "-c" ,"./pandoc.css","--metadata", "title=",  "-so" ,f"""./{DB_SHORT}.{fo["id"]}.html""" ], input=unquote(fo.get("text","")).encode(), stdout=PIPE)
         os.chdir("..")
         start_response('200 OK', [('Content-type', 'text/html; charset=utf-8')])
         return [ open(f"""./assets/{DB_SHORT}.{fo["id"]}.html""", "rt").read().encode() ]
@@ -376,7 +376,6 @@ def simple_app(environ, start_response):
     if route == "book":
         log(f"DB={DB}", ln = line())
         os.system(f"""DB={DB} PDF= ./mkdoc.sh""")
-        os.system(f"""cd assets && ../filter.py "{DB_SHORT}.book.html" > "{DB_SHORT}.book.shtml" """)
 
     if route == "pdf":
         log("tu vois?")

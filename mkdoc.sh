@@ -39,8 +39,8 @@ if [ ! -z "$PDF" ]; then
     pandoc "${DB_SHORT}.book.pdf.md"  $TOC --pdf-engine=xelatex  \
         -so "${DB_SHORT}.book.pdf"
 else
-    pandoc "${DB_SHORT}.book.html.md" --mathml $TOC \
-        -c ./pandoc.css -so "${DB_SHORT}.book.html"
+    pandoc "${DB_SHORT}.book.html.md" --embed-resources  --mathml $TOC \
+        -c ./pandoc.css  -so "${DB_SHORT}.book.html"
 fi
 cd ..
 
