@@ -41,6 +41,8 @@ if [ ! -z "$PDF" ]; then
 else
     pandoc "${DB_SHORT}.book.html.md" --embed-resources  --mathml $TOC \
         -c ./pandoc.css  -so "${DB_SHORT}.book.html"
+    pandoc "${DB_SHORT}.book.html.md" --embed-resources  --mathml $TOC \
+        -c ./pandoc.css  -so "${DB_SHORT}.book.epub"
 fi
 cd ..
 

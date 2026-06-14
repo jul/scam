@@ -5,6 +5,9 @@
 </style>
 <script>
 $(document).ready(() => {
+    $("#tt").on("scroll keyup ", function () {
+      $($("#iframe").contents()).scrollTop($("#tt").scrollTop()*$($("#iframe").contents()).innerHeight()/$("#tt").innerHeight());
+    });
     $(document).bind("keydown", function(e){
         if(e.ctrlKey && e.which == 83){
             e.preventDefault()
@@ -18,7 +21,7 @@ $(document).ready(() => {
     comment_id = ${fo.get("id",[0])[0]} ?  ${fo.get("id",[0])[0]} : $($("[name=id]", $($("form")[0]))).val()
     $($("[name=id]", $($("form")[1]))).val(comment_id)
     $($("form")[0]).each((i,el) => {
-        $(el).append("<input name=_action type=submit action=" + el.action +" value=update > <input name=_action type=submit value=delete >")
+        $(el).append("<input name=_action type=submit action=" + el.action +" value=update >")
         $(el).append("<input name=_action type=submit action=" + el.action +" value=load >")
 
     });
@@ -98,13 +101,14 @@ $(document).ready(() => {
 
    <div id=comment >
    </div>
+   <a target=blank href="/${fo["_DB"][0]}.${fo.get("id", [1])[0]}.html">html view</a>
    <div>
    annexe : <span id=annexe_name > ${fo["_DB"][0]}.annexe.${fo.get("id", [1])[0]} </span> <br>
    <embed ${fo.get("id") and f"""src='{fo["_DB"][0]}.annexe.{fo["id"][0]}'"""}  >
 
    </div>
    <div class=left>
-    <form action=/text >
+    <form action="/text" method=post >
 
         <input type=hidden name="_redirect" value="" >
 
@@ -112,7 +116,7 @@ $(document).ready(() => {
         <input type=number name=book_order >
         <input type=hidden name=user_id value=${fo["_user_id"][0]}  >
         <input type=hidden name=comment_id value="" >
-        <textarea name=text rows=20 cols=80 nullable=false ></textarea>
+        <textarea id=tt name=text rows=20 cols=80 nullable=false ></textarea>
    </form>
    <br>
     <form action=/annexe >
@@ -123,5 +127,5 @@ $(document).ready(() => {
         <input name=_action type=submit value=delete >
     </form>
    </div>
-   <iframe id=iframe width=50% height=100% style=right:0 src="/${fo["_DB"][0]}.${fo.get("id", [1])[0]}.html" >
+   <iframe id=iframe width=50% height=100% style="right:0;" src="/${fo["_DB"][0]}.${fo.get("id", [1])[0]}.html" >
    </iframe>

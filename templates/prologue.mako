@@ -1,6 +1,8 @@
 <style>
 * {    font-family: sans-serif }
 body { text-align: center;background:#f5f5ff; }
+#iframe { display:block;z-index:10;position:absolute }
+#tt { position:relative;z-index:10;}
 div, table { background:#f5f5ff;border-spacing:0;text-align:left;width:40em;margin:auto;border-radius:.5em;margin-bottom:1em;padding-left:.5em; }
 tbody tr:nth-child(odd) {  background-color: #ccd;}
 fieldset {margin:auto; box-shadow: 2px 2px 4px #113; border: 1px solid #666;  border-radius: .5em; width: 30em;  background:#eef; }
